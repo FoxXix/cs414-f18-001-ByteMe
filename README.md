@@ -1,14 +1,14 @@
 # cs414-f18-001-ByteMe
  Banqi Game Project for CS 414: Object Oriented Design at Colorado State University
  
-# Byteme : Banqi Game
+# Byteme : Team Members
 * Joshua Henry
 * Alex Hinterlong
 * Brian Martin
 * Stephen Porsche
 * Evan Salzman
-
-# Banqi Setup
+# Playing Banqi
+## Banqi Setup
 * 4x8 game board
 * 32 total pieces
     * 16 per side (red/black)
@@ -27,7 +27,7 @@
     * Cannon , 2
     * Soldier, 5
 
-# Banqi Rules
+## Banqi Rules
 * Each player takes turns making a move
 * A valid move can be either:
     * Flipping a piece over
