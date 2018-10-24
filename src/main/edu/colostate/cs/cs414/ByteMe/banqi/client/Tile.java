@@ -23,6 +23,10 @@ public class Tile {
 		piece = P;
 	}
 	
+	public void clearPiece() {
+		piece = null;
+	}
+	
 	public boolean isEmpty() {
 		return piece == null;
 	}
