@@ -30,4 +30,9 @@ public class Tile {
 	public boolean isEmpty() {
 		return piece == null;
 	}
+
+	public Piece getPiece(int x, int y) {
+		// TODO Auto-generated method stub
+		return null;
+	}
 }

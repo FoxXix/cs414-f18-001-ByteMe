@@ -9,7 +9,7 @@ public class Cannon implements Piece{
 	String name = "Cannon";
 	int rank = 1;
 
-	Cannon(String color, int x, int y) {
+	public Cannon(String color, int x, int y) {
 		this.color =  color;
 		X_position = x;
 		Y_position = y;

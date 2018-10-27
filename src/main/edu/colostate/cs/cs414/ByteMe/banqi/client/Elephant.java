@@ -9,7 +9,7 @@ public class Elephant implements Piece{
 	String name = "Elephant";
 	int rank = 5;
 
-	Elephant(String color, int x, int y) {
+	public Elephant(String color, int x, int y) {
 		this.color =  color;
 		X_position = x;
 		Y_position = y;

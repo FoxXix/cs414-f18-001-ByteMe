@@ -9,7 +9,7 @@ public class General implements Piece{
 	String name = "General";
 	int rank = 7;
 
-	General(String color, int x, int y) {
+	public General(String color, int x, int y) {
 		this.color =  color;
 		X_position = x;
 		Y_position = y;

@@ -9,7 +9,7 @@ public class Soldier implements Piece{
 	String name = "Soldier";
 	int rank = 2;
 
-	Soldier(String color, int x, int y) {
+	public Soldier(String color, int x, int y) {
 		this.color =  color;
 		X_position = x;
 		Y_position = y;

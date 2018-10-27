@@ -9,7 +9,7 @@ public class Advisor implements Piece{
 	String name = "Advisor";
 	int rank = 6;
 
-	Advisor(String color, int x, int y) {
+	public Advisor(String color, int x, int y) {
 		this.color =  color;
 		X_position = x;
 		Y_position = y;

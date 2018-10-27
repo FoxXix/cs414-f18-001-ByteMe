@@ -9,7 +9,7 @@ public class Horse implements Piece{
 	String name = "Horse";
 	int rank = 3;
 
-	Horse(String color, int x, int y) {
+	public Horse(String color, int x, int y) {
 		this.color =  color;
 		X_position = x;
 		Y_position = y;

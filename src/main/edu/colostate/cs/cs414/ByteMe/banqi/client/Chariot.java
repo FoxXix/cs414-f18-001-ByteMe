@@ -9,7 +9,7 @@ public class Chariot implements Piece{
 	String name = "Chariot";
 	int rank = 4;
 
-	Chariot(String color, int x, int y) {
+	public Chariot(String color, int x, int y) {
 		this.color =  color;
 		X_position = x;
 		Y_position = y;
