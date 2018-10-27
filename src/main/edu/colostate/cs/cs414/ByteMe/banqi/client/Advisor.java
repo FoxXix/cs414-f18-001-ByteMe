@@ -2,15 +2,17 @@ package main.edu.colostate.cs.cs414.ByteMe.banqi.client;
 
 public class Advisor implements Piece{
 	
-	int X_position = -1;
-	int Y_position = -1;
-	boolean isCaptured = true;
-	String color = "Blank";
+	int X_position;
+	int Y_position;
+	boolean isCaptured = false;
+	String color;
 	String name = "Advisor";
 	int rank = 6;
 
 	Advisor(String color, int x, int y) {
-		
+		this.color =  color;
+		X_position = x;
+		Y_position = y;
 	}
 
 	@Override
