@@ -1,10 +1,24 @@
 package main.edu.colostate.cs.cs414.ByteMe.banqi.client;
 
-public class Cannon extends Piece{
+public class Cannon implements Piece{
+	
+	int X_position;
+	int Y_position;
+	boolean isCaptured = false;
+	String color;
+	String name = "Cannon";
+	int rank = 1;
 
-	Cannon(String name, String color, int rank) {
-		super("Cannon", color, 1);
-		// TODO Auto-generated constructor stub
+	Cannon(String color, int x, int y) {
+		this.color =  color;
+		X_position = x;
+		Y_position = y;
+	}
+
+	@Override
+	public boolean movePiece() {
+		// TODO Auto-generated method stub
+		return false;
 	}
 
 }

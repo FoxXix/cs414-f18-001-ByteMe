@@ -1,10 +1,24 @@
 package main.edu.colostate.cs.cs414.ByteMe.banqi.client;
 
-public class Soldier extends Piece{
+public class Soldier implements Piece{
+	
+	int X_position;
+	int Y_position;
+	boolean isCaptured = false;
+	String color;
+	String name = "Soldier";
+	int rank = 2;
 
-	Soldier(String name, String color, int rank) {
-		super("Soldier", color, 2);
-		// TODO Auto-generated constructor stub
+	Soldier(String color, int x, int y) {
+		this.color =  color;
+		X_position = x;
+		Y_position = y;
+	}
+
+	@Override
+	public boolean movePiece() {
+		// TODO Auto-generated method stub
+		return false;
 	}
 
 }
