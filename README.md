@@ -2,8 +2,6 @@
  Banqi Game Project for CS 414: Object Oriented Design at Colorado State University
  
 # Byteme : Team Members
-* Joshua Henry
-* Alex Hinterlong
 * Brian Martin
 * Stephen Porsche
 * Evan Salzman
