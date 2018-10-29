@@ -11,11 +11,11 @@ import main.edu.colostate.cs.cs414.ByteMe.banqi.client.UserProfile;
 class UserTest {
 
 	static User user;
-	UserProfile up;
+	static UserProfile up;
 
 	@BeforeClass
 	public static void initialize(){
-		user = new User();
+		user = new User(up);
     }
 
 	@Test
@@ -25,7 +25,7 @@ class UserTest {
 	
 	@Test
 	void seeProfileTest() {
-		up = user.getProfile("Test");
+		up = user.seeProfile("Test");
 		assertNotNull(up);
 	}
 	

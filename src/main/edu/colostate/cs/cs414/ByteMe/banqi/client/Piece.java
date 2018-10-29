@@ -4,7 +4,7 @@ public interface Piece {
 	
 	int X_position = -1;
 	int Y_position = -1;
-	boolean isCaptured = true;
+	boolean isCaptured = false;
 	String color = "Blank";
 	String name = "Piece";
 	int rank = 0;
