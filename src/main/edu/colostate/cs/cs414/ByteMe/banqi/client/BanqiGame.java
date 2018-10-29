@@ -7,7 +7,10 @@ import java.util.Random;
 public class BanqiGame {
 
 	private Board board;
-	private UserProfile userProfile;
+	private User user1;
+	private User user2;
+	private UserProfile userProfile1;
+	private UserProfile userProfile2;
 	private int emptyTiles = 32;
 	
 	public BanqiGame() {
@@ -29,7 +32,6 @@ public class BanqiGame {
 	}
 
 	public void recordStats() {
-		
 		
 	}
 
