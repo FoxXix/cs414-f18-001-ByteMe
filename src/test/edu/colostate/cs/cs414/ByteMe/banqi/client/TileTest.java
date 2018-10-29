@@ -25,7 +25,7 @@ class TileTest {
 	
 	@Test
 	void getPieceTest() {
-		piece = tile.getPiece(1,1);
+		piece = tile.getPiece();
 		assertNotNull(piece);
 	}
 

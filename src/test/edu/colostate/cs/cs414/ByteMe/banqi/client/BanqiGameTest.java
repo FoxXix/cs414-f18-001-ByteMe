@@ -30,8 +30,8 @@ class BanqiGameTest {
 	}
 	
 	@Test
-	void playGameTest() {
-		game.playGame();
+	void makeMoveTest() {
+		game.makeMove();
 		assertNotNull(game.getBoard());
 		
 	}
@@ -40,6 +40,12 @@ class BanqiGameTest {
 	void recordStatsTest() {
 		game.recordStats();
 		assertNotNull(game.getBoard());
+		
+	}
+	
+	@Test
+	void getStateOfBoardTest() {		
+		assertTrue(game.getStateOfBoard());
 		
 	}
 
