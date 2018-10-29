@@ -31,8 +31,7 @@ public class Tile {
 		return piece == null;
 	}
 
-	public Piece getPiece(int x, int y) {
-		// TODO Auto-generated method stub
-		return null;
+	public Piece getPiece() {		
+		return piece;
 	}
 }

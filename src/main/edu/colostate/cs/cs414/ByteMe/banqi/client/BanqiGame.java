@@ -5,6 +5,10 @@ public class BanqiGame {
 	private Board board;
 	private UserProfile userProfile;
 	
+	public BanqiGame() {
+		board = new Board();
+	}
+	
 	public Board getBoard() {
 		return board;
 	}
@@ -14,7 +18,7 @@ public class BanqiGame {
 		
 	}
 
-	public void playGame() {
+	public void makeMove() {
 		// TODO Auto-generated method stub
 		
 	}
@@ -22,6 +26,10 @@ public class BanqiGame {
 	public void recordStats() {
 		// TODO Auto-generated method stub
 		
+	}
+
+	public boolean getStateOfBoard() {
+		return false;		
 	}
 
 }
