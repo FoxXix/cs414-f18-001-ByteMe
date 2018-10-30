@@ -5,6 +5,7 @@ public class Elephant implements Piece{
 	int X_position;
 	int Y_position;
 	boolean isCaptured = false;
+	boolean visible = false;
 	String color;
 	String name = "Elephant";
 	int rank = 5;
@@ -21,4 +22,23 @@ public class Elephant implements Piece{
 		return false;
 	}
 
+	@Override
+	public String getName() {
+		return name;
+	}
+
+	@Override
+	public String getColor() {
+		return color;
+	}
+	
+	@Override
+	public void makeVisible() {
+		visible = true;
+	}
+
+	@Override
+	public boolean isVisible() {
+		return visible;
+	}
 }

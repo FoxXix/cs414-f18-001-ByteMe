@@ -29,8 +29,8 @@ public class Board {
 		return getTileInfo(position);		
 	}
 	
-	public Tile getTileInfo(int [] position) {		
-		return boardTiles.get(position[0]).get(position[1]);
+	public Tile getTileInfo(int [] position) {
+		return boardTiles.get(position[1]).get(position[0]);
 	}
 
 }

@@ -108,7 +108,7 @@ public class BanqiGame {
 		if (emptyTiles == 0)
 			return null;
 		Tile t;
-		Random rand = null;
+		Random rand = new Random();
 		int y;
 		int x;
 		do {
@@ -147,5 +147,34 @@ public class BanqiGame {
 	private Soldier getSoldier(String color, int[] position) {
 		return new Soldier(color, position[0], position[1]);
 	}
+	
+	public void printBoard() {
+		Tile t;
+		System.out.flush();
+		for (int y = 0; y < 8; y++) {
+			System.out.println("---------------------------------------------------------------------------------");
+			for (int x = 0; x < 4; x++) {
+				t = board.getTileInfo(x, y);
+				if (t.getPiece().isVisible()) {
+					System.out.format("%-20s", "|   " + t.getPiece().getName() + "-" + t.getPiece().getColor());
+				} else if (t.getPiece() == null) {
+					System.out.format("%-20s", "|");
+				} else {
+					System.out.format("%-20s", "|         X");
+				}
+			}
+			System.out.print("|");
+			System.out.print("\n");
+		}
+		System.out.println("---------------------------------------------------------------------------------");
+    }
+	
+	public static void main(String[] args) 
+    { 
+		BanqiGame b = new BanqiGame();
+		b.setUpBoard();
+		b.printBoard();
+    } 
+	
 
 }
