@@ -26,7 +26,7 @@ public class User {
 	}
 
 	public void initiateGame() {
-		// TODO Auto-generated method stub
+		BanqiGame game = new BanqiGame();
 		
 	}
 
