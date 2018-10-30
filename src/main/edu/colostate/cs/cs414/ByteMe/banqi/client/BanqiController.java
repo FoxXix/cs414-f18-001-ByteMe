@@ -14,14 +14,27 @@ import java.util.List;
 public class BanqiController {
 
 	private String profilesFile;
+	//store all created UserProfiles
 	protected List<UserProfile> listOfProfiles = new ArrayList<UserProfile>();
 	User U;
 	
+	//read user inputs
 	private static BufferedReader read;
 
 	public static void main(String args[]) throws IOException {
 		BanqiController banqi = new BanqiController(args[0]);
-		banqi.readUsers();
+		banqi.runProgram();
+	}
+
+	//constructor
+	public BanqiController(String file) {
+		this.profilesFile = file;
+	}
+	
+	//Method that runs the program to completion
+	private void runProgram() throws IOException {
+		readUsers();
+		
 		read = new BufferedReader(new InputStreamReader(System.in));
 		System.out.println("Welcome to Banqi game!");
 		boolean b = false;
@@ -34,9 +47,9 @@ public class BanqiController {
 
 			// attempt log-in
 			if (choice.equals("1")) {
-				banqi.initialize();
+				initialize();
 			} else if (choice.equals("2")) {
-				banqi.makeNewUser();
+				makeNewUser();
 			} else if (choice.equals("exit")) {
 				b = true;
 			} else {
@@ -44,10 +57,6 @@ public class BanqiController {
 			}
 		}
 		read.close();
-	}
-
-	public BanqiController(String file) {
-		this.profilesFile = file;
 	}
 
 	// reads the Users file and adds them to the list of Profiles
@@ -73,14 +82,16 @@ public class BanqiController {
 				} else if (i == 2) {
 					pass = parts[i];
 				} else if (i == 3) {
-					date = parts[i];
+					date = parts[i] + " ";
 				} else if (i == 4) {
-					wins = Integer.parseInt(parts[i]);
+					date += parts[i];
 				} else if (i == 5) {
-					losses = Integer.parseInt(parts[i]);
+					wins = Integer.parseInt(parts[i]);
 				} else if (i == 6) {
-					draws = Integer.parseInt(parts[i]);
+					losses = Integer.parseInt(parts[i]);
 				} else if (i == 7) {
+					draws = Integer.parseInt(parts[i]);
+				} else if (i == 8) {
 					forf = Integer.parseInt(parts[i]);
 				} else {
 					System.out.println("There shouldn't be anything more on this line");
@@ -96,14 +107,14 @@ public class BanqiController {
 	// login mechanism - if your profile exists, log-in
 	// else - create profile
 	public void initialize() throws IOException {
-		System.out.println(listOfProfiles.size());
-		for(UserProfile t : listOfProfiles) {
-			System.out.println(t.getUserName());
-		}
+//		System.out.println(listOfProfiles.size());
+//		for(UserProfile t : listOfProfiles) {
+//			System.out.println(t.getUserName());
+//		}
 		String name = "";
 		System.out.println("Please Enter your nickname");
 		name = read.readLine();
-		System.out.println("name is: " + name);
+		System.out.println("name entered is: " + name);
 		UserProfile profile = getOwnUser(name);
 //		System.out.println("new Profile: " + profile);
 		if (profile != null) {
@@ -114,7 +125,6 @@ public class BanqiController {
 	}
 
 	// load your personal user profile
-	// if it does not exist, create a new UserProfile
 	private UserProfile getOwnUser(String nickname) throws IOException {
 		for (UserProfile prof : listOfProfiles) {
 //			System.out.println("UserName is: " + prof.getUserName());
@@ -130,6 +140,7 @@ public class BanqiController {
 		return null;
 	}
 
+	//have user enter password and check that it matches the given password in UserProfile
 	private boolean enterCredentials(UserProfile prof) throws IOException {
 		int count = 0;
 		while (count < 3) {
@@ -155,8 +166,6 @@ public class BanqiController {
 		String password = "";
 
 		// Enter data using BufferReader
-
-
 		System.out.println("Please Enter a Nickname:");
 		nickname = read.readLine();
 
@@ -187,6 +196,7 @@ public class BanqiController {
 
 	}
 
+	//write the new profile to the master file
 	private void writeToFile(UserProfile u) {
 		String s = u.getUserName() + " " + u.getEmail() + " " + u.getPassword() + " " + u.getJoinedDate()
 		 + " " + u.getWins() + " " + u.getLosses() + " " + u.getDraws() + " " + u.getForfeits();
