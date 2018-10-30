@@ -42,4 +42,8 @@ public class Soldier implements Piece{
 		return visible;
 	}
 
+	@Override
+	public int getRank() {
+		return rank;
+	}
 }

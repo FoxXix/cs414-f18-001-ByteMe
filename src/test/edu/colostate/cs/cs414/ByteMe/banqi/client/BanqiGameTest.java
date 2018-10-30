@@ -2,6 +2,8 @@ package test.edu.colostate.cs.cs414.ByteMe.banqi.client;
 
 import static org.junit.jupiter.api.Assertions.*;
 
+import java.io.IOException;
+
 import org.junit.BeforeClass;
 import org.junit.jupiter.api.Test;
 
@@ -30,7 +32,7 @@ class BanqiGameTest {
 	}
 	
 	@Test
-	void makeMoveTest() {
+	void makeMoveTest() throws IOException {
 		game.makeMove();
 		assertNotNull(game.getBoard());
 		

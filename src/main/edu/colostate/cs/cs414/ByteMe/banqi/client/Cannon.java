@@ -41,4 +41,9 @@ public class Cannon implements Piece{
 	public boolean isVisible() {
 		return visible;
 	}
+	
+	@Override
+	public int getRank() {
+		return rank;
+	}
 }
