@@ -31,34 +31,6 @@ public class BanqiController {
 		this.profilesFile = file;
 	}
 	
-	//Method that runs the program to completion
-	private void runProgram() throws IOException {
-		readUsers();
-		
-		read = new BufferedReader(new InputStreamReader(System.in));
-		System.out.println("Welcome to Banqi game!");
-		boolean b = false;
-		while (b == false) {
-			System.out.println("To log in enter '1' and press Enter");
-			System.out.println("To create a profile, enter '2' and press Enter");
-			System.out.println("To exit, type 'exit' and press Enter");
-
-			String choice = read.readLine();
-
-			// attempt log-in
-			if (choice.equals("1")) {
-				initialize();
-			} else if (choice.equals("2")) {
-				makeNewUser();
-			} else if (choice.equals("exit")) {
-				b = true;
-			} else {
-				System.out.println("Input not recognized");
-			}
-		}
-		read.close();
-	}
-
 	// reads the Users file and adds them to the list of Profiles
 	private void readUsers() throws IOException {
 		FileReader file = new FileReader(profilesFile);
@@ -101,7 +73,35 @@ public class BanqiController {
 			listOfProfiles.add(us);
 		}
 		buff.close();
+	
+	}
 
+	//Method that runs the program to completion
+	private void runProgram() throws IOException {
+		readUsers();
+		
+		read = new BufferedReader(new InputStreamReader(System.in));
+		System.out.println("Welcome to Banqi game!");
+		boolean b = false;
+		while (b == false) {
+			System.out.println("To log in enter '1' and press Enter");
+			System.out.println("To create a profile, enter '2' and press Enter");
+			System.out.println("To exit, type 'exit' and press Enter");
+
+			String choice = read.readLine();
+
+			// attempt log-in
+			if (choice.equals("1")) {
+				initialize();
+			} else if (choice.equals("2")) {
+				makeNewUser();
+			} else if (choice.equals("exit")) {
+				b = true;
+			} else {
+				System.out.println("Input not recognized");
+			}
+		}
+		read.close();
 	}
 
 	// login mechanism - if your profile exists, log-in
