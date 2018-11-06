@@ -12,6 +12,8 @@ public class Tile {
 		Y_position = Y;
 	}
 	
+	/*Provides the current position of a Piece on the Game Board.
+	The position is given in the form of x and y coordinates on the 4x8 board. */
 	public int[] getPosition() {
 		int [] position = new int[2];
 		position[0] = X_position;
@@ -23,6 +25,9 @@ public class Tile {
 		piece = P;
 	}
 	
+	/*When a piece is captured by a piece that can capture it from the opposing team,
+	the piece is cleared from the board.  At this point, the given piece is no longer active in the game,
+	so it is set to null as it does not physically or visually exist in the game anymore. */
 	public void clearPiece() {
 		piece = null;
 	}
