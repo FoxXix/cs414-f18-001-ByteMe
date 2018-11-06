@@ -1,0 +1,4 @@
+language: java
+
+script:
+  javac src/main/edu/colostate/cs/cs414/ByteMe/banqi/client/*.java
