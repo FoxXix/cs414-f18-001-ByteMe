@@ -7,6 +7,7 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Random;
+import java.util.Scanner;
 
 public class BanqiGame {
 
@@ -17,7 +18,9 @@ public class BanqiGame {
 	private UserProfile userProfile2;
 	private int emptyTiles = 32;
 	
-	HashMap<String, String> map = new HashMap<>(); 
+	HashMap<String, String> map = new HashMap<>();
+	Scanner scanner = new Scanner( System.in );
+	Tile atTile;
 	
 	public BanqiGame(User u1, User u2) {
 		board = new Board();
@@ -45,40 +48,33 @@ public class BanqiGame {
 			System.out.println("You are: " + getColor(user.getNickname()));
 		}
 		
-		BufferedReader read = new BufferedReader(new InputStreamReader(System.in));
-
-		boolean b = false;
-		while (b == false) {			
-			String choice;
+		String choice;
+		boolean go = false;	
+		boolean f = false;
 			
-			do {
-				System.out.println("Enter a coordinate to select a piece.");
-				System.out.println("To forfeit, type 'forfeit' and press Enter");
-				choice = read.readLine();				
-				if (choice.length() != 2)
-					System.out.println("Input not recognized");
-				else if ("1234ABCDEFGH".indexOf(choice.charAt(0)) == -1 || "1234ABCDEFGH".indexOf(choice.charAt(1)) == -1) {
-						System.out.println("Invalid coordinate");
-				} else if (choice.equals("forfeit")) {
-					b = true;
-					break;
-				} else {
-					System.out.println("Input not recognized");
-				}
-			} while ("1234ABCDEFGH".indexOf(choice.charAt(0)) == -1 || "1234ABCDEFGH".indexOf(choice.charAt(1)) == -1);
-			
-			int x = -1, y = -1;
-			if ("1234".indexOf(choice.charAt(0)) != -1){
-				x = (int)choice.charAt(0) - 49;
-				y = (int)choice.charAt(1) - 65;
+		do {
+			System.out.println("Enter a coordinate to select a piece.");
+			System.out.println("To forfeit, type 'forfeit' and press Enter");
+			choice = scanner.nextLine();				
+			if (choice.length() != 2)   // not the right length
+				System.out.println("Input not recognized");
+			else if ("1234ABCDEFGH".indexOf(choice.charAt(0)) == -1 || "1234ABCDEFGH".indexOf(choice.charAt(1)) == -1) { // not valid character
+					System.out.println("Invalid coordinate");
+			} else if (choice.equals("forfeit")) { // forfeit
+				go = true;
+				f = true;
+			} else if (board.getTileInfo(getPosition(choice)).getPiece().isVisible() &&
+					board.getTileInfo(getPosition(choice)).getPiece().getColor() != getColor(user.getNickname())) { // picked opposite color AND it's visisble
+				System.out.println("That's not your piece! Try again!");
 			} else {
-				x = (int)choice.charAt(1) - 49;
-				y = (int)choice.charAt(0) - 65;
+				go = true; // all looks good, go!
 			}
+		} while (go == false);
+		
+		if (!f) {
+			int[] atPosition = getPosition(choice);
 			
-			int[] atPosition = {x,y};
-			
-			Tile atTile = board.getTileInfo(atPosition);
+			atTile = board.getTileInfo(atPosition);
 			
 			if (!atTile.getPiece().isVisible()) {
 				atTile.getPiece().makeVisible();
@@ -93,20 +89,22 @@ public class BanqiGame {
 					} else {
 						setColor(user1.getNickname(), oppositeColor);
 					}
-				}
-				
-				b = true;
+				}			
+				printBoard();
 			} 
 			else {
 				do {
 					System.out.println("What direction do you want to move " + atTile.getPiece().getName() + "? (Up/Down/Left/Right)");
 					
-					choice = read.readLine();	
+					choice = scanner.nextLine();
 					
 					if ("udlrUDLR".indexOf(choice.charAt(0)) == -1) {
 						System.out.println("Move unknown");
 					}
 				} while ("udlrUDLR".indexOf(choice.charAt(0)) == -1);
+				
+				scanner.close();
+				
 				int[] toPosition = null;
 				switch (choice.charAt(0)) {
 					case 'u':
@@ -126,21 +124,29 @@ public class BanqiGame {
 						toPosition = new int[]{atPosition[0] + 1, atPosition[1]};
 						break;
 				}
-				System.out.println(toPosition[0]);
-				System.out.println(toPosition[1]);
 				if (board.getTileInfo(atPosition).getPiece().getRank() >= board.getTileInfo(toPosition).getPiece().getRank()) {
 					board.getTileInfo(toPosition).setPiece(board.getTileInfo(atPosition).getPiece());
 					board.getTileInfo(atPosition).clearPiece();
-				}
-				
-				b = true;
+				}	
+				printBoard();			
+			}	
+		} else { //forfeit
 			
-				printBoard();
-				
-			}
+		}
+	}
+	
+	private int[] getPosition(String in) {
+		int x = -1, y = -1;
+		if ("1234".indexOf(in.charAt(0)) != -1){
+			x = (int)in.charAt(0) - 49;
+			y = (int)in.charAt(1) - 65;
+		} else {
+			x = (int)in.charAt(1) - 49;
+			y = (int)in.charAt(0) - 65;
 		}
 		
-		read.close();
+		int[] position = {x,y};
+		return position;
 	}
 
 	public void recordStats() {
