@@ -16,7 +16,9 @@ public class BanqiGame {
 	private User user2;
 	private UserProfile userProfile1;
 	private UserProfile userProfile2;
-	private int emptyTiles = 32;
+	private int emptyTiles 	= 32;
+	private int redPieces 	= 16;
+	private int blackPieces = 16;
 	
 	HashMap<String, String> map = new HashMap<>();
 	Scanner scanner = new Scanner( System.in );
@@ -124,7 +126,13 @@ public class BanqiGame {
 						toPosition = new int[]{atPosition[0] + 1, atPosition[1]};
 						break;
 				}
+				// can this piece take the other piece?
 				if (board.getTileInfo(atPosition).getPiece().getRank() >= board.getTileInfo(toPosition).getPiece().getRank()) {
+					if (board.getTileInfo(toPosition).getPiece().getColor() == "Red") { // keep track of # of player pieces
+						redPieces--;
+					} else {
+						blackPieces--;
+					}
 					board.getTileInfo(toPosition).setPiece(board.getTileInfo(atPosition).getPiece());
 					board.getTileInfo(atPosition).clearPiece();
 				}	
