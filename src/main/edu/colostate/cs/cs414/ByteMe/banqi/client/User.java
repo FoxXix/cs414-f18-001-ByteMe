@@ -21,20 +21,23 @@ public class User {
 
 
 	public UserProfile seeProfile(String nickname) {
-
 		return null;
 	}
-
+	
+	/*To be implemented: For purposes of security, the User will eventually need to enter their credentials
+	in order to access components of the system associated with registered users.*/
 	private void enterCredentials() {
 		// TODO Auto-generated method stub
-		
 	}
 
 	public void initiateGame(User invitee) {
 		BanqiGame game = new BanqiGame(this, invitee);
 		
 	}
-
+	
+	/*To be implemented: A User may invite any number of other Users to play a new Banqi Game
+	by providing the nickname of the User they wish to invite.  While they can send out unlimited invites,
+	only the first to accept an invitation can play the game.*/
 	public void sendInvite(String nickname) {
 		// TODO Auto-generated method stub
 		
@@ -44,7 +47,9 @@ public class User {
 		// TODO Auto-generated method stub
 		return null;
 	}
-
+	
+	/*To be implemented: A User will be able to accept or decline an invite
+	and the response will be recorded within the invite and sent to the inviter.*/
 	public Boolean respondToInvite() {
 		// TODO Auto-generated method stub
 		return null;

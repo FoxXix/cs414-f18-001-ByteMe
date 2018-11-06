@@ -35,12 +35,18 @@ public class BanqiGame {
 	public Board getBoard() {
 		return board;
 	}
-
+	
+	/* Calls the setPieces method to add both Red and Black pieces to the Banqi Game Board */
 	public void setUpBoard() {
 		setPieces("Red");
 		setPieces("Black");		
 	}
-
+	
+	/* On the given User's turn, they may make a valid move.
+	If the piece is not visible, it is turned over.
+	If the piece is visible, the User can move up, down, left or right on the board.
+	If the move captures a piece (and meets capturing criteria) the captured piece is removed from the board.
+	By the end, a move has been made with a Piece.*/
 	public void makeMove(User user) throws IOException{
 		
 		System.out.println(user.getNickname() + ", your turn!");
@@ -129,6 +135,11 @@ public class BanqiGame {
 		}
 	}
 	
+	/*This method ensures that a User is selecting a valid move,
+	and that they Piece they are trying to move is of their own color.
+	This way, a User knows if the move can be made prior to entering
+	the makeMove method.
+	*/
 	private boolean startMove(User user) {
 		System.out.println("Enter a coordinate to select a piece.");
 		System.out.println("To forfeit, type 'forfeit' and press Enter");
@@ -163,7 +174,8 @@ public class BanqiGame {
 		int[] position = {x,y};
 		return position;
 	}
-
+	
+	/*To be implemented: Will record the stats of the game to the game's respective Users.*/
 	public void recordStats() {
 		
 	}
@@ -172,6 +184,10 @@ public class BanqiGame {
 		return false;		
 	}
 	
+	/* Assigns and places 16 Pieces for the given color on the Board (red or black pieces).
+	Each of the individual pieces are set up on the board in starting positions.
+	The number of each type of piece is based on the Banqi Game structure. 
+	*/
 	private void setPieces(String color) {
 		List<Piece> pieces = new ArrayList<Piece>();
 		int[] position;
@@ -237,6 +253,10 @@ public class BanqiGame {
 		
 	}
 	
+	/*This is used to ensure that the pieces are assigned randomly to tiles on the Board.
+	When setting the pieces for the game, this is used to find a place to put a given piece.
+	A random, empty tile (without a piece assigned to it) is returned at the end.
+	*/
 	private int[] getRandomEmptyTilePosition() {
 		if (emptyTiles == 0)
 			return null;
@@ -281,6 +301,9 @@ public class BanqiGame {
 		return new Soldier(color, position[0], position[1]);
 	}
 	
+	/*This prints a visual representation of the current board out.  Tiles on the board
+	that have a piece assigned to them have an 'X' and those that are empty have a `-`.
+	The board is printed with this after every move to show the current game board to the Users.*/
 	public void printBoard() {
 		Tile t;
 		System.out.flush();
@@ -314,11 +337,9 @@ public class BanqiGame {
 		return map.get(nickname);
 	}
 	
-	public static void main(String[] args) throws IOException 
-    { 
-
-		UserProfile up1 = new UserProfile("poop", "email", "pass", "date", 0,0,0,0);
-		UserProfile up2 = new UserProfile("pee", "email", "pass", "date", 0,0,0,0);
+	public static void main(String[] args) throws IOException { 
+		UserProfile up1 = new UserProfile("User1", "email", "pass", "date", 0,0,0,0);
+		UserProfile up2 = new UserProfile("User2", "email", "pass", "date", 0,0,0,0);
 		User user1 = new User(up1);
 		User user2 = new User(up2);
 		BanqiGame b = new BanqiGame(user1, user2);

@@ -14,24 +14,22 @@ import java.util.List;
 public class BanqiController {
 
 	private String profilesFile;
-	//store all created UserProfiles
+	//stores all created UserProfiles
 	protected List<UserProfile> listOfProfiles = new ArrayList<UserProfile>();
 	User U;
 	
 	//read user inputs
 	private static BufferedReader read;
 
-	public static void main(String args[]) throws IOException {
-		BanqiController banqi = new BanqiController(args[0]);
-		banqi.runProgram();
-	}
-
 	//constructor
 	public BanqiController(String file) {
 		this.profilesFile = file;
 	}
 	
-	// reads the Users file and adds them to the list of Profiles
+	/* Reads a file for a User  and adds the contents to the list of User Profiles.
+	The file contains the unique account details as well as the user's game performance.
+	With all of the data from this file, a new User Profile gets created.
+	*/
 	private void readUsers() throws IOException {
 		FileReader file = new FileReader(profilesFile);
 		BufferedReader buff = new BufferedReader(file);
@@ -76,7 +74,14 @@ public class BanqiController {
 	
 	}
 
-	//Method that runs the program to completion
+	/* The method controls the entrance into anf exit from the game system as well as registration.
+	While controlling the running of the system, this calls upon other methods to do these tasks.
+	It allows for and connects to the following tasks:
+	  - Log in (for exsiting users) [enter '1']
+	  - Create an account/profile (for new users) [enter '2']
+	  - Log out [enter 'exit']
+	If the input is not one of the previous options, the user is prompted that the input is not recognized.
+	*/
 	private void runProgram() throws IOException {
 		readUsers();
 		
@@ -104,8 +109,11 @@ public class BanqiController {
 		read.close();
 	}
 
-	// login mechanism - if your profile exists, log-in
-	// else - create profile
+	/* This method is called from the runProgram method, for when a User enters '1' for login,
+	the runProgram method calls this, asking the User to enter their nickname.
+	The following checks are done:
+	  - If a profile exists with that nickname, log-in
+	  - Else, the User is prompted that they have no profile and logging in ends*/
 	public void initialize() throws IOException {
 //		System.out.println(listOfProfiles.size());
 //		for(UserProfile t : listOfProfiles) {
@@ -124,7 +132,10 @@ public class BanqiController {
 		}
 	}
 
-	// load your personal user profile
+	/* This method permits a User to view their own Profile, so they can see their game stats.
+	With the entrance of nickname that exists in the system, 
+	the User Profile associated with that nickname is presented to the User.
+	*/
 	private UserProfile getOwnUser(String nickname) throws IOException {
 		for (UserProfile prof : listOfProfiles) {
 //			System.out.println("UserName is: " + prof.getUserName());
@@ -140,7 +151,11 @@ public class BanqiController {
 		return null;
 	}
 
-	//have user enter password and check that it matches the given password in UserProfile
+	/*This method verifies the credentials of a User, to ensure they are registered in the system.
+	In addition it implements a security measure, by giving the User no more than three attempts
+	to enter a valid password.  The verification process is cancelled
+	if the User does not input a password associated with the given nickname.
+	*/
 	private boolean enterCredentials(UserProfile prof) throws IOException {
 		int count = 0;
 		while (count < 3) {
@@ -158,7 +173,14 @@ public class BanqiController {
 		return false;
 	}
 
-	// creates new userProfile and adds the profile to the listOfProfiles
+	/* This implements the functionality needed to register a new User.
+	The User enters:
+	  - a unique nickname (not in the system)
+	  - an email
+	  - a valid password, entered twice for verification
+	The system takes care:
+	  - date/time of the account creation
+	  - creating the new User Profile */
 	private void makeNewUser() throws IOException {
 		boolean passMatch = false;
 		String nickname = "";
@@ -196,7 +218,12 @@ public class BanqiController {
 
 	}
 
-	//write the new profile to the master file
+	/*This writes a new file to the storage system, in order to record the current details
+	of a User Profile.  The file will contain everything on the User Profile:
+	  - nickname, email, password, registration date
+	  - wins, losses, draws, forfeits
+	This file will be stored with the records of the Banqi Game system.
+	*/
 	private void writeToFile(UserProfile u) {
 		String s = u.getUserName() + " " + u.getEmail() + " " + u.getPassword() + " " + u.getJoinedDate()
 		 + " " + u.getWins() + " " + u.getLosses() + " " + u.getDraws() + " " + u.getForfeits();
@@ -208,6 +235,11 @@ public class BanqiController {
 			
 		}
 		
+	}
+	
+	public static void main(String args[]) throws IOException {
+		BanqiController banqi = new BanqiController(args[0]);
+		banqi.runProgram();
 	}
 
 }

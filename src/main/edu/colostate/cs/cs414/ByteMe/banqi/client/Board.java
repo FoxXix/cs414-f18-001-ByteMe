@@ -8,6 +8,8 @@ public class Board {
 	//List<Tile> boardTiles;
 	private List<List<Tile>> boardTiles; 
 	
+	/* Sets up the board to have the appropriate number of tiles .
+	The Banqi Game board is 4x8. */
 	public Board() {
 		boardTiles = new ArrayList<List<Tile>>();
 		
@@ -23,7 +25,9 @@ public class Board {
 			boardTiles.add(row);
 		}
 	}
-
+	
+	/* Provides the given coordinates for the position of the tile on the board
+	and then returns that value. */
 	public Tile getTileInfo(int x, int y) {
 		int [] position = {x,y};
 		return getTileInfo(position);		
