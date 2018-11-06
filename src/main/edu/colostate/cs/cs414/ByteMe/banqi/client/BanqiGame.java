@@ -1,8 +1,6 @@
 package main.edu.colostate.cs.cs414.ByteMe.banqi.client;
 
-import java.io.BufferedReader;
 import java.io.IOException;
-import java.io.InputStreamReader;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -19,10 +17,12 @@ public class BanqiGame {
 	private int emptyTiles 	= 32;
 	private int redPieces 	= 16;
 	private int blackPieces = 16;
+	private boolean f = false;
 	
 	HashMap<String, String> map = new HashMap<>();
 	Scanner scanner = new Scanner( System.in );
 	Tile atTile;
+	String choice;
 	
 	public BanqiGame(User u1, User u2) {
 		board = new Board();
@@ -50,28 +50,7 @@ public class BanqiGame {
 			System.out.println("You are: " + getColor(user.getNickname()));
 		}
 		
-		String choice;
-		boolean go = false;	
-		boolean f = false;
-			
-		do {
-			System.out.println("Enter a coordinate to select a piece.");
-			System.out.println("To forfeit, type 'forfeit' and press Enter");
-			choice = scanner.nextLine();				
-			if (choice.length() != 2)   // not the right length
-				System.out.println("Input not recognized");
-			else if ("1234ABCDEFGH".indexOf(choice.charAt(0)) == -1 || "1234ABCDEFGH".indexOf(choice.charAt(1)) == -1) { // not valid character
-					System.out.println("Invalid coordinate");
-			} else if (choice.equals("forfeit")) { // forfeit
-				go = true;
-				f = true;
-			} else if (board.getTileInfo(getPosition(choice)).getPiece().isVisible() &&
-					board.getTileInfo(getPosition(choice)).getPiece().getColor() != getColor(user.getNickname())) { // picked opposite color AND it's visisble
-				System.out.println("That's not your piece! Try again!");
-			} else {
-				go = true; // all looks good, go!
-			}
-		} while (go == false);
+		while (!startMove(user));
 		
 		if (!f) {
 			int[] atPosition = getPosition(choice);
@@ -135,12 +114,40 @@ public class BanqiGame {
 					}
 					board.getTileInfo(toPosition).setPiece(board.getTileInfo(atPosition).getPiece());
 					board.getTileInfo(atPosition).clearPiece();
+					
+					// check if winning state
+					if (redPieces == 0) { // black wins
+						System.out.println("BLACK WINS!!!");
+					} else if (blackPieces == 0) { // red wins
+						System.out.println("RED WINS!!!");
+					}
 				}	
 				printBoard();			
 			}	
 		} else { //forfeit
-			
+			System.out.println("You forfeited, loser");
 		}
+	}
+	
+	private boolean startMove(User user) {
+		System.out.println("Enter a coordinate to select a piece.");
+		System.out.println("To forfeit, type 'forfeit' and press Enter");
+		choice = scanner.nextLine();
+		 if (choice.equals("forfeit")) { // forfeit
+				f = true;
+				return true; 
+		} else if (choice.length() != 2) {   // not the right length
+			System.out.println("Input not recognized");
+		} else if ("1234ABCDEFGH".indexOf(choice.charAt(0)) == -1 || "1234ABCDEFGH".indexOf(choice.charAt(1)) == -1) { // not valid character
+				System.out.println("Invalid coordinate");
+		} else if (board.getTileInfo(getPosition(choice)).getPiece().isVisible() &&
+				board.getTileInfo(getPosition(choice)).getPiece().getColor() != getColor(user.getNickname())) { // picked opposite color AND it's visisble
+			System.out.println("That's not your piece! Try again!");
+		} else {
+			return true; // all looks good, go!
+		}
+		
+		return false;
 	}
 	
 	private int[] getPosition(String in) {

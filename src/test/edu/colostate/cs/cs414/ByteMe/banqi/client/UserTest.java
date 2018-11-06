@@ -31,7 +31,7 @@ class UserTest {
 	
 	@Test
 	void initiateGameTest() {
-		user.initiateGame();
+		user.initiateGame(null);
 	}
 	
 	@Test
