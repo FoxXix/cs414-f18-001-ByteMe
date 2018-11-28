@@ -70,6 +70,8 @@ public class BanqiController {
 			}
 			UserProfile us = new UserProfile(name, email, pass, date, wins, losses, draws, forf);
 			listOfProfiles.add(us);
+			User user = new User(us);
+			users.add(user);
 		}
 		buff.close();
 	
@@ -85,7 +87,7 @@ public class BanqiController {
 	*/
 	private void runProgram() throws IOException {
 		readUsers();
-		
+		String choice;
 		read = new BufferedReader(new InputStreamReader(System.in));
 		System.out.println("Welcome to Banqi game!");
 		boolean b = false;
@@ -94,11 +96,12 @@ public class BanqiController {
 			System.out.println("To create a profile, enter '2' and press Enter");
 			System.out.println("To exit, type 'exit' and press Enter");
 
-			String choice = read.readLine();
+			choice = read.readLine();
 
 			// attempt log-in
 			if (choice.equals("1")) {
 				initialize();
+				b = true;
 			} else if (choice.equals("2")) {
 				makeNewUser();
 			} else if (choice.equals("exit")) {
@@ -107,7 +110,59 @@ public class BanqiController {
 				System.out.println("Input not recognized");
 			}
 		}
+		// user has logged in
+		b = false;
+		while (!b) {
+			System.out.println("\n1) Play existing game");
+			System.out.println("2) Manage invites");
+			System.out.println("3) View profile");
+			System.out.println("To exit, type 'exit' and press Enter");
+			
+			choice = read.readLine();
+			if (choice.equals("1")) {
+				
+			} else if (choice.equals("2")) {
+				
+			} else if (choice.equals("3")) {
+				viewProfile();
+			} else if (choice.equals("exit")) {
+				b = true;
+			} else {
+				System.out.println("Input not recognized");
+			}
+		}
 		read.close();
+	}
+	
+	private void viewProfile() throws IOException {
+		boolean b = false;
+		String choice;
+		U.seeProfile(U.getNickname());
+		while (!b) {			
+			System.out.println("\n1) Search for player");
+			System.out.println("To exit, type 'exit' and press Enter");
+			
+			choice = read.readLine();
+			if (choice.equals("1")) {
+				boolean c = false;
+				while (!c) {
+					System.out.println("Type the nickname of the user to view");
+					choice = read.readLine();
+					for (User user : users) {
+						if (user.getNickname().equals(choice)) {
+							user.seeProfile(user.getNickname());
+							c = true;
+							break;
+						}
+					}
+					System.out.println("User not found");
+				}
+			} else if (choice.equals("exit")) {
+				b = true;
+			} else {
+				System.out.println("Input not recognized");
+			}
+		}
 	}
 
 	/* This method is called from the runProgram method, for when a User enters '1' for login,
@@ -252,6 +307,8 @@ public class BanqiController {
 	
 	public static void main(String args[]) throws IOException {
 		BanqiController banqi = new BanqiController(args[0]);
+		//UserProfile up1 = new UserProfile("scoobs", "scoobs@email.com", "pass", "2018/10/27 17:45:45", 0,0,0,0);
+		//UserProfile up2 = new UserProfile("Brian", "firefox@rams.colostate.edu", "123", "2018/11/28 13:27:42", 0,0,0,0);
 		banqi.runProgram();
 	}
 
