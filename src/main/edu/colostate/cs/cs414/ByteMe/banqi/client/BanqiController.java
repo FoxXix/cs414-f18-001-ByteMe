@@ -70,6 +70,7 @@ public class BanqiController {
 			}
 			UserProfile us = new UserProfile(name, email, pass, date, wins, losses, draws, forf);
 			listOfProfiles.add(us);
+			// LOAD USERS INTO LIST OF USERS
 			User user = new User(us);
 			users.add(user);
 		}
@@ -146,16 +147,19 @@ public class BanqiController {
 			if (choice.equals("1")) {
 				boolean c = false;
 				while (!c) {
-					System.out.println("Type the nickname of the user to view");
+					System.out.println("Type the nickname of the user to view or type 'exit'");
 					choice = read.readLine();
-					for (User user : users) {
-						if (user.getNickname().equals(choice)) {
-							user.seeProfile(user.getNickname());
-							c = true;
-							break;
+					if (!choice.equals("exit")) {						
+						for (User user : users) {
+							if (user.getNickname().equals(choice)) {
+								user.seeProfile(user.getNickname());
+								c = true;
+								break;
+							}
 						}
+						System.out.println("User not found");
 					}
-					System.out.println("User not found");
+					c = true;
 				}
 			} else if (choice.equals("exit")) {
 				b = true;
