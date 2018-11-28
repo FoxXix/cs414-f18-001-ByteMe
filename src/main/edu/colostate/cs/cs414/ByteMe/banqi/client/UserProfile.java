@@ -1,7 +1,5 @@
 package main.edu.colostate.cs.cs414.ByteMe.banqi.client;
 
-import java.time.LocalDateTime;
-
 public class UserProfile {
 	private String nickname = "";
 	private String email = "";

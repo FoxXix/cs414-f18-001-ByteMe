@@ -12,8 +12,8 @@ public class BanqiGame {
 	private Board board;
 	private User user1;
 	private User user2;
-	private UserProfile userProfile1;
-	private UserProfile userProfile2;
+	//private UserProfile userProfile1;
+	//private UserProfile userProfile2;
 	private int emptyTiles 	= 32;
 	private int redPieces 	= 16;
 	private int blackPieces = 16;
@@ -28,8 +28,8 @@ public class BanqiGame {
 		board = new Board();
 		user1 = u1;
 		user2 = u2;
-		userProfile1 = u1.getUserProfile();
-		userProfile2 = u2.getUserProfile();
+		//userProfile1 = u1.getUserProfile();
+		//userProfile2 = u2.getUserProfile();
 	}
 	
 	public Board getBoard() {

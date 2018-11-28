@@ -1,14 +1,12 @@
 package main.edu.colostate.cs.cs414.ByteMe.banqi.client;
 
-import java.io.BufferedReader;
-import java.io.IOException;
-import java.io.InputStreamReader;
 import java.util.ArrayList;
-import java.util.List;
+import java.util.Scanner;
 
 public class User {
 	
 	private UserProfile userProfile;
+	protected ArrayList<Invite> invites;
 	
 	private String nickname;
 	private String email;
@@ -19,9 +17,17 @@ public class User {
 		this.nickname = user.getUserName();
 	}
 
-
 	public UserProfile seeProfile(String nickname) {
-		return null;
+		User player = BanqiController.getUser(nickname);		
+		System.out.println(nickname + "'s Profile\n");
+		
+		System.out.println("Joined: " + player.userProfile.getJoinedDate());
+		System.out.println("Wins: " + player.userProfile.getWins());
+		System.out.println("Losses: " + player.userProfile.getLosses());
+		System.out.println("Draws: " + player.userProfile.getDraws());
+		System.out.println("Forfeits: " + player.userProfile.getForfeits());
+		
+		return player.userProfile;
 	}
 	
 	/*To be implemented: For purposes of security, the User will eventually need to enter their credentials
@@ -31,28 +37,57 @@ public class User {
 	}
 
 	public void initiateGame(User invitee) {
-		BanqiGame game = new BanqiGame(this, invitee);
-		
+		new BanqiGame(this, invitee);		
 	}
 	
 	/*To be implemented: A User may invite any number of other Users to play a new Banqi Game
 	by providing the nickname of the User they wish to invite.  While they can send out unlimited invites,
 	only the first to accept an invitation can play the game.*/
 	public void sendInvite(String nickname) {
-		// TODO Auto-generated method stub
-		
+		new Invite(this, nickname);
 	}
 
-	public String getInviteStatus() {
-		// TODO Auto-generated method stub
-		return null;
+	
+	/*Prints out the invites for the current user*/
+	public void getInviteStatus() {
+		System.out.println("Current invites:\n");
+		int count = 1;
+		for (Invite invite : invites) {
+			System.out.println(count + ") From: " + invite.getFrom().nickname + " Time: " + invite.getTime() + " Status: " + invite.getStatus());
+			count++;
+		}
 	}
 	
 	/*To be implemented: A User will be able to accept or decline an invite
 	and the response will be recorded within the invite and sent to the inviter.*/
 	public Boolean respondToInvite() {
-		// TODO Auto-generated method stub
-		return null;
+		System.out.println("Type the corresponding number of the invite to accept it");
+		Scanner scanner = new Scanner( System.in );
+		int number = 0;
+		boolean valid = false;
+		do {
+			getInviteStatus();
+			
+			String choice = scanner.nextLine();
+			try {
+				number = Integer.parseInt(choice);
+				if (invites.size() > 0 && number > 0 && number < invites.size()-1)
+					valid = true;
+			} catch( NumberFormatException e) {
+				System.out.println("Invalid input, try again");
+			}
+		} while(!valid);
+		scanner.close();
+		
+		int count = 1;
+		for (Invite invite : invites) {
+			if (count == number) {
+				invite.setStatus(false);
+				return true;
+			}
+			count++;
+		}
+		return false;
 	}
 
 
