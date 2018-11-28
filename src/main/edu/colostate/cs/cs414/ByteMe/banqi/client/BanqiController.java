@@ -171,7 +171,6 @@ public class BanqiController {
 						do {
 							try {
 								number = Integer.parseInt(choice);
-								System.out.println("ALKJHLKJ");
 							} catch (NumberFormatException e) {
 								System.out.println("Input not recognized, try again");
 								choice = read.readLine();
@@ -181,10 +180,10 @@ public class BanqiController {
 				    System.out.println("number:" + number);
 				    int myIndex = users.indexOf(U);
 				    User invitee;
-				    if (number < myIndex) {
-				    	invitee = users.get(number);
-				    } else {
+				    if (number <= myIndex) {
 				    	invitee = users.get(number - 1);
+				    } else {
+				    	invitee = users.get(number);
 				    }
 				    // send invite
 				    new Invite(U, invitee);
@@ -243,16 +242,21 @@ public class BanqiController {
 //			System.out.println(t.getUserName());
 //		}
 		String name = "";
-		System.out.println("Please Enter your nickname");
-		name = read.readLine();
-		System.out.println("name entered is: " + name);
-		UserProfile profile = getOwnUser(name);
-//		System.out.println("new Profile: " + profile);
-		if (profile != null) {
-			U = new User(profile);
-		} else {
-			System.out.println("We could not find a profile with name of: " + name);
-		}
+		boolean found = false;
+		do {
+			name = "";
+			System.out.println("Please Enter your nickname");
+			name = read.readLine();
+			System.out.println("name entered is: " + name);
+			UserProfile profile = getOwnUser(name);
+	//		System.out.println("new Profile: " + profile);
+			if (profile != null) {
+				U = new User(profile);
+				found = true;
+			} else {
+				System.out.println("We could not find a profile with name of: " + name);
+			}
+		} while (!found);
 	}
 
 	/* This method permits a User to view their own Profile, so they can see their game stats.
