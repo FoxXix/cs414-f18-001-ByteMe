@@ -5,10 +5,12 @@ import java.io.IOException;
 import java.io.InputStreamReader;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Scanner;
 
 public class User {
 	
 	private UserProfile userProfile;
+	protected ArrayList<Invite> invites;
 	
 	private String nickname;
 	private String email;
@@ -39,20 +41,50 @@ public class User {
 	by providing the nickname of the User they wish to invite.  While they can send out unlimited invites,
 	only the first to accept an invitation can play the game.*/
 	public void sendInvite(String nickname) {
-		// TODO Auto-generated method stub
-		
+		new Invite(this, nickname);
 	}
 
-	public String getInviteStatus() {
-		// TODO Auto-generated method stub
-		return null;
+	
+	/*Prints out the invites for the current user*/
+	public void getInviteStatus() {
+		System.out.println("Current invites:\n");
+		int count = 1;
+		for (Invite invite : invites) {
+			System.out.println(count + ") From: " + invite.getFrom().nickname + " Time: " + invite.getTime() + " Status: " + invite.getStatus());
+			count++;
+		}
 	}
 	
 	/*To be implemented: A User will be able to accept or decline an invite
 	and the response will be recorded within the invite and sent to the inviter.*/
 	public Boolean respondToInvite() {
-		// TODO Auto-generated method stub
-		return null;
+		System.out.println("Type the corresponding number of the invite to accept it");
+		Scanner scanner = new Scanner( System.in );
+		int number = 0;
+		boolean valid = false;
+		do {
+			getInviteStatus();
+			
+			String choice = scanner.nextLine();
+			try {
+				number = Integer.parseInt(choice);
+				if (invites.size() > 0 && number > 0 && number < invites.size()-1)
+					valid = true;
+			} catch( NumberFormatException e) {
+				System.out.println("Invalid input, try again");
+			}
+		} while(valid);
+		scanner.close();
+		
+		int count = 1;
+		for (Invite invite : invites) {
+			if (count == number) {
+				invite.setStatus(false);
+				return true;
+			}
+			count++;
+		}
+		return false;
 	}
 
 
