@@ -123,7 +123,7 @@ public class BanqiController {
 			if (choice.equals("1")) {
 				
 			} else if (choice.equals("2")) {
-				
+				manageInvites();
 			} else if (choice.equals("3")) {
 				viewProfile();
 			} else if (choice.equals("exit")) {
@@ -133,6 +133,69 @@ public class BanqiController {
 			}
 		}
 		read.close();
+	}
+	
+	private void manageInvites() throws IOException {
+		boolean b = false;
+		String choice;
+		
+		U.getInviteStatus();
+		
+		while (!b) {
+			System.out.println("\n1) Accept invite");
+			System.out.println("2) Send Invite");
+			System.out.println("To exit, type 'exit' and press Enter");
+			
+			choice = read.readLine();
+			if (choice.equals("1")) {
+				
+				//BanqiGame game = new BanqiGame(U, U.getInvite(from));
+			} else if (choice.equals("2")) {
+				boolean c = false;
+				while (!c) {
+					System.out.println("Select user from list to send invite to:");
+					System.out.println("To exit, type 'exit' and press Enter");
+					int count = 1;
+					for (User user : users) {
+						if (!user.getNickname().equals(U.getNickname())) {
+							System.out.println(count +") " + user.getNickname());
+							count++;
+						}
+					}
+					
+					choice = read.readLine();
+					int number = 0;
+				    if (choice.equals("exit")) {
+						c = true;
+					} else {
+						do {
+							try {
+								number = Integer.parseInt(choice);
+								System.out.println("ALKJHLKJ");
+							} catch (NumberFormatException e) {
+								System.out.println("Input not recognized, try again");
+								choice = read.readLine();
+							}
+						} while (number == 0);
+					}
+				    System.out.println("number:" + number);
+				    int myIndex = users.indexOf(U);
+				    User invitee;
+				    if (number < myIndex) {
+				    	invitee = users.get(number);
+				    } else {
+				    	invitee = users.get(number - 1);
+				    }
+				    // send invite
+				    new Invite(U, invitee);
+				    System.out.println("Sent invite to " + invitee.getNickname());
+				}
+			} else if (choice.equals("exit")) {
+				b = true;
+			} else {
+				System.out.println("Input not recognized");
+			}
+		}
 	}
 	
 	private void viewProfile() throws IOException {

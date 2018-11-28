@@ -15,6 +15,7 @@ public class User {
 	public User(UserProfile user) {
 		this.userProfile = user;
 		this.nickname = user.getUserName();
+		invites = new ArrayList<Invite>();
 	}
 
 	public UserProfile seeProfile(String nickname) {
@@ -46,6 +47,15 @@ public class User {
 	public void sendInvite(String nickname) {
 		new Invite(this, nickname);
 	}
+	
+	public Invite getInvite(User from) {
+		for (Invite invite: invites) {
+			if (invite.getFrom().equals(from)) {
+				return invite;
+			}
+		}
+		return null;
+	}
 
 	
 	/*Prints out the invites for the current user*/
@@ -55,6 +65,9 @@ public class User {
 		for (Invite invite : invites) {
 			System.out.println(count + ") From: " + invite.getFrom().nickname + " Time: " + invite.getTime() + " Status: " + invite.getStatus());
 			count++;
+		}
+		if (invites.size() == 0) {
+			System.out.println("Empty");
 		}
 	}
 	
