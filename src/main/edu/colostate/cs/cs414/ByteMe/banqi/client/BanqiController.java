@@ -16,7 +16,7 @@ public class BanqiController {
 	private String profilesFile;
 	//stores all created UserProfiles
 	protected List<UserProfile> listOfProfiles = new ArrayList<UserProfile>();
-	protected List<User> users = new ArrayList<User>();
+	protected static List<User> users = new ArrayList<User>();
 	User U;
 	
 	//read user inputs
@@ -241,7 +241,7 @@ public class BanqiController {
 	
 	/*This function returns a user object given the users nickname. Null is returned if not found.
 	*/
-	public User getUser(String nickname) {
+	public static User getUser(String nickname) {
 		for (User user : users) {
 			if (user.getNickname().equals(nickname)) {
 				return user;
