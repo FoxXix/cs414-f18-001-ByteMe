@@ -23,7 +23,15 @@ public class User {
 
 
 	public UserProfile seeProfile(String nickname) {
-		return null;
+		User player = BanqiController.getUser(nickname);
+		
+		System.out.println(nickname + "'s Profile\n");
+		System.out.println("Joined: " + player.userProfile.getJoinedDate());
+		System.out.println("Wins: " + player.userProfile.getWins());
+		System.out.println("Losses: " + player.userProfile.getLosses());
+		System.out.println("Draws: " + player.userProfile.getDraws());
+		System.out.println("Forfeits: " + player.userProfile.getForfeits());
+		return player.userProfile;
 	}
 	
 	/*To be implemented: For purposes of security, the User will eventually need to enter their credentials
