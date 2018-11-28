@@ -16,6 +16,7 @@ public class BanqiController {
 	private String profilesFile;
 	//stores all created UserProfiles
 	protected List<UserProfile> listOfProfiles = new ArrayList<UserProfile>();
+	protected List<User> users = new ArrayList<User>();
 	User U;
 	
 	//read user inputs
@@ -213,6 +214,7 @@ public class BanqiController {
 
 		UserProfile newUser = new UserProfile(nickname, email, password, dtf.format(now), 0, 0, 0, 0);
 		listOfProfiles.add(newUser);
+		users.add(new User(newUser));
 //		System.out.println(listOfProfiles.size());
 		writeToFile(newUser);
 
@@ -235,6 +237,17 @@ public class BanqiController {
 			
 		}
 		
+	}
+	
+	/*This function returns a user object given the users nickname. Null is returned if not found.
+	*/
+	public User getUser(String nickname) {
+		for (User user : users) {
+			if (user.getNickname().equals(nickname)) {
+				return user;
+			}
+		}
+		return null;
 	}
 	
 	public static void main(String args[]) throws IOException {
