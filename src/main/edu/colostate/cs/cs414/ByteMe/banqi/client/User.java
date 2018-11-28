@@ -1,10 +1,6 @@
 package main.edu.colostate.cs.cs414.ByteMe.banqi.client;
 
-import java.io.BufferedReader;
-import java.io.IOException;
-import java.io.InputStreamReader;
 import java.util.ArrayList;
-import java.util.List;
 import java.util.Scanner;
 
 public class User {
@@ -21,16 +17,16 @@ public class User {
 		this.nickname = user.getUserName();
 	}
 
-
 	public UserProfile seeProfile(String nickname) {
-		User player = BanqiController.getUser(nickname);
-		
+		User player = BanqiController.getUser(nickname);		
 		System.out.println(nickname + "'s Profile\n");
+		
 		System.out.println("Joined: " + player.userProfile.getJoinedDate());
 		System.out.println("Wins: " + player.userProfile.getWins());
 		System.out.println("Losses: " + player.userProfile.getLosses());
 		System.out.println("Draws: " + player.userProfile.getDraws());
 		System.out.println("Forfeits: " + player.userProfile.getForfeits());
+		
 		return player.userProfile;
 	}
 	
@@ -41,8 +37,7 @@ public class User {
 	}
 
 	public void initiateGame(User invitee) {
-		BanqiGame game = new BanqiGame(this, invitee);
-		
+		new BanqiGame(this, invitee);		
 	}
 	
 	/*To be implemented: A User may invite any number of other Users to play a new Banqi Game
