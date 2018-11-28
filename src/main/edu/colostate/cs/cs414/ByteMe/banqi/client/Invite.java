@@ -1,6 +1,7 @@
 package main.edu.colostate.cs.cs414.ByteMe.banqi.client;
 
 import java.time.LocalTime;
+import java.util.UUID;
 
 public class Invite {
   
@@ -11,6 +12,7 @@ public class Invite {
 	private User to;
 	
 	public Invite(User from, User to) {
+		id = UUID.randomUUID().toString();
 		this.from 	= from;
 		this.to		= to;
 		time = LocalTime.now();
