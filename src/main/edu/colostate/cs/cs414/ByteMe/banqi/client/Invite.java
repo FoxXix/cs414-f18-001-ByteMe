@@ -7,16 +7,30 @@ public class Invite {
   
 	private String id;
 	private LocalTime time;
-	private String status;
+	private boolean status;
 	private User from;
 	private User to;
+	
+	public Invite(User from, String to) {
+		id = UUID.randomUUID().toString();
+		this.from 	= from;
+		this.to = BanqiController.getUser(to);
+		time = LocalTime.now();
+		status = true;
+		
+		// add invite to the list of the invitee
+		this.to.invites.add(this);
+	}
 	
 	public Invite(User from, User to) {
 		id = UUID.randomUUID().toString();
 		this.from 	= from;
 		this.to		= to;
 		time = LocalTime.now();
-		status = "Open";
+		status = true;
+		
+		// add invite to the list of the invitee
+		this.to.invites.add(this);
 	}
 
 	public String getId() {
@@ -28,7 +42,11 @@ public class Invite {
 	}
 	
 	public String getStatus() {
-		return status;
+		return status ? "Open" : "Closed";
+	}
+	
+	public void setStatus(boolean status) {
+		this.status = status;
 	}
 	
 	public User getFrom() {
