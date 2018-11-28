@@ -16,5 +16,24 @@ public class Invite {
 		time = LocalTime.now();
 		status = "Open";
 	}
+
+	public String getId() {
+		return id;
+	}
   
+	public LocalTime getTime() {
+		return time;
+	}
+	
+	public String getStatus() {
+		return status;
+	}
+	
+	public User getFrom() {
+		return from;
+	}
+	
+	public User getTo() {
+		return to;
+	}
 }
