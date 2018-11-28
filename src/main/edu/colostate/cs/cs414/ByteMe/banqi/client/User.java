@@ -73,7 +73,7 @@ public class User {
 			} catch( NumberFormatException e) {
 				System.out.println("Invalid input, try again");
 			}
-		} while(valid);
+		} while(!valid);
 		scanner.close();
 		
 		int count = 1;
