@@ -90,11 +90,11 @@ public class BanqiController {
 		readUsers();
 		String choice;
 		read = new BufferedReader(new InputStreamReader(System.in));
-		System.out.println("Welcome to Banqi game!");
+		printTitle();
 		boolean b = false;
 		while (b == false) {
-			System.out.println("To log in enter '1' and press Enter");
-			System.out.println("To create a profile, enter '2' and press Enter");
+			System.out.println("1) Login");
+			System.out.println("2) Create profile");
 			System.out.println("To exit, type 'exit' and press Enter");
 
 			choice = read.readLine();
@@ -123,7 +123,7 @@ public class BanqiController {
 			if (choice.equals("1")) {
 				
 			} else if (choice.equals("2")) {
-				
+				manageInvites();
 			} else if (choice.equals("3")) {
 				viewProfile();
 			} else if (choice.equals("exit")) {
@@ -133,6 +133,109 @@ public class BanqiController {
 			}
 		}
 		read.close();
+	}
+	
+	private void manageInvites() throws IOException {
+		boolean b = false;
+		String choice;
+		
+		U.getInviteStatus();
+		
+		while (!b) {
+			System.out.println("\n1) Accept invite");
+			System.out.println("2) Send Invite");
+			System.out.println("To exit, type 'exit' and press Enter");
+			
+			choice = read.readLine();
+			if (choice.equals("1")) {
+				boolean c = false;
+				System.out.println("Select invite from list to accept:");
+				System.out.println("To exit, type 'exit' and press Enter");
+				while (!c) {
+					int count = 1;
+					List<Invite> openInvites = new ArrayList<Invite>();
+					for (Invite invite : U.invites) {
+						if (invite.getStatus().equals("Open")) {
+							openInvites.add(invite);
+							System.out.println(count + ") " + invite.toString());
+							count++;
+						}						
+					}
+					
+					choice = read.readLine();
+					int number = 0;
+					if (choice.equals("exit")) {
+						c = true;
+					}
+					else {
+						do {
+							try {
+								number = Integer.parseInt(choice);
+							} catch (NumberFormatException e) {
+								System.out.println("Input not recognized, try again");
+								choice = read.readLine();
+							}
+						} while (number == 0);
+						
+						Invite invite = openInvites.get(number);
+						startNewGame(invite.getFrom()); // user to play with
+						c = true;
+					}
+				}
+			} else if (choice.equals("2")) {
+				boolean c = false;
+				while (!c) {
+					System.out.println("Select user from list to send invite to:");
+					System.out.println("To exit, type 'exit' and press Enter");
+					int count = 1;
+					int myIndex = -1;
+					for (User user : users) {
+						if (!user.getNickname().equals(U.getNickname())) {
+							System.out.println(count +") " + user.getNickname());
+							count++;
+						} else
+							myIndex = count-1;
+					}
+					
+					choice = read.readLine();
+					int number = 0;
+				    if (choice.equals("exit")) {
+						c = true;
+					} else {
+						do {
+							try {
+								number = Integer.parseInt(choice);
+							} catch (NumberFormatException e) {
+								System.out.println("Input not recognized, try again");
+								choice = read.readLine();
+							}
+						} while (number == 0);
+						
+						User invitee;
+					    if (number <= myIndex) {
+					    	invitee = users.get(number - 1);
+					    } else {
+					    	invitee = users.get(number);
+					    }
+					    // send invite
+					    new Invite(U, invitee);
+					    System.out.println("Sent invite to " + invitee.getNickname());
+					}				    
+				}
+			} else if (choice.equals("exit")) {
+				b = true;
+			} else {
+				System.out.println("Input not recognized");
+			}
+			b = true;
+		}
+	}
+	
+	private void startNewGame(User user) throws IOException {
+		BanqiGame game = new BanqiGame(U, user);
+		game.setUpBoard();
+		game.printBoard();
+		game.play();
 	}
 	
 	private void viewProfile() throws IOException {
@@ -180,16 +283,21 @@ public class BanqiController {
 //			System.out.println(t.getUserName());
 //		}
 		String name = "";
-		System.out.println("Please Enter your nickname");
-		name = read.readLine();
-		System.out.println("name entered is: " + name);
-		UserProfile profile = getOwnUser(name);
-//		System.out.println("new Profile: " + profile);
-		if (profile != null) {
-			U = new User(profile);
-		} else {
-			System.out.println("We could not find a profile with name of: " + name);
-		}
+		boolean found = false;
+		do {
+			name = "";
+			System.out.println("Please Enter your nickname");
+			name = read.readLine();
+			System.out.println("name entered is: " + name);
+			UserProfile profile = getOwnUser(name);
+	//		System.out.println("new Profile: " + profile);
+			if (profile != null) {
+				U = new User(profile);
+				found = true;
+			} else {
+				System.out.println("We could not find a profile with name of: " + name);
+			}
+		} while (!found);
 	}
 
 	/* This method permits a User to view their own Profile, so they can see their game stats.
@@ -309,10 +417,21 @@ public class BanqiController {
 		return null;
 	}
 	
+	private void printTitle() {
+		String title = 
+				"=======         =        ==    ==     ======      ========\n" + 
+				"===  ===       ===       ===   ==   =========     ========\n" + 
+				"===  ===      == ==      ====  ==  ====   ====       ==    \n" + 
+				"======       ==   ==     === = ==  ====   ====       ==     \n" + 
+				"===  ===    =========    ===  ===  ====   ====       ==    \n" + 
+				"===  ===   ===     ===   ===   ==   ===========   ========\n" + 
+				"=======   ===       ===  ===    =    =======  ==  ========\n";
+		
+		System.out.println(title);
+	}
+	
 	public static void main(String args[]) throws IOException {
 		BanqiController banqi = new BanqiController(args[0]);
-		//UserProfile up1 = new UserProfile("scoobs", "scoobs@email.com", "pass", "2018/10/27 17:45:45", 0,0,0,0);
-		//UserProfile up2 = new UserProfile("Brian", "firefox@rams.colostate.edu", "123", "2018/11/28 13:27:42", 0,0,0,0);
 		banqi.runProgram();
 	}
 
