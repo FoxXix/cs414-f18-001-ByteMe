@@ -156,11 +156,13 @@ public class BanqiController {
 					System.out.println("Select user from list to send invite to:");
 					System.out.println("To exit, type 'exit' and press Enter");
 					int count = 1;
+					int myIndex = -1;
 					for (User user : users) {
 						if (!user.getNickname().equals(U.getNickname())) {
 							System.out.println(count +") " + user.getNickname());
 							count++;
-						}
+						} else
+							myIndex = count-1;
 					}
 					
 					choice = read.readLine();
@@ -176,18 +178,17 @@ public class BanqiController {
 								choice = read.readLine();
 							}
 						} while (number == 0);
-					}
-				    System.out.println("number:" + number);
-				    int myIndex = users.indexOf(U);
-				    User invitee;
-				    if (number <= myIndex) {
-				    	invitee = users.get(number - 1);
-				    } else {
-				    	invitee = users.get(number);
-				    }
-				    // send invite
-				    new Invite(U, invitee);
-				    System.out.println("Sent invite to " + invitee.getNickname());
+						
+						User invitee;
+					    if (number <= myIndex) {
+					    	invitee = users.get(number - 1);
+					    } else {
+					    	invitee = users.get(number);
+					    }
+					    // send invite
+					    new Invite(U, invitee);
+					    System.out.println("Sent invite to " + invitee.getNickname());
+					}				    
 				}
 			} else if (choice.equals("exit")) {
 				b = true;
