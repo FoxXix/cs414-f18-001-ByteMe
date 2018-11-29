@@ -90,11 +90,11 @@ public class BanqiController {
 		readUsers();
 		String choice;
 		read = new BufferedReader(new InputStreamReader(System.in));
-		System.out.println("Welcome to Banqi game!");
+		printTitle();
 		boolean b = false;
 		while (b == false) {
-			System.out.println("To log in enter '1' and press Enter");
-			System.out.println("To create a profile, enter '2' and press Enter");
+			System.out.println("1) Login");
+			System.out.println("2) Create profile");
 			System.out.println("To exit, type 'exit' and press Enter");
 
 			choice = read.readLine();
@@ -375,6 +375,19 @@ public class BanqiController {
 			}
 		}
 		return null;
+	}
+	
+	private void printTitle() {
+		String title = 
+				"=======         =         ==    ==     ========      ===========\n" + 
+				"===  ===       ===        ===   ==   ===========       =======\n" + 
+				"===  ===      == ==       ====  ==  =====   =====        ===    \n" + 
+				"======       ==   ==      === = ==  =====   =====        ===     \n" + 
+				"===  ===    =========     ===  ===  =====   =====        ===    \n" + 
+				"===  ===   ====   ====    ===   ==   =============    =========\n" + 
+				"=======   =====   =====   ===    =    =========  ==  ===========\n";
+		
+		System.out.println(title);
 	}
 	
 	public static void main(String args[]) throws IOException {
