@@ -148,8 +148,40 @@ public class BanqiController {
 			
 			choice = read.readLine();
 			if (choice.equals("1")) {
-				
-				//BanqiGame game = new BanqiGame(U, U.getInvite(from));
+				boolean c = false;
+				System.out.println("Select invite from list to accept:");
+				System.out.println("To exit, type 'exit' and press Enter");
+				while (!c) {
+					int count = 1;
+					List<Invite> openInvites = new ArrayList<Invite>();
+					for (Invite invite : U.invites) {
+						if (invite.getStatus().equals("Open")) {
+							openInvites.add(invite);
+							System.out.println(count + ") " + invite.toString());
+							count++;
+						}						
+					}
+					
+					choice = read.readLine();
+					int number = 0;
+					if (choice.equals("exit")) {
+						c = true;
+					}
+					else {
+						do {
+							try {
+								number = Integer.parseInt(choice);
+							} catch (NumberFormatException e) {
+								System.out.println("Input not recognized, try again");
+								choice = read.readLine();
+							}
+						} while (number == 0);
+						
+						Invite invite = openInvites.get(number);
+						startNewGame(invite.getFrom()); // user to play with
+						c = true;
+					}
+				}
 			} else if (choice.equals("2")) {
 				boolean c = false;
 				while (!c) {
@@ -195,7 +227,15 @@ public class BanqiController {
 			} else {
 				System.out.println("Input not recognized");
 			}
+			b = true;
 		}
+	}
+	
+	private void startNewGame(User user) throws IOException {
+		BanqiGame game = new BanqiGame(U, user);
+		game.setUpBoard();
+		game.printBoard();
+		game.play();
 	}
 	
 	private void viewProfile() throws IOException {
@@ -392,8 +432,6 @@ public class BanqiController {
 	
 	public static void main(String args[]) throws IOException {
 		BanqiController banqi = new BanqiController(args[0]);
-		//UserProfile up1 = new UserProfile("scoobs", "scoobs@email.com", "pass", "2018/10/27 17:45:45", 0,0,0,0);
-		//UserProfile up2 = new UserProfile("Brian", "firefox@rams.colostate.edu", "123", "2018/11/28 13:27:42", 0,0,0,0);
 		banqi.runProgram();
 	}
 

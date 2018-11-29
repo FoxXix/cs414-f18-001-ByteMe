@@ -18,6 +18,7 @@ public class BanqiGame {
 	private int redPieces 	= 16;
 	private int blackPieces = 16;
 	private boolean f = false;
+	private boolean won = false;
 	
 	HashMap<String, String> map = new HashMap<>();
 	Scanner scanner = new Scanner( System.in );
@@ -40,6 +41,17 @@ public class BanqiGame {
 	public void setUpBoard() {
 		setPieces("Red");
 		setPieces("Black");		
+	}
+	
+	public void play() throws IOException {
+		List<User> players = new ArrayList<User>();
+		players.add(user1);
+		players.add(user2);
+		int turns = 0;
+		while (!won) {
+			makeMove(players.get(turns % 2));
+			turns++;
+		}
 	}
 	
 	/* On the given User's turn, they may make a valid move.
@@ -124,8 +136,10 @@ public class BanqiGame {
 					// check if winning state
 					if (redPieces == 0) { // black wins
 						System.out.println("BLACK WINS!!!");
+						won = true;
 					} else if (blackPieces == 0) { // red wins
 						System.out.println("RED WINS!!!");
+						won = true;
 					}
 				}	
 				printBoard();			

@@ -32,6 +32,10 @@ public class Invite {
 		// add invite to the list of the invitee
 		this.to.invites.add(this);
 	}
+	
+	public String toString() {
+		return "From: " + from + " Date: " + time;		
+	}
 
 	public String getId() {
 		return id;
