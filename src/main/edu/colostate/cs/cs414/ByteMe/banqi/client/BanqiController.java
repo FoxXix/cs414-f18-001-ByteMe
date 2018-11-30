@@ -21,19 +21,23 @@ public class BanqiController {
 	//read user inputs
 	private static BufferedReader read;
 
-	public static void main(String args[]) throws IOException {
-		BanqiController banqi = new BanqiController(args[0]);
-		banqi.runProgram();
-	}
+//	public static void main(String args[]) throws IOException {
+//		BanqiController banqi = new BanqiController(args[0]);
+//		banqi.runProgram();
+//	}
 
 	//constructor
 	public BanqiController(String file) {
 		this.profilesFile = file;
 	}
 	
+	public List<UserProfile> getListProfiles(){
+		return listOfProfiles;
+	}
+	
 	//Method that runs the program to completion
-	private void runProgram() throws IOException {
-		readUsers();
+	public void runProgram() throws IOException {
+//		readUsers();
 		
 		read = new BufferedReader(new InputStreamReader(System.in));
 		System.out.println("Welcome to Banqi game!");
@@ -60,7 +64,7 @@ public class BanqiController {
 	}
 
 	// reads the Users file and adds them to the list of Profiles
-	private void readUsers() throws IOException {
+	public void readUsers() throws IOException {
 		FileReader file = new FileReader(profilesFile);
 		BufferedReader buff = new BufferedReader(file);
 		String line = null;
@@ -125,7 +129,7 @@ public class BanqiController {
 	}
 
 	// load your personal user profile
-	private UserProfile getOwnUser(String nickname) throws IOException {
+	public UserProfile getOwnUser(String nickname) throws IOException {
 		for (UserProfile prof : listOfProfiles) {
 //			System.out.println("UserName is: " + prof.getUserName());
 			if (prof.getUserName().equals(nickname)) {
@@ -141,7 +145,7 @@ public class BanqiController {
 	}
 
 	//have user enter password and check that it matches the given password in UserProfile
-	private boolean enterCredentials(UserProfile prof) throws IOException {
+	public boolean enterCredentials(UserProfile prof) throws IOException {
 		int count = 0;
 		while (count < 3) {
 			System.out.println("Please enter your password");
@@ -159,7 +163,7 @@ public class BanqiController {
 	}
 
 	// creates new userProfile and adds the profile to the listOfProfiles
-	private void makeNewUser() throws IOException {
+	public void makeNewUser() throws IOException {
 		boolean passMatch = false;
 		String nickname = "";
 		String email = "";
@@ -197,7 +201,7 @@ public class BanqiController {
 	}
 
 	//write the new profile to the master file
-	private void writeToFile(UserProfile u) {
+	public void writeToFile(UserProfile u) {
 		String s = u.getUserName() + " " + u.getEmail() + " " + u.getPassword() + " " + u.getJoinedDate()
 		 + " " + u.getWins() + " " + u.getLosses() + " " + u.getDraws() + " " + u.getForfeits();
 		try {

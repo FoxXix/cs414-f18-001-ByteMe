@@ -50,6 +50,21 @@ public class EventFactory {
 			reportReg.unPackBytes(message);
 			mNode.OnEvent(reportReg, connection);
 			break;
+		case Protocol.LogIn:
+			Event logIn = new LogIn();
+			logIn.unPackBytes(message);
+			mNode.OnEvent(logIn, connection);
+			break;
+		case Protocol.RequestPassword:
+			Event password = new RequestPassword();
+			password.unPackBytes(message);
+			mNode.OnEvent(password, connection);
+			break;
+		case Protocol.NickNameDoesNotExist:
+			Event noName = new RequestPassword();
+			noName.unPackBytes(message);
+			mNode.OnEvent(noName, connection);
+			break;
 //		case Protocol.SendDeregistration:
 //			//SendDeregistration
 //			Event sendDereg = new SendDeregistration();

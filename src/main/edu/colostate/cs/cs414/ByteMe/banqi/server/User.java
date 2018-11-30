@@ -12,6 +12,7 @@ import main.edu.colostate.cs.cs414.ByteMe.banqi.transport.TCPServerThread;
 import main.edu.colostate.cs.cs414.ByteMe.banqi.util.CommandParser;
 import main.edu.colostate.cs.cs414.ByteMe.banqi.wireformats.Event;
 import main.edu.colostate.cs.cs414.ByteMe.banqi.wireformats.EventFactory;
+import main.edu.colostate.cs.cs414.ByteMe.banqi.wireformats.LogIn;
 //import cs455.overlay.wireformats.NodeReportsOverlaySetupStatus;
 //import cs455.overlay.wireformats.OverlayNodeReportsTaskFinished;
 //import cs455.overlay.wireformats.OverlayNodeReportsTrafficSummary;
@@ -19,6 +20,7 @@ import main.edu.colostate.cs.cs414.ByteMe.banqi.wireformats.EventFactory;
 import main.edu.colostate.cs.cs414.ByteMe.banqi.wireformats.Protocol;
 //import cs455.overlay.wireformats.RegistryReportsDeregistrationStatus;
 import main.edu.colostate.cs.cs414.ByteMe.banqi.wireformats.RegistryReportsRegistrationStatus;
+import main.edu.colostate.cs.cs414.ByteMe.banqi.wireformats.RequestPassword;
 //import cs455.overlay.wireformats.RegistryRequestsTaskInitiate;
 //import cs455.overlay.wireformats.RegistryRequestsTrafficSummary;
 //import cs455.overlay.wireformats.RegistrySendsNodeManifest;
@@ -39,17 +41,6 @@ public class User extends Node{
 	private int[] routingTable = null;
 	Thread t = null;
 	TCPCache cache = null;
-	private volatile int sendTracker = 0;
-	private volatile int receiveTracker = 0;
-	private volatile int packetsRelayed = 0;
-	private volatile long sendSummation = 0;
-	private volatile long receiveSummation = 0;
-	
-	private int prevSendTracker = 0;
-	private int prevReceiveTracker = 0;
-	private int prevPacketsRelayed = 0;
-	private long prevSendSummation= 0;
-	private long prevReceiveSummation= 0;
 	TCPConnection connection = null;
 	
 	private void Initialize(String serverName, int port) throws IOException
@@ -59,7 +50,14 @@ public class User extends Node{
 //		Thread t  = new Thread(clientSock);
 //		t.start();
 		
-		new Thread (() -> new CommandParser().messagingCommands(this)).start();
+		new Thread (() -> {
+			try {
+				new CommandParser().messagingCommands(this);
+			} catch (IOException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			}
+		}).start();
 
 		sendRegMessage(serverName, port);
 	}
@@ -91,6 +89,13 @@ public class User extends Node{
 		connection.sendMessage(marshalled);	
 	
 	}
+	
+	//send a message to the server requesting to LogIn to an existing account
+	public void logIn(String nickname) throws IOException {
+		LogIn lIn = new LogIn();
+		lIn.setNickname((byte)nickname.getBytes().length, nickname.getBytes());
+		connection.sendMessage(lIn.getBytes());
+	}
 
 	public void OnEvent(Event e, TCPConnection connect) throws IOException {
 //		System.out.println("In OnEvent Messaging");
@@ -103,6 +108,10 @@ public class User extends Node{
 //			System.out.println("Node ID = " + nodeID);
 //			System.out.println(Arrays.toString(regStatus.getInfoString()));
 			break;
+		case Protocol.RequestPassword:
+			RequestPassword reqP = (RequestPassword) e;
+			String password = askPassword();
+			System.out.println(password);
 //		case Protocol.RegistrySendsNodeManifest:
 //			RegistrySendsNodeManifest nodeManifest = (RegistrySendsNodeManifest) e;
 //			cache = new TCPCache();
@@ -125,6 +134,15 @@ public class User extends Node{
 			System.out.println("Exiting Overlay");
 			System.exit(0);
 		}		
+	}
+	
+	public String askPassword() throws IOException {
+		BufferedReader read = new BufferedReader(new InputStreamReader(System.in));
+		System.out.println("Please Enter Your Password");
+		String password = read.readLine();
+		System.out.println(password);
+		read.close();
+		return password;
 	}
 
 	
@@ -178,7 +196,6 @@ public class User extends Node{
 //		try {
 //			t.sleep(10000);
 //		} catch (InterruptedException e) {
-//			// TODO Auto-generated catch block
 //			e.printStackTrace();
 //		}
 //		
