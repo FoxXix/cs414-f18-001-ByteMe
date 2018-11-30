@@ -10,22 +10,23 @@ import main.edu.colostate.cs.cs414.ByteMe.banqi.client.Tile;
 
 class BoardTest {
 
-	static Board board;
-	Tile tile;
-
-	@BeforeClass
+	private static Board board;
+	private static Tile tile;
+	
+	@BeforeAll
 	public static void initialize(){
 		board = new Board();
-    }
+		tile = new Tile(1,1);
+    	}
 
 	@Test
-	void initializeTest() {
-		assertNotNull(board);
+	void testBoardConstructor() {
+		assertNotNull(board, "Board Constructor Test");
 	}
 	
 	@Test
-	void getTileInfoTest() {
-		tile = board.getTileInfo(1,1);
-		assertNotNull(tile);
+	void testGetTileInfoAsString() {
+		Tile newTile = (board.getTileInfo(1,1));
+		assertEquals(tile.toString(), newTile.toString(), "Board getTileInfo() test");
 	}
 }
