@@ -41,9 +41,9 @@ public class User {
 		new BanqiGame(this, invitee);		
 	}
 	
-	/*To be implemented: A User may invite any number of other Users to play a new Banqi Game
-	by providing the nickname of the User they wish to invite.  While they can send out unlimited invites,
-	only the first to accept an invitation can play the game.*/
+	/*A User may invite any number of other Users to play a new Banqi Game.  A single call to this method
+	is associated with a single invite.  The required paramter is the nickname of the User they wish to invite.  
+	This creates the association relationship between the User (host) and the invited User.*/
 	public void sendInvite(String nickname) {
 		new Invite(this, nickname);
 	}
@@ -58,7 +58,8 @@ public class User {
 	}
 
 	
-	/*Prints out the invites for the current user*/
+	/*Unless a User has no game invites, this prints out any invites for a given User.  
+	Each invite has an associated invitee, time of invite and whether it's accepted/declined.*/
 	public void getInviteStatus() {
 		System.out.println("Current invites:\n");
 		int count = 1;
@@ -71,8 +72,14 @@ public class User {
 		}
 	}
 	
-	/*To be implemented: A User will be able to accept or decline an invite
-	and the response will be recorded within the invite and sent to the inviter.*/
+	/*A User responds to a Banqi Game invite.  The User either accepts or declines it,
+	and the response will be recorded within the invite and sent to the inviter.
+	The response is given via command line, with a valid Banqi Game user.  The system
+	then processes the User's response to that invite.
+	Checks:
+		A game without any outstanding invites cannot have an accepted invite.
+		Invites are stored with a number, so the system requires a valid number to accept an invite response.
+	*/
 	public Boolean respondToInvite() {
 		System.out.println("Type the corresponding number of the invite to accept it");
 		Scanner scanner = new Scanner( System.in );
