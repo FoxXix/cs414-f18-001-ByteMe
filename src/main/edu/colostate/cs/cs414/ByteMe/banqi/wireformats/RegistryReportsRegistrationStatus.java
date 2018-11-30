@@ -8,7 +8,7 @@ import java.io.DataInputStream;
 import java.io.DataOutputStream;
 import java.io.IOException;
 
-import main.edu.colostate.cs.cs414.ByteMe.banqi.server.User;
+import main.edu.colostate.cs.cs414.ByteMe.banqi.server.UserNode;
 
 public class RegistryReportsRegistrationStatus implements Event {
 

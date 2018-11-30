@@ -10,6 +10,9 @@ import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.concurrent.TimeUnit;
+
+import main.edu.colostate.cs.cs414.ByteMe.banqi.server.UserNode;
 
 public class BanqiController {
 
@@ -18,14 +21,24 @@ public class BanqiController {
 	protected List<UserProfile> listOfProfiles = new ArrayList<UserProfile>();
 	protected static List<User> users = new ArrayList<User>();
 	User U;
+	UserNode usernode;
+	
+	private boolean requestPass = false;
+	
+	public void setRequestPassword() {
+		requestPass = true;
+	}
 	
 	//read user inputs
 	private static BufferedReader read;
 
-
 	//constructor
 	public BanqiController(String file) {
 		this.profilesFile = file;
+	}
+	
+	public BanqiController(UserNode usernode) {
+		this.usernode = usernode;
 	}
 	
 	/* Reads a file for a User  and adds the contents to the list of User Profiles.
@@ -36,7 +49,11 @@ public class BanqiController {
 	public List<UserProfile> getListProfiles(){
 		return listOfProfiles;
 	}
-
+	
+	public List<User> getListUsers()
+	{
+		return users;
+	}
 	// reads the Users file and adds them to the list of Profiles
 	public void readUsers() throws IOException {
 
@@ -94,8 +111,8 @@ public class BanqiController {
 	  - Log out [enter 'exit']
 	If the input is not one of the previous options, the user is prompted that the input is not recognized.
 	*/
-	private void runProgram() throws IOException {
-		readUsers();
+	public void runProgram() throws IOException, InterruptedException {
+//		readUsers();
 		String choice;
 		read = new BufferedReader(new InputStreamReader(System.in));
 		printTitle();
@@ -109,7 +126,12 @@ public class BanqiController {
 
 			// attempt log-in
 			if (choice.equals("1")) {
-				initialize();
+				getUserName();
+				TimeUnit.SECONDS.sleep(1);
+				System.out.println(requestPass);
+				if(requestPass == true) {
+					enterCredentials();
+				}
 				b = true;
 			} else if (choice.equals("2")) {
 				makeNewUser();
@@ -285,27 +307,30 @@ public class BanqiController {
 	The following checks are done:
 	  - If a profile exists with that nickname, log-in
 	  - Else, the User is prompted that they have no profile and logging in ends*/
-	public void initialize() throws IOException {
+	private void getUserName() throws IOException {
 //		System.out.println(listOfProfiles.size());
 //		for(UserProfile t : listOfProfiles) {
 //			System.out.println(t.getUserName());
 //		}
 		String name = "";
-		boolean found = false;
-		do {
-			name = "";
-			System.out.println("Please Enter your nickname");
-			name = read.readLine();
-			System.out.println("name entered is: " + name);
-			UserProfile profile = getOwnUser(name);
-	//		System.out.println("new Profile: " + profile);
-			if (profile != null) {
-				U = new User(profile);
-				found = true;
-			} else {
-				System.out.println("We could not find a profile with name of: " + name);
-			}
-		} while (!found);
+		System.out.println("Please Enter your nickname");
+		name = read.readLine();
+		usernode.logIn(name);
+//		boolean found = false;
+//		do {
+//			name = "";
+//			System.out.println("Please Enter your nickname");
+//			name = read.readLine();
+//			System.out.println("name entered is: " + name);
+//			UserProfile profile = getOwnUser(name);
+//	//		System.out.println("new Profile: " + profile);
+//			if (profile != null) {
+//				U = new User(profile);
+//				found = true;
+//			} else {
+//				System.out.println("We could not find a profile with name of: " + name);
+//			}
+//		} while (!found);
 	}
 
 	/* This method permits a User to view their own Profile, so they can see their game stats.
@@ -317,11 +342,11 @@ public class BanqiController {
 //			System.out.println("UserName is: " + prof.getUserName());
 			if (prof.getUserName().equals(nickname)) {
 				// log in, by entering password
-				boolean success = enterCredentials(prof);
-				if (success) {
-					System.out.println("Welcome User " + prof.getUserName() + "!");
-					return prof;
-				}
+//				boolean success = enterCredentials(prof);
+//				if (success) {
+//					System.out.println("Welcome User " + prof.getUserName() + "!");
+//					return prof;
+//				}
 			}
 		}
 		return null;
@@ -332,21 +357,24 @@ public class BanqiController {
 	to enter a valid password.  The verification process is cancelled
 	if the User does not input a password associated with the given nickname.
 	*/
-	private boolean enterCredentials(UserProfile prof) throws IOException {
-		int count = 0;
-		while (count < 3) {
-			System.out.println("Please enter your password");
-			String password = read.readLine();
-//			System.out.println(prof.getPassword());
-			if(!(password.equals(prof.getPassword()))) {
-				count++;
-				System.out.println("Password was incorrect, you have " + (3 - count) + " attempts remaining");
-			}
-			else {
-				return true;
-			}
-		}
-		return false;
+	public void enterCredentials() throws IOException {
+//		int count = 0;
+		// while (count < 3) {
+		System.out.println("Please enter your password");
+		String password = read.readLine();
+		System.out.println(password);
+		usernode.sendPassword(password);
+		//// System.out.println(prof.getPassword());
+		// if(!(password.equals(prof.getPassword()))) {
+		// count++;
+		// System.out.println("Password was incorrect, you have " + (3 - count) + "
+		//// attempts remaining");
+		// }
+		// else {
+		// return true;
+		// }
+//		}
+
 	}
 
 	/* This implements the functionality needed to register a new User.
@@ -438,9 +466,9 @@ public class BanqiController {
 		System.out.println(title);
 	}
 	
-	public static void main(String args[]) throws IOException {
-		BanqiController banqi = new BanqiController(args[0]);
-		banqi.runProgram();
-	}
+//	public static void main(String args[]) throws IOException {
+//		BanqiController banqi = new BanqiController(args[0]);
+//		banqi.runProgram();
+//	}
 
 }

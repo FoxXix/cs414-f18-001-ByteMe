@@ -40,6 +40,7 @@ public class Server extends Node {
 	private BanqiController banqiController;
 	private List<UserProfile> listOfProfiles = new ArrayList<UserProfile>();
 	private List<BanqiGame> listCurrentGames;
+//	private List<User> listOfUsers = new ArrayList<User>();
 	
 	private EventFactory eventFactory;
 	private static int[] nodeIds = new int[128];
@@ -63,6 +64,7 @@ public class Server extends Node {
 		banqiController = new BanqiController("/s/bach/l/under/sporsche/cs414/Banqi/UserProfiles.txt");
 		banqiController.readUsers();
 		listOfProfiles = banqiController.getListProfiles();
+//		listOfUsers = banqiController.getListUsers();
 //		System.out.println(listOfProfiles);
 		Thread t = new Thread(server);
 		t.start();
@@ -103,9 +105,9 @@ public class Server extends Node {
 			LogIn lIn = (LogIn) e;
 			byte[] name = lIn.getNickname();
 			String nickname = new String(name);
-//			System.out.println("Nickname is:::::::" + nickname);
+			System.out.println("Nickname is:::::::" + nickname);
 			if(checkNickNameExists(nickname)) {
-//				System.out.println("nickname exists");
+				System.out.println("nickname exists");
 				RequestPassword reqPass = new RequestPassword();
 				connect.sendMessage(reqPass.getBytes());
 			}
@@ -113,25 +115,7 @@ public class Server extends Node {
 				NicknameDoesNotExist nomatch = new NicknameDoesNotExist();
 				connect.sendMessage(nomatch.getBytes());
 			}
-//		case Protocol.NodeReportsOverlaySetupStatus:
-//			NodeReportsOverlaySetupStatus nR = (NodeReportsOverlaySetupStatus) e;
-//			int stat = nR.getStatus();
-//			byte[] info = nR.getInfoString();
-//			String s = new String(info);
-////			System.out.println(s + stat);
-//			break;
-//		case Protocol.OverlayNodeReportsTaskFinished:
-//			OverlayNodeReportsTaskFinished taskFinished = (OverlayNodeReportsTaskFinished) e;
-//			checkCompletion(taskFinished.getID());
-//			break;
-//		case Protocol.SendDeregistration:
-//			SendDeregistration dereg = (SendDeregistration) e;
-//			RegistryReportsDeregistrationStatus rrds = new RegistryReportsDeregistrationStatus();
-////			System.out.println("saldjflskdf" + this.cache.getById(dereg.getNodeId()));
-//			this.cache.getById(dereg.getNodeId()).sendMessage(rrds.getBytes());
-//			this.cache.remove(dereg.getNodeId());
-//			this.nodesRegistered.remove(dereg.getNodeId());
-//			break;
+			break;
 		}
 
 	}
@@ -194,17 +178,6 @@ public class Server extends Node {
 		//remove the entry in the hashmap that corresponds to nodeIDRec
 	}
 	
-//	public void sendPackets(int numPackets) throws IOException {
-//		
-//		for (Integer i = 0; i < allMessNodes.length; i++) {
-//			TCPConnection connect = cache.getById(allMessNodes[i]);
-//			RegistryRequestsTaskInitiate initiateTask = new RegistryRequestsTaskInitiate();
-//			initiateTask.setInfo(numPackets);
-//			connect.sendMessage(initiateTask.getBytes());
-//		}
-//	}
-	
-	
 	public void printListOfNodes() {
 		for (Entry<Integer, Tuple<byte[], Integer>> key : nodesRegistered.entrySet()) {
 			Integer k = key.getKey();
@@ -214,49 +187,4 @@ public class Server extends Node {
 			System.out.println(k + " " + ip + " " + p);
 		}
 	}
-	
-	// reads the Users file and adds them to the list of Profiles
-//	public void readUsers() throws FileNotFoundException, IOException {
-//		FileReader file = new FileReader("/s/bach/l/under/sporsche/cs414/Banqi/UserProfiles.txt");
-//		BufferedReader buff = new BufferedReader(file);
-//		String line = null;
-//		while ((line = buff.readLine()) != null) {
-//			String name = "";
-//			String email = "";
-//			String pass = "";
-//			String date = "";
-//			int wins = 0;
-//			int losses = 0;
-//			int draws = 0;
-//			int forf = 0;
-//			String[] parts = line.split(" ");
-//			for (int i = 0; i < parts.length; i++) {
-//				if (i == 0) {
-//					name = parts[i];
-//				} else if (i == 1) {
-//					email = parts[i];
-//				} else if (i == 2) {
-//					pass = parts[i];
-//				} else if (i == 3) {
-//					date = parts[i] + " ";
-//				} else if (i == 4) {
-//					date += parts[i];
-//				} else if (i == 5) {
-//					wins = Integer.parseInt(parts[i]);
-//				} else if (i == 6) {
-//					losses = Integer.parseInt(parts[i]);
-//				} else if (i == 7) {
-//					draws = Integer.parseInt(parts[i]);
-//				} else if (i == 8) {
-//					forf = Integer.parseInt(parts[i]);
-//				} else {
-//					System.out.println("There shouldn't be anything more on this line");
-//				}
-//			}
-//			UserProfile us = new UserProfile(name, email, pass, date, wins, losses, draws, forf);
-//			listOfProfiles.add(us);
-//		}
-//		buff.close();
-//
-//	}
 }

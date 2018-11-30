@@ -8,21 +8,35 @@ import java.io.DataInputStream;
 import java.io.DataOutputStream;
 import java.io.IOException;
 
-public class RequestPassword implements Event{
+public class SendPassword implements Event{
+	
+	private byte[] password;
+	private byte passwordLength;
+	
+	public void setPassword(byte length, byte[] password) {
+		this.password = password;
+		this.passwordLength = length;
+	}
+	
+	public byte[] getPassword() {
+		return password;
+	}
 
 	@Override
 	public byte getType() {
-		return 7;
+		return 9;
 	}
 
 	@Override
 	public byte[] getBytes() throws IOException {
-
+		
 		byte[] marshalledBytes = null;
 		ByteArrayOutputStream baOutputStream = new ByteArrayOutputStream();
 		DataOutputStream dout = new DataOutputStream(new BufferedOutputStream(baOutputStream));
 		
 		dout.writeByte(getType());
+		dout.writeByte(passwordLength);
+		dout.write(password);
 		
 		dout.flush();
 		marshalledBytes = baOutputStream.toByteArray();
@@ -34,15 +48,18 @@ public class RequestPassword implements Event{
 
 	@Override
 	public void unPackBytes(byte[] marshalledBytes) throws IOException {
-//		System.out.println("getting into unpack bytes");
-//		System.out.println(Arrays.toString(marshalledBytes));
 		ByteArrayInputStream baInputStream = new ByteArrayInputStream(marshalledBytes);
 		DataInputStream din = new DataInputStream(new BufferedInputStream(baInputStream));
 		
 		int type = din.readByte();
+		byte lengthRec = din.readByte();
+		byte[] name = new byte[lengthRec];
+		din.readFully(name);
+		password = name;
 
 		baInputStream.close();
 		din.close();
+		
 	}
 
 }
