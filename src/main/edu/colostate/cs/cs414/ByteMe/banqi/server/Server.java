@@ -49,6 +49,7 @@ public class Server extends Node {
 	int[] allMessNodes = null;
 	TCPCache cache = null;
 	
+	//is it fixed?
 	private void Initialize(int port) throws IOException
 	{	
 		
