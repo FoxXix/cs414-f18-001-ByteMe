@@ -2,7 +2,7 @@ package test.edu.colostate.cs.cs414.ByteMe.banqi.client;
 
 import static org.junit.jupiter.api.Assertions.*;
 
-import org.junit.BeforeAll;
+import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
 
 import main.edu.colostate.cs.cs414.ByteMe.banqi.client.Invite;
@@ -16,8 +16,7 @@ class InviteTest {
 	private static UserProfile up2;
 	private static User from;
 	private static User to;
-	private static Invite inviter;
-	private static Invite invitee;
+	private static Invite invite;
 	private static String nickname1;
 	private static String nickname2;
 
@@ -32,24 +31,18 @@ class InviteTest {
 		up2 = new UserProfile(nickname2, email2, "5678", "1/12/18", 0, 0, 0, 0);
 		from = new User(up1);
 		to = new User(up2);
-		inviter = new Invite(from, to);
-		invitee = new Invite(from, to);
+		invite = new Invite(from, to);
     	}
 	
 	@Test
-	public void testNotNullInviter() {
-		assertNotNull(inviter, "Inviter not-null test");
-	}
-	
-	@Test
-	public void testNotNullInvitee() {
-		assertNotNull(invitee, "Invitee not-null test");
+	public void testNotNullInvite() {
+		assertNotNull(invite, "Inviter not-null test");
 	}
 	
 	@Test
 	public void testInviteToString() {
-		String inviteData = "From: " + from.getNickname() + " Date: " + inviter.getTime();
-		assertEquals(inviteData, inviter.toString(), "Invite toString() test");	
+		String inviteData = "From: " + from.getNickname() + " Date: " + invite.getTime();
+		assertEquals(inviteData, invite.toString(), "Invite toString() test");	
 	}
 
 }
