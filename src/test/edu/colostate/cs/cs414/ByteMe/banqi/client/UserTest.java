@@ -40,12 +40,6 @@ class UserTest {
 	}
 	
 	@Test
-	void getInviteStatusTest() {
-		String status = user.getInviteStatus();
-		assertNotNull(status);
-	}
-	
-	@Test
 	void respondToInviteTest() {
 		Boolean response = user.respondToInvite();
 		assertTrue(response);
