@@ -41,7 +41,19 @@ e.g.: `java -cp ~/cs414/Banqi/cs414-f18-001-ByteMe/src main.edu.colostate.cs.cs4
 
 ## Running the Banqi Game on Two Devices:
 
-* As a two-player game, the Banqi Game can be run on multiple devices, so that Users can play from different locations.
+* As a two-player game, the Banqi Game can be run on two devices, so that Users can play from different locations.
+* Steps 1 - 4 are completed by one device.  Steps 5 and 6 must be done by both players.
+
+1. Server, which holds information about Users, Invites and Games, must be set up before anyone can play Banqi.
+2. Switch into the folder which contains the code for the Banqi Game (the src folder).
+3. In a terminal window, type `make` through command line.
+4. Type `java main.edu.colostate.cs.cs414.ByteMe.banqi.server.Server [enter a port number]` (the port number can be any number that is 4 to 5 digits long).
+5. Now Users are ready to connect to the server.  To connect to the server (each User does this).
+    
+    a. Each User enters in command line: `java main.edu.colostate.cs.cs414.ByteMe.banqi.server.User [IP address of computer server is on] [enter the same port number as above in step 4]`
+  
+6. Now Users are connected and ready to play the Banqi!
+
 
 ## To Run the Tests:
 
