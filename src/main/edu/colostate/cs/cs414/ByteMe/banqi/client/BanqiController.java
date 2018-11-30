@@ -22,6 +22,7 @@ public class BanqiController {
 	//read user inputs
 	private static BufferedReader read;
 
+
 	//constructor
 	public BanqiController(String file) {
 		this.profilesFile = file;
@@ -31,7 +32,14 @@ public class BanqiController {
 	The file contains the unique account details as well as the user's game performance.
 	With all of the data from this file, a new User Profile gets created.
 	*/
-	private void readUsers() throws IOException {
+
+	public List<UserProfile> getListProfiles(){
+		return listOfProfiles;
+	}
+
+	// reads the Users file and adds them to the list of Profiles
+	public void readUsers() throws IOException {
+
 		FileReader file = new FileReader(profilesFile);
 		BufferedReader buff = new BufferedReader(file);
 		String line = null;

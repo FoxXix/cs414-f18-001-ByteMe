@@ -1,8 +1,0 @@
-scoobs scoobs@email.com pass 2018/10/27 17:45:45 0 0 0 0
-Brian firefox@rams.colostate.edu 123 2018/11/28 13:27:42 0 0 0 0
-Jaclyn jj@rams.colostate.edu 123 2018/11/28 13:27:42 0 0 0 0
-Bob bob@rams.colostate.edu 123 2018/11/28 13:27:42 0 0 0 0
-Roger rog@rams.colostate.edu 123 2018/11/28 13:27:42 0 0 0 0
-Test test@rams.colostate.edu 123 2018/11/28 13:27:42 0 0 0 0
-Evan Evan@rams.colostate.edu 123 2018/11/28 13:27:42 0 0 0 0
-Tito tito@rams.colostate.edu 123 2018/11/28 13:27:42 0 0 0 0
