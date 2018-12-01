@@ -25,6 +25,10 @@ public class BanqiController {
 	
 	private boolean requestPass = false;
 	
+	public void setUser(User u) {
+		this.U = u;
+	}
+	
 	public void setRequestPassword() {
 		requestPass = true;
 	}
@@ -127,11 +131,11 @@ public class BanqiController {
 			// attempt log-in
 			if (choice.equals("1")) {
 				getUserName();
-				TimeUnit.SECONDS.sleep(1);
-				System.out.println(requestPass);
-				if(requestPass == true) {
-					enterCredentials();
-				}
+//				TimeUnit.SECONDS.sleep(1);
+//				System.out.println(requestPass);
+//				if(requestPass == true) {
+//					enterCredentials();
+//				}
 				b = true;
 			} else if (choice.equals("2")) {
 				makeNewUser();
@@ -271,6 +275,7 @@ public class BanqiController {
 	private void viewProfile() throws IOException {
 		boolean b = false;
 		String choice;
+		System.out.println(U.getNickname());
 		U.seeProfile(U.getNickname());
 		while (!b) {			
 			System.out.println("\n1) Search for player");
@@ -315,7 +320,10 @@ public class BanqiController {
 		String name = "";
 		System.out.println("Please Enter your nickname");
 		name = read.readLine();
-		usernode.logIn(name);
+		System.out.println("Please enter your password");
+		String password = read.readLine();
+		System.out.println(password);
+		usernode.logIn(name, password);
 //		boolean found = false;
 //		do {
 //			name = "";
@@ -364,7 +372,7 @@ public class BanqiController {
 		String password = read.readLine();
 		System.out.println(password);
 		usernode.sendPassword(password);
-		//// System.out.println(prof.getPassword());
+//		 System.out.println(prof.getPassword());
 		// if(!(password.equals(prof.getPassword()))) {
 		// count++;
 		// System.out.println("Password was incorrect, you have " + (3 - count) + "

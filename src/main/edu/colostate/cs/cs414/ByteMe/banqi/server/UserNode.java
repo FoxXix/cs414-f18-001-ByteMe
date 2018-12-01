@@ -8,6 +8,7 @@ import java.util.Random;
 
 import main.edu.colostate.cs.cs414.ByteMe.banqi.client.BanqiController;
 import main.edu.colostate.cs.cs414.ByteMe.banqi.client.User;
+import main.edu.colostate.cs.cs414.ByteMe.banqi.client.UserProfile;
 import main.edu.colostate.cs.cs414.ByteMe.banqi.transport.TCPCache;
 import main.edu.colostate.cs.cs414.ByteMe.banqi.transport.TCPConnection;
 import main.edu.colostate.cs.cs414.ByteMe.banqi.transport.TCPServerThread;
@@ -29,6 +30,7 @@ import main.edu.colostate.cs.cs414.ByteMe.banqi.wireformats.SendPassword;
 //import cs455.overlay.wireformats.RegistrySendsNodeManifest;
 //import main.edu.colostate.cs.cs414.ByteMe.banqi.wireformats.SendDeregistration;
 import main.edu.colostate.cs.cs414.ByteMe.banqi.wireformats.SendRegistration;
+import main.edu.colostate.cs.cs414.ByteMe.banqi.wireformats.SendUser;
 
 import java.io.*;
 
@@ -44,6 +46,7 @@ public class UserNode extends Node{
 	TCPConnection connection = null;
 	BanqiController banqi = new BanqiController(this);
 	
+	private UserProfile userProfile;
 	private User user;
 	
 	private void Initialize(String serverName, int port) throws IOException, InterruptedException
@@ -94,9 +97,10 @@ public class UserNode extends Node{
 	}
 	
 	//send a message to the server requesting to LogIn to an existing account
-	public void logIn(String nickname) throws IOException {
+	public void logIn(String nickname, String password) throws IOException {
 		LogIn lIn = new LogIn();
 		lIn.setNickname((byte)nickname.getBytes().length, nickname.getBytes());
+		lIn.setPassword((byte)password.getBytes().length, password.getBytes());
 		System.out.println("sending message");
 		connection.sendMessage(lIn.getBytes());
 	}
@@ -116,10 +120,31 @@ public class UserNode extends Node{
 			RequestPassword reqP = (RequestPassword) e;
 			banqi.setRequestPassword();
 			break;
+		case Protocol.SendUser:
+			SendUser sendU = (SendUser) e;
+			
+			//get userprofile info and create User instance
+			byte[] name = sendU.getNickname();
+			String nickname = new String(name);
+			byte[] em = sendU.getEmail();
+			String email = new String(em);
+			byte[] pas = sendU.getPassword();
+			String password = new String(pas);
+			byte[] dat = sendU.getDate();
+			String date = new String(dat);
+			int wins = sendU.getWins();
+			int losses = sendU.getLosses();
+			int draws = sendU.getDraws();
+			int forfeits = sendU.getForfeits();
+			userProfile = new UserProfile(nickname, email, password, date, wins, losses, draws, forfeits);
+			user = new User(userProfile);
+			banqi.setUser(user);
+			break;
 		case Protocol.RegistryReportsDeregistrationStatus:
 //			RegistryReportsDeregistrationStatus rrd = (RegistryReportsDeregistrationStatus) e;
 			System.out.println("Exiting Overlay");
 			System.exit(0);
+			break;
 		}		
 	}
 	

@@ -2,9 +2,10 @@ package main.edu.colostate.cs.cs414.ByteMe.banqi.server;
 
 import main.edu.colostate.cs.cs414.ByteMe.banqi.client.BanqiController;
 import main.edu.colostate.cs.cs414.ByteMe.banqi.client.BanqiGame;
+import main.edu.colostate.cs.cs414.ByteMe.banqi.client.User;
 import main.edu.colostate.cs.cs414.ByteMe.banqi.client.UserProfile;
-import main.edu.colostate.cs.cs414.ByteMe.banqi.routing.Route;
-import main.edu.colostate.cs.cs414.ByteMe.banqi.routing.RoutingTable;
+//import main.edu.colostate.cs.cs414.ByteMe.banqi.routing.Route;
+//import main.edu.colostate.cs.cs414.ByteMe.banqi.routing.RoutingTable;
 import main.edu.colostate.cs.cs414.ByteMe.banqi.transport.TCPCache;
 import main.edu.colostate.cs.cs414.ByteMe.banqi.transport.TCPConnection;
 import main.edu.colostate.cs.cs414.ByteMe.banqi.transport.TCPSender;
@@ -21,11 +22,13 @@ import main.edu.colostate.cs.cs414.ByteMe.banqi.wireformats.Protocol;
 //import cs455.overlay.wireformats.RegistryReportsDeregistrationStatus;
 import main.edu.colostate.cs.cs414.ByteMe.banqi.wireformats.RegistryReportsRegistrationStatus;
 import main.edu.colostate.cs.cs414.ByteMe.banqi.wireformats.RequestPassword;
+import main.edu.colostate.cs.cs414.ByteMe.banqi.wireformats.SendPassword;
 //import cs455.overlay.wireformats.RegistryRequestsTaskInitiate;
 //import cs455.overlay.wireformats.RegistryRequestsTrafficSummary;
 //import cs455.overlay.wireformats.RegistrySendsNodeManifest;
 //import cs455.overlay.wireformats.SendDeregistration;
 import main.edu.colostate.cs.cs414.ByteMe.banqi.wireformats.SendRegistration;
+import main.edu.colostate.cs.cs414.ByteMe.banqi.wireformats.SendUser;
 
 import java.io.*;
 import java.util.ArrayList;
@@ -46,7 +49,7 @@ public class Server extends Node {
 	private static int[] nodeIds = new int[128];
 	private static Map<Integer, Tuple<byte[], Integer>> nodesRegistered = new HashMap<Integer, Tuple<byte[], Integer>>();
 	private static TCPServerThread server = null;;
-	ArrayList<RoutingTable> routeTables = null;
+//	ArrayList<RoutingTable> routeTables = null;
 	int[] allMessNodes = null;
 	TCPCache cache = null;
 	
@@ -58,7 +61,7 @@ public class Server extends Node {
 //		new Thread (() -> new CommandParser().registryCommands(this)).start();
 		eventFactory = new EventFactory(this);
 		server = new TCPServerThread(port);
-		this.routeTables = new ArrayList<RoutingTable>();
+//		this.routeTables = new ArrayList<RoutingTable>();
 		this.cache = new TCPCache();
 		//read in all of the profiles
 		banqiController = new BanqiController("/s/bach/l/under/sporsche/cs414/Banqi/UserProfiles.txt");
@@ -105,9 +108,25 @@ public class Server extends Node {
 			LogIn lIn = (LogIn) e;
 			byte[] name = lIn.getNickname();
 			String nickname = new String(name);
+			byte[] pass = lIn.getPassword();
+			String password = new String(pass);
 			System.out.println("Nickname is:::::::" + nickname);
 			if(checkNickNameExists(nickname)) {
 				System.out.println("nickname exists");
+				if(checkPassword(nickname, password)) {
+					System.out.println("Password is correct");
+					//return the User
+					for(UserProfile prof : listOfProfiles) {
+						if(prof.getUserName().equals(nickname)) {
+							System.out.println("creating user to send to UserNode");
+							SendUser sendU = new SendUser();
+							sendU.setInfo(prof.getUserName().getBytes(), (byte)prof.getUserName().getBytes().length, prof.getEmail().getBytes(), (byte)prof.getEmail().getBytes().length,
+									prof.getPassword().getBytes(), (byte)prof.getPassword().getBytes().length, prof.getJoinedDate().getBytes(), (byte)prof.getJoinedDate().getBytes().length,
+									prof.getWins(), prof.getLosses(), prof.getDraws(), prof.getForfeits());
+							connect.sendMessage(sendU.getBytes());
+						}
+					}
+				}
 				RequestPassword reqPass = new RequestPassword();
 				connect.sendMessage(reqPass.getBytes());
 			}
@@ -117,7 +136,6 @@ public class Server extends Node {
 			}
 			break;
 		}
-
 	}
 	
 	public static int registerNode(byte type, byte[] address, int port) {
@@ -169,6 +187,17 @@ public class Server extends Node {
 			if (prof.getUserName().equals(nickname)) {
 				// log in, by entering password
 				return true;
+			}
+		}
+		return false;
+	}
+	
+	private boolean checkPassword(String nickname, String password) {
+		for(UserProfile prof : listOfProfiles) {
+			if(prof.getUserName().equals(nickname)) {
+				if(prof.getPassword().equals(password)) {
+					return true;
+				}
 			}
 		}
 		return false;

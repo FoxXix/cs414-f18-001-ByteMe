@@ -19,23 +19,19 @@ public class User {
 	}
 
 	public UserProfile seeProfile(String nickname) {
-		User player = BanqiController.getUser(nickname);		
 		System.out.println(nickname + "'s Profile\n");
 		
-		System.out.println("Joined: " + player.userProfile.getJoinedDate());
-		System.out.println("Wins: " + player.userProfile.getWins());
-		System.out.println("Losses: " + player.userProfile.getLosses());
-		System.out.println("Draws: " + player.userProfile.getDraws());
-		System.out.println("Forfeits: " + player.userProfile.getForfeits());
+		System.out.println("Joined: " + userProfile.getJoinedDate());
+		System.out.println("Wins: " + userProfile.getWins());
+		System.out.println("Losses: " + userProfile.getLosses());
+		System.out.println("Draws: " + userProfile.getDraws());
+		System.out.println("Forfeits: " + userProfile.getForfeits());
 		
-		return player.userProfile;
+		return userProfile;
 	}
 	
 	/*To be implemented: For purposes of security, the User will eventually need to enter their credentials
 	in order to access components of the system associated with registered users.*/
-	private void enterCredentials() {
-		// TODO Auto-generated method stub
-	}
 
 	public void initiateGame(User invitee) {
 		new BanqiGame(this, invitee);		
