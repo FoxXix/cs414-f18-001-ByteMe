@@ -18,10 +18,13 @@ public class User {
 		invites = new ArrayList<Invite>();
 	}
 
-	public UserProfile seeProfile(String nickname) {
-		User player = BanqiController.getUser(nickname);		
-		System.out.println(nickname + "'s Profile\n");
+	public UserProfile seeProfile(String nickname) throws NullPointerException {
+		if (BanqiController.getUser(nickname).equals(null))
+			throw new NullPointerException("User does not exist in the Banqi system.");
 		
+		User player = BanqiController.getUser(nickname);
+		
+		System.out.println(nickname + "'s Profile\n");
 		System.out.println("Joined: " + player.userProfile.getJoinedDate());
 		System.out.println("Wins: " + player.userProfile.getWins());
 		System.out.println("Losses: " + player.userProfile.getLosses());
