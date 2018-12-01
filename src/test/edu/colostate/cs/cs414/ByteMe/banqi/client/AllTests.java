@@ -16,7 +16,6 @@ import org.junit.runners.Suite.SuiteClasses;
 	GeneralTest.class,
 	HorseTest.class,
 	InviteTest.class,
-	PieceTest.class,
 	SoldierTest.class,
 	TileTest.class,
 	UserProfileTest.class,
