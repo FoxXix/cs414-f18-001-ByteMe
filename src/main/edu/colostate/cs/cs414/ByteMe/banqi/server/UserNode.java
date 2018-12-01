@@ -12,6 +12,7 @@ import main.edu.colostate.cs.cs414.ByteMe.banqi.transport.TCPCache;
 import main.edu.colostate.cs.cs414.ByteMe.banqi.transport.TCPConnection;
 import main.edu.colostate.cs.cs414.ByteMe.banqi.transport.TCPServerThread;
 import main.edu.colostate.cs.cs414.ByteMe.banqi.util.CommandParser;
+import main.edu.colostate.cs.cs414.ByteMe.banqi.wireformats.CreateProfile;
 import main.edu.colostate.cs.cs414.ByteMe.banqi.wireformats.Event;
 import main.edu.colostate.cs.cs414.ByteMe.banqi.wireformats.EventFactory;
 import main.edu.colostate.cs.cs414.ByteMe.banqi.wireformats.LogIn;
@@ -137,6 +138,15 @@ public class UserNode extends Node{
 		SendPassword sendPass = new SendPassword();
 		sendPass.setPassword((byte)password.getBytes().length, password.getBytes());
 		connection.sendMessage(sendPass.getBytes());
+	}
+	
+	public void createProfile(String nickname, String email, String password) throws IOException {
+		System.out.println("sending profile to server");
+		CreateProfile profile = new CreateProfile();
+		profile.setNickname((byte)nickname.getBytes().length, nickname.getBytes());
+		profile.setEmail((byte)email.getBytes().length, email.getBytes());
+		profile.setPassword((byte)password.getBytes().length, password.getBytes());
+		connection.sendMessage(profile.getBytes());
 	}
 	
 	//convert IP to bytes

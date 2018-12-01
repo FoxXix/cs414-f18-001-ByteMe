@@ -10,6 +10,7 @@ import main.edu.colostate.cs.cs414.ByteMe.banqi.transport.TCPConnection;
 import main.edu.colostate.cs.cs414.ByteMe.banqi.transport.TCPSender;
 import main.edu.colostate.cs.cs414.ByteMe.banqi.transport.TCPServerThread;
 import main.edu.colostate.cs.cs414.ByteMe.banqi.util.CommandParser;
+import main.edu.colostate.cs.cs414.ByteMe.banqi.wireformats.CreateProfile;
 import main.edu.colostate.cs.cs414.ByteMe.banqi.wireformats.Event;
 import main.edu.colostate.cs.cs414.ByteMe.banqi.wireformats.EventFactory;
 import main.edu.colostate.cs.cs414.ByteMe.banqi.wireformats.LogIn;
@@ -116,6 +117,22 @@ public class Server extends Node {
 				connect.sendMessage(nomatch.getBytes());
 			}
 			break;
+		case Protocol.CreateProfile:
+			CreateProfile cp = (CreateProfile) e;
+			byte[] n = cp.getNickname();
+			String pname = new String(n);
+			byte[] em = cp.getEmail();
+			String email = new String(em);
+			byte[] p = cp.getPassword();
+			String passw = new String(p);
+			
+			if(checkNickNameExists(pname)) {
+				System.out.println("nickname already exists");
+			}
+			if(checkEmailExists(email)) {
+				System.out.println("email already exists");
+			}
+			break;
 		}
 
 	}
@@ -167,6 +184,17 @@ public class Server extends Node {
 		for (UserProfile prof : listOfProfiles) {
 //			System.out.println("UserName is: " + prof.getUserName());
 			if (prof.getUserName().equals(nickname)) {
+				// log in, by entering password
+				return true;
+			}
+		}
+		return false;
+	}
+	
+	private boolean checkEmailExists(String email) throws IOException {
+		for (UserProfile prof : listOfProfiles) {
+//			System.out.println("UserName is: " + prof.getUserName());
+			if (prof.getEmail().equals(email)) {
 				// log in, by entering password
 				return true;
 			}
