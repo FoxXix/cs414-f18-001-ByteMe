@@ -398,28 +398,29 @@ public class BanqiController {
 		System.out.println("Please Enter an Email Address:");
 		email = read.readLine();
 
-		while (!passMatch) {
+		//while (!passMatch) {
 			System.out.println("Please Enter a Password:");
 			password = read.readLine();
 
-			System.out.println("Please Re-enter Your Password:");
-			String reEntered = read.readLine();
+			usernode.createProfile(nickname, email, password);
+			//System.out.println("Please Re-enter Your Password:");
+			//String reEntered = read.readLine();
 
-			if (password.equals(reEntered)) {
-				passMatch = true;
-			} else {
-				System.out.println("Passwords Do Not Match!");
-			}
-		}
+			//if (password.equals(reEntered)) {
+			//	passMatch = true;
+			//} else {
+			//	System.out.println("Passwords Do Not Match!");
+			//}
+		//}
 
-		DateTimeFormatter dtf = DateTimeFormatter.ofPattern("yyyy/MM/dd HH:mm:ss");
-		LocalDateTime now = LocalDateTime.now();
+		//DateTimeFormatter dtf = DateTimeFormatter.ofPattern("yyyy/MM/dd HH:mm:ss");
+		//LocalDateTime now = LocalDateTime.now();
 
-		UserProfile newUser = new UserProfile(nickname, email, password, dtf.format(now), 0, 0, 0, 0);
-		listOfProfiles.add(newUser);
-		users.add(new User(newUser));
+		//UserProfile newUser = new UserProfile(nickname, email, password, dtf.format(now), 0, 0, 0, 0);
+		//listOfProfiles.add(newUser);
+		//users.add(new User(newUser));
 //		System.out.println(listOfProfiles.size());
-		writeToFile(newUser);
+		//writeToFile(newUser);
 
 	}
 
