@@ -40,14 +40,18 @@ public class User {
 		// TODO Auto-generated method stub
 	}
 
-	public void initiateGame(User invitee) {
+	public void initiateGame(User invitee) throws NullPointerException {
+		if (BanqiController.getUser(invitee.getNickname()).equals(null))
+			throw new NullPointerException("User does not exist in the system and can't be your opponent.");
 		new BanqiGame(this, invitee);		
 	}
 	
 	/*A User may invite any number of other Users to play a new Banqi Game.  A single call to this method
 	is associated with a single invite.  The required paramter is the nickname of the User they wish to invite.  
 	This creates the association relationship between the User (host) and the invited User.*/
-	public void sendInvite(String nickname) {
+	public void sendInvite(String nickname) throws NullPointerException {
+		if (BanqiController.getUser(nickname).equals(null))
+			throw new NullPointerException("User does not exist in the Banqi system and can't be invited.");
 		new Invite(this, nickname);
 	}
 	
@@ -59,7 +63,6 @@ public class User {
 		}
 		return null;
 	}
-
 	
 	/*Unless a User has no game invites, this prints out any invites for a given User.  
 	Each invite has an associated invitee, time of invite and whether it's accepted/declined.*/
@@ -113,8 +116,9 @@ public class User {
 		return false;
 	}
 
-
-	public UserProfile getUserProfile(User user) {
+	public UserProfile getUserProfile(User user) throws NullPointerException {
+		if (BanqiController.getUser(user.getNickname()).equals(null))
+			throw new NullPointerException("User does not exist in the Banqi system.");
 		return user.getUserProfile();
 	}
 	
@@ -122,39 +126,31 @@ public class User {
 		return userProfile;
 	}
 
-
 	public void setUserProfile(UserProfile userProfile) {
 		this.userProfile = userProfile;
 	}
-
 
 	public String getNickname() {
 		return nickname;
 	}
 
-
 	public void setNickname(String nickname) {
 		this.nickname = nickname;
 	}
-
 
 	public String getEmail() {
 		return email;
 	}
 
-
 	public void setEmail(String email) {
 		this.email = email;
 	}
-
 
 	public String getPassword() {
 		return password;
 	}
 
-
 	public void setPassword(String password) {
 		this.password = password;
 	}
-
 }
