@@ -24,6 +24,7 @@ import main.edu.colostate.cs.cs414.ByteMe.banqi.wireformats.Protocol;
 //import cs455.overlay.wireformats.RegistryReportsDeregistrationStatus;
 import main.edu.colostate.cs.cs414.ByteMe.banqi.wireformats.RegistryReportsRegistrationStatus;
 import main.edu.colostate.cs.cs414.ByteMe.banqi.wireformats.RequestPassword;
+import main.edu.colostate.cs.cs414.ByteMe.banqi.wireformats.SendLogOff;
 import main.edu.colostate.cs.cs414.ByteMe.banqi.wireformats.SendPassword;
 //import cs455.overlay.wireformats.RegistryRequestsTaskInitiate;
 //import cs455.overlay.wireformats.RegistryRequestsTrafficSummary;
@@ -139,6 +140,7 @@ public class UserNode extends Node{
 			userProfile = new UserProfile(nickname, email, password, date, wins, losses, draws, forfeits);
 			user = new User(userProfile);
 			banqi.setUser(user);
+			banqi.setUserStatus(true);
 			break;
 		case Protocol.RegistryReportsDeregistrationStatus:
 //			RegistryReportsDeregistrationStatus rrd = (RegistryReportsDeregistrationStatus) e;
@@ -162,6 +164,11 @@ public class UserNode extends Node{
 		SendPassword sendPass = new SendPassword();
 		sendPass.setPassword((byte)password.getBytes().length, password.getBytes());
 		connection.sendMessage(sendPass.getBytes());
+	}
+	
+	public void logOff() throws IOException {
+		SendLogOff sendOff = new SendLogOff();
+		connection.sendMessage(sendOff.getBytes());
 	}
 	
 	//convert IP to bytes
