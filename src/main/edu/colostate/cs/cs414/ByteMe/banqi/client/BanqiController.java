@@ -16,7 +16,7 @@ import main.edu.colostate.cs.cs414.ByteMe.banqi.server.UserNode;
 
 public class BanqiController {
 
-	private String profilesFile;
+	public String profilesFile;
 	//stores all created UserProfiles
 	protected List<UserProfile> listOfProfiles = new ArrayList<UserProfile>();
 	protected static List<User> users = new ArrayList<User>();
@@ -27,6 +27,12 @@ public class BanqiController {
 	
 	public void setRequestPassword() {
 		requestPass = true;
+	}
+	
+	private boolean validProfile = false;
+	
+	public void setValidProfile() {
+		validProfile = true;
 	}
 	
 	//read user inputs
@@ -385,43 +391,25 @@ public class BanqiController {
 	The system takes care:
 	  - date/time of the account creation
 	  - creating the new User Profile */
-	private void makeNewUser() throws IOException {
+	private void makeNewUser() throws IOException, InterruptedException {
 		boolean passMatch = false;
 		String nickname = "";
 		String email = "";
 		String password = "";
 
-		// Enter data using BufferReader
-		System.out.println("Please Enter a Nickname:");
-		nickname = read.readLine();
-
-		System.out.println("Please Enter an Email Address:");
-		email = read.readLine();
-
-		//while (!passMatch) {
+		do {
+			System.out.println("Please Enter a Nickname:");
+			nickname = read.readLine();
+	
+			System.out.println("Please Enter an Email Address:");
+			email = read.readLine();
+			
 			System.out.println("Please Enter a Password:");
 			password = read.readLine();
 
 			usernode.createProfile(nickname, email, password);
-			//System.out.println("Please Re-enter Your Password:");
-			//String reEntered = read.readLine();
-
-			//if (password.equals(reEntered)) {
-			//	passMatch = true;
-			//} else {
-			//	System.out.println("Passwords Do Not Match!");
-			//}
-		//}
-
-		//DateTimeFormatter dtf = DateTimeFormatter.ofPattern("yyyy/MM/dd HH:mm:ss");
-		//LocalDateTime now = LocalDateTime.now();
-
-		//UserProfile newUser = new UserProfile(nickname, email, password, dtf.format(now), 0, 0, 0, 0);
-		//listOfProfiles.add(newUser);
-		//users.add(new User(newUser));
-//		System.out.println(listOfProfiles.size());
-		//writeToFile(newUser);
-
+			TimeUnit.SECONDS.sleep(1000);
+		} while (!validProfile);
 	}
 
 	/*This writes a new file to the storage system, in order to record the current details

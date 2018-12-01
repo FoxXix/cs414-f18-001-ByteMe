@@ -2,6 +2,7 @@ package main.edu.colostate.cs.cs414.ByteMe.banqi.server;
 
 import main.edu.colostate.cs.cs414.ByteMe.banqi.client.BanqiController;
 import main.edu.colostate.cs.cs414.ByteMe.banqi.client.BanqiGame;
+import main.edu.colostate.cs.cs414.ByteMe.banqi.client.User;
 import main.edu.colostate.cs.cs414.ByteMe.banqi.client.UserProfile;
 import main.edu.colostate.cs.cs414.ByteMe.banqi.routing.Route;
 import main.edu.colostate.cs.cs414.ByteMe.banqi.routing.RoutingTable;
@@ -29,6 +30,8 @@ import main.edu.colostate.cs.cs414.ByteMe.banqi.wireformats.RequestPassword;
 import main.edu.colostate.cs.cs414.ByteMe.banqi.wireformats.SendRegistration;
 
 import java.io.*;
+import java.time.LocalDateTime;
+import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -41,7 +44,7 @@ public class Server extends Node {
 	private BanqiController banqiController;
 	private List<UserProfile> listOfProfiles = new ArrayList<UserProfile>();
 	private List<BanqiGame> listCurrentGames;
-//	private List<User> listOfUsers = new ArrayList<User>();
+	//private List<User> users = new ArrayList<User>();
 	
 	private EventFactory eventFactory;
 	private static int[] nodeIds = new int[128];
@@ -127,14 +130,44 @@ public class Server extends Node {
 			String passw = new String(p);
 			
 			if(checkNickNameExists(pname)) {
-				System.out.println("nickname already exists");
+				System.out.println("Nickname already exists");
+				break;
 			}
 			if(checkEmailExists(email)) {
-				System.out.println("email already exists");
+				System.out.println("Email already exists");
+				break;
 			}
+			DateTimeFormatter dtf = DateTimeFormatter.ofPattern("yyyy/MM/dd HH:mm:ss");
+			LocalDateTime now = LocalDateTime.now();
+
+			UserProfile newUser = new UserProfile(pname, email, passw, dtf.format(now), 0, 0, 0, 0);
+			listOfProfiles.add(newUser);
+			//users.add(new User(newUser));
+			writeToFile(newUser);
+			
+			connect.sendMessage(cp.getBytes());			
 			break;
 		}
 
+	}
+	
+	/*This writes a new file to the storage system, in order to record the current details
+	of a User Profile.  The file will contain everything on the User Profile:
+	  - nickname, email, password, registration date
+	  - wins, losses, draws, forfeits
+	This file will be stored with the records of the Banqi Game system.
+	*/
+	private void writeToFile(UserProfile u) {
+		String s = u.getUserName() + " " + u.getEmail() + " " + u.getPassword() + " " + u.getJoinedDate()
+		 + " " + u.getWins() + " " + u.getLosses() + " " + u.getDraws() + " " + u.getForfeits();
+		try {
+			BufferedWriter out = new BufferedWriter(new FileWriter(banqiController.profilesFile, true));
+			out.write(s);
+			out.close();
+		} catch(IOException e) {
+			System.out.println("error writing file");
+		}
+		
 	}
 	
 	public static int registerNode(byte type, byte[] address, int port) {

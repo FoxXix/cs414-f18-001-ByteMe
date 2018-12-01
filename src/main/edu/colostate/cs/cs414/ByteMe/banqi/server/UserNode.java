@@ -117,6 +117,10 @@ public class UserNode extends Node{
 			RequestPassword reqP = (RequestPassword) e;
 			banqi.setRequestPassword();
 			break;
+		case Protocol.CreateProfile:
+			CreateProfile profile = (CreateProfile) e;
+			banqi.setValidProfile();
+			break;
 		case Protocol.RegistryReportsDeregistrationStatus:
 //			RegistryReportsDeregistrationStatus rrd = (RegistryReportsDeregistrationStatus) e;
 			System.out.println("Exiting Overlay");
