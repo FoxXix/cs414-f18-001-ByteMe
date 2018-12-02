@@ -19,11 +19,13 @@ import main.edu.colostate.cs.cs414.ByteMe.banqi.wireformats.NicknameDoesNotExist
 //import cs455.overlay.wireformats.OverlayNodeReportsTaskFinished;
 //import cs455.overlay.wireformats.OverlayNodeReportsTrafficSummary;
 import main.edu.colostate.cs.cs414.ByteMe.banqi.wireformats.Protocol;
+import main.edu.colostate.cs.cs414.ByteMe.banqi.wireformats.RegistryReportsDeregistrationStatus;
 //import cs455.overlay.wireformats.RegistryReportsDeregistrationStatus;
 import main.edu.colostate.cs.cs414.ByteMe.banqi.wireformats.RegistryReportsRegistrationStatus;
 import main.edu.colostate.cs.cs414.ByteMe.banqi.wireformats.RequestPassword;
+import main.edu.colostate.cs.cs414.ByteMe.banqi.wireformats.SendLogOff;
 import main.edu.colostate.cs.cs414.ByteMe.banqi.wireformats.SendInvite;
-import main.edu.colostate.cs.cs414.ByteMe.banqi.wireformats.SendPassword;
+//import main.edu.colostate.cs.cs414.ByteMe.banqi.wireformats.SendPassword;
 //import cs455.overlay.wireformats.RegistryRequestsTaskInitiate;
 //import cs455.overlay.wireformats.RegistryRequestsTrafficSummary;
 //import cs455.overlay.wireformats.RegistrySendsNodeManifest;
@@ -177,6 +179,10 @@ public class Server extends Node {
 			//write invite to file so that we can access them later!!
 			//****************************************************************
 			break;
+		case Protocol.SendLogOff:
+			SendLogOff lOut = (SendLogOff) e;
+			RegistryReportsDeregistrationStatus deregStatus = new RegistryReportsDeregistrationStatus();
+		
 		}
 	}
 	
