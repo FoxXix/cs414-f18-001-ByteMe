@@ -34,7 +34,7 @@ public class Invite {
 //	}
 	
 	public String toString() {
-		return "From: " + from + " Date: " + time;		
+		return "From: " + from.getNickname() + " Date: " + time;		
 	}
 
 	public String getId() {

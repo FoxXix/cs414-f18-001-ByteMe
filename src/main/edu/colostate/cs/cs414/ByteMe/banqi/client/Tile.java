@@ -39,4 +39,8 @@ public class Tile {
 	public Piece getPiece() {		
 		return piece;
 	}
+	
+	public String toString() {
+		return "(" + X_position + ", " + Y_position + ")";
+	}
 }

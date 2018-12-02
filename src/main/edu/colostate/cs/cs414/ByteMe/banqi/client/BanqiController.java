@@ -480,6 +480,10 @@ public class BanqiController {
 		return null;
 	}
 	
+	public List<User> getListUsers(){
+		return BanqiController.users;
+	}
+	
 	private void printTitle() {
 		String title = 
 				"=======         =        ==    ==     ======      ========\n" + 
