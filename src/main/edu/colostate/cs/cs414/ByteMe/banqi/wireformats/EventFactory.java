@@ -35,7 +35,7 @@ public class EventFactory {
 //		System.out.println("In Process Message");
 		//get the type of the message - read first 4 bytes
 		byte type = getType(message);
-//		System.out.println("type of message is: " + type);
+		System.out.println("type of message is: " + type);
 		
 		switch(type) {
 		case Protocol.SendRegistration:
@@ -61,9 +61,24 @@ public class EventFactory {
 			mNode.OnEvent(password, connection);
 			break;
 		case Protocol.NickNameDoesNotExist:
-			Event noName = new RequestPassword();
+			Event noName = new NicknameDoesNotExist();
 			noName.unPackBytes(message);
 			mNode.OnEvent(noName, connection);
+			break;
+		case Protocol.SendPassword:
+			Event sendPass = new SendPassword();
+			sendPass.unPackBytes(message);
+			mNode.OnEvent(sendPass, connection);
+			break;
+		case Protocol.SendUser:
+			Event sendUse = new SendUser();
+			sendUse.unPackBytes(message);
+			mNode.OnEvent(sendUse, connection);
+			break;
+		case Protocol.SendInvite:
+			Event sendInv = new SendInvite();
+			sendInv.unPackBytes(message);
+			mNode.OnEvent(sendInv, connection);
 			break;
 //		case Protocol.SendDeregistration:
 //			//SendDeregistration

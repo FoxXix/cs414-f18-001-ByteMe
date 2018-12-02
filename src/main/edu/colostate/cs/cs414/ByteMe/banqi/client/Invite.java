@@ -22,19 +22,19 @@ public class Invite {
 		this.to.invites.add(this);
 	}
 	
-	public Invite(User from, User to) {
-		id = UUID.randomUUID().toString();
-		this.from 	= from;
-		this.to		= to;
-		time = LocalTime.now();
-		status = true;
-		
-		// add invite to the list of the invitee
-		this.to.invites.add(this);
-	}
+//	public Invite(User from, User to) {
+//		id = UUID.randomUUID().toString();
+//		this.from 	= from;
+//		this.to		= to;
+//		time = LocalTime.now();
+//		status = true;
+//		
+//		// add invite to the list of the invitee
+//		this.to.invites.add(this);
+//	}
 	
 	public String toString() {
-		return "From: " + from.getNickname() + " Date: " + time;		
+		return "From: " + from + " Date: " + time;		
 	}
 
 	public String getId() {
@@ -61,3 +61,4 @@ public class Invite {
 		return to;
 	}
 }
+

@@ -14,13 +14,36 @@ public class LogIn implements Event{
 	private byte[] nickname;
 	private byte nameLength;
 	
+	private byte[] password;
+	private byte passwordLength;
+	
+	private int nodeId = -1;
+	
 	public void setNickname(byte length, byte[] nickname) {
 		this.nickname = nickname;
 		this.nameLength = length;
 	}
 	
+	public void setPassword(byte length, byte[] password) {
+		this.passwordLength = length;
+		this.password = password;
+	}
+	
+	public void setNodeId(int node) {
+		this.nodeId = node;
+		System.out.println("nodeId in setNodeId" + this.nodeId);
+	}
+	
 	public byte[] getNickname() {
 		return nickname;
+	}
+	
+	public byte[] getPassword() {
+		return password;
+	}
+	
+	public int getNodeId() {
+		return nodeId;
 	}
 
 	@Override
@@ -33,11 +56,18 @@ public class LogIn implements Event{
 		
 		byte[] marshalledBytes = null;
 		ByteArrayOutputStream baOutputStream = new ByteArrayOutputStream();
+//		ObjectOutput out = null;
+//		out = new ObjectOutputStream(baOutputStream);
+//		out.writeObject(obj);
 		DataOutputStream dout = new DataOutputStream(new BufferedOutputStream(baOutputStream));
+
 		
 		dout.writeByte(getType());
 		dout.writeByte(nameLength);
 		dout.write(nickname);
+		dout.writeByte(passwordLength);
+		dout.write(password);
+		dout.writeInt(nodeId);
 		
 		dout.flush();
 		marshalledBytes = baOutputStream.toByteArray();
@@ -56,7 +86,14 @@ public class LogIn implements Event{
 		byte lengthRec = din.readByte();
 		byte[] name = new byte[lengthRec];
 		din.readFully(name);
+		byte lengthPass = din.readByte();
+		byte[] pass = new byte[lengthPass];
+		din.readFully(pass);
 		nickname = name;
+		password = pass;
+		
+		nodeId = din.readInt();
+		System.out.println("nodeId is: " + nodeId);
 
 		baInputStream.close();
 		din.close();

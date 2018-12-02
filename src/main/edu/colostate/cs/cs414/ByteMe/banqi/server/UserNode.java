@@ -1,11 +1,16 @@
 package main.edu.colostate.cs.cs414.ByteMe.banqi.server;
 
 import java.net.*;
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 import java.util.Random;
 
+import main.edu.colostate.cs.cs414.ByteMe.banqi.client.BanqiController;
+import main.edu.colostate.cs.cs414.ByteMe.banqi.client.User;
+import main.edu.colostate.cs.cs414.ByteMe.banqi.client.UserProfile;
 import main.edu.colostate.cs.cs414.ByteMe.banqi.transport.TCPCache;
 import main.edu.colostate.cs.cs414.ByteMe.banqi.transport.TCPConnection;
 import main.edu.colostate.cs.cs414.ByteMe.banqi.transport.TCPServerThread;
@@ -21,52 +26,56 @@ import main.edu.colostate.cs.cs414.ByteMe.banqi.wireformats.Protocol;
 //import cs455.overlay.wireformats.RegistryReportsDeregistrationStatus;
 import main.edu.colostate.cs.cs414.ByteMe.banqi.wireformats.RegistryReportsRegistrationStatus;
 import main.edu.colostate.cs.cs414.ByteMe.banqi.wireformats.RequestPassword;
+import main.edu.colostate.cs.cs414.ByteMe.banqi.wireformats.SendInvite;
+import main.edu.colostate.cs.cs414.ByteMe.banqi.wireformats.SendPassword;
 //import cs455.overlay.wireformats.RegistryRequestsTaskInitiate;
 //import cs455.overlay.wireformats.RegistryRequestsTrafficSummary;
 //import cs455.overlay.wireformats.RegistrySendsNodeManifest;
 //import main.edu.colostate.cs.cs414.ByteMe.banqi.wireformats.SendDeregistration;
 import main.edu.colostate.cs.cs414.ByteMe.banqi.wireformats.SendRegistration;
+import main.edu.colostate.cs.cs414.ByteMe.banqi.wireformats.SendUser;
 
 import java.io.*;
 
-public class User extends Node{
+public class UserNode extends Node{
 
 	private static TCPServerThread clientSock = null;
 	private static EventFactory eventFactory;
 	private static int port = -1;
 	private static int nodeID = -1;
 	private static Socket client = null;
-	private static Map<Integer, Tuple<byte[], Integer>> relayTable = new HashMap<Integer, Tuple<byte[], Integer>>();
-	private int[] allNodes = null;
-	private int[] routingTable = null;
 	Thread t = null;
 	TCPCache cache = null;
 	TCPConnection connection = null;
+	BanqiController banqi = new BanqiController(this);
 	
-	private void Initialize(String serverName, int port) throws IOException
+	private UserProfile userProfile;
+	private User user;
+	
+	private void Initialize(String serverName, int port) throws IOException, InterruptedException
 	{
 		this.eventFactory = new EventFactory(this);
 		clientSock = new TCPServerThread(0);
 //		Thread t  = new Thread(clientSock);
 //		t.start();
 		
-		new Thread (() -> {
-			try {
-				new CommandParser().messagingCommands(this);
-			} catch (IOException e) {
-				// TODO Auto-generated catch block
-				e.printStackTrace();
-			}
-		}).start();
+//		new Thread (() -> {
+//			try {
+//				new CommandParser().messagingCommands(this);
+//			} catch (IOException e) {
+//				e.printStackTrace();
+//			}
+//		}).start();
 
 		sendRegMessage(serverName, port);
+		banqi.runProgram();
 	}
 	
-	public static void main(String[] args) {
+	public static void main(String[] args) throws InterruptedException {
 		String serverName = args[0];
 		port = Integer.parseInt(args[1]);
 		
-		User messageNode = new User();
+		UserNode messageNode = new UserNode();
 		try {
 			messageNode.Initialize(serverName, port);
 		} catch (IOException e) {
@@ -91,10 +100,21 @@ public class User extends Node{
 	}
 	
 	//send a message to the server requesting to LogIn to an existing account
-	public void logIn(String nickname) throws IOException {
+	public void logIn(String nickname, String password) throws IOException {
 		LogIn lIn = new LogIn();
 		lIn.setNickname((byte)nickname.getBytes().length, nickname.getBytes());
+		lIn.setPassword((byte)password.getBytes().length, password.getBytes());
+		lIn.setNodeId(nodeID);
+//		System.out.println("sending message");
 		connection.sendMessage(lIn.getBytes());
+	}
+	
+	//send invite (to be routed through server)
+	public void sendInvite(String invitee) throws IOException {
+		SendInvite sendInvite = new SendInvite();
+		sendInvite.setInvitee((byte)invitee.getBytes().length, invitee.getBytes());
+		sendInvite.setInviteFrom((byte)userProfile.getUserName().getBytes().length, userProfile.getUserName().getBytes());
+		connection.sendMessage(sendInvite.getBytes());
 	}
 
 	public void OnEvent(Event e, TCPConnection connect) throws IOException {
@@ -108,31 +128,47 @@ public class User extends Node{
 //			System.out.println("Node ID = " + nodeID);
 //			System.out.println(Arrays.toString(regStatus.getInfoString()));
 			break;
-		case Protocol.RequestPassword:
-			RequestPassword reqP = (RequestPassword) e;
-			String password = askPassword();
-			System.out.println(password);
-//		case Protocol.RegistrySendsNodeManifest:
-//			RegistrySendsNodeManifest nodeManifest = (RegistrySendsNodeManifest) e;
-//			cache = new TCPCache();
-//			byte size = nodeManifest.getSize();
-//			connectRoutingTable(size, nodeManifest, connect);
-////			System.out.println("routing table size is: " + size);
-//			break;
-//		case Protocol.RegistryRequestsTaskInitiate:
-//			RegistryRequestsTaskInitiate taskInit = (RegistryRequestsTaskInitiate) e;
-//			int packToSend = taskInit.getNumPacketsToSend();
-//			sendPackets(packToSend, connect);
-//			break;
-//		case Protocol.OverlayNodeSendsData:
-//			OverlayNodeSendsData sendsData = (OverlayNodeSendsData) e;
-////			System.out.println("sink from unpack: " + sendsData.getDestination());
-//			relayMessage(sendsData.getDestination(), sendsData.getSource(), sendsData.getPayload(), sendsData.getNodesTraversed());
-//			break;
+		case Protocol.SendUser:
+			SendUser sendU = (SendUser) e;
+			
+			//get userprofile info and create User instance
+			byte[] name = sendU.getNickname();
+			String nickname = new String(name);
+			byte[] em = sendU.getEmail();
+			String email = new String(em);
+			byte[] pas = sendU.getPassword();
+			String password = new String(pas);
+			byte[] dat = sendU.getDate();
+			String date = new String(dat);
+			int wins = sendU.getWins();
+			int losses = sendU.getLosses();
+			int draws = sendU.getDraws();
+			int forfeits = sendU.getForfeits();
+			userProfile = new UserProfile(nickname, email, password, date, wins, losses, draws, forfeits);
+			user = new User(userProfile);
+			banqi.setUser(user);
+			
+			List<byte[]> nam = new ArrayList<byte[]>();
+			List<String> names = new ArrayList<String>();
+			nam = sendU.getNames();
+			for(byte[] n : nam) {
+				String s = new String(n);
+				names.add(s);
+//				System.out.println(s);
+			}
+			
+			banqi.setNames(names);
+			break;
 		case Protocol.RegistryReportsDeregistrationStatus:
 //			RegistryReportsDeregistrationStatus rrd = (RegistryReportsDeregistrationStatus) e;
 			System.out.println("Exiting Overlay");
 			System.exit(0);
+			break;
+		case Protocol.SendInvite:
+			SendInvite sendInv = (SendInvite) e;
+			byte[] inF = sendInv.getInviteFrom();
+			String invFrom = new String(inF);
+			System.out.println("received invite from: " + invFrom);
 		}		
 	}
 	
@@ -144,74 +180,13 @@ public class User extends Node{
 		read.close();
 		return password;
 	}
-
 	
-//	private void sendPackets(int num, TCPConnection registryConnection) throws IOException {
-////		System.out.println(Arrays.toString(allNodes));
-////		System.out.println(Arrays.toString(routingTable));
-////		System.out.println(nodeID);
-//		Random randomGenerator = new Random();
-//		Random packetGenerator = new Random();
-//		int rand = 0;
-//		int packet = 0;
-//		int sinkID = 0;
-//		int sendToID = 0;
-//		int sourceID = nodeID;
-//		boolean unique = false;
-//		OverlayNodeSendsData sendDataNode = new OverlayNodeSendsData();
-//		TCPConnection connect;
-//		for (int i = 0; i < num; i++) {
-//			while ((sinkID = allNodes[randomGenerator.nextInt(allNodes.length)]) == nodeID); 
-////				rand = randomGenerator.nextInt(allNodes.length);
-////				System.out.println("Random number generated: " + rand);
-//					packet = packetGenerator.nextInt();
-////					System.out.println("source and destination id's" + sourceID + " "
-////					+ sinkID );
-//			
-//			int sinkIndex = getIndex(sinkID);
-//			int sourceIndex = getIndex(sourceID);
-//			
-////			System.out.println("SourceIndex: " + sourceIndex + " " + "SinkIndex: " + sinkIndex);
-//			
-//			sendToID = findDestination(sourceIndex, sinkIndex);
-//			
-//			int[] dissTrace = new int[1];
-//			dissTrace[0] = nodeID;
-////			System.out.println("sending message: " + packet+ " sink is: " + sinkID);
-//			connect = cache.getById(sendToID);
-//
-//			sendDataNode.setInfo(sinkID, sourceID, packet, dissTrace.length, dissTrace);
-//			connect.sendMessage(sendDataNode.getBytes());
-//			
-//			//synchronize the counters
-//			synchronized(this) {
-//				sendTracker++;
-//				sendSummation += packet;
-//			}
-//		}
-////		System.out.println("SendTracker :" + sendTracker);
-////		System.out.println(sendSummation);
-////		
-//		//have thread sleep to allow rest of packets to come through pipeline
-//		try {
-//			t.sleep(10000);
-//		} catch (InterruptedException e) {
-//			e.printStackTrace();
-//		}
-//		
-//		//send the message that node has completed sending its messages
-//
-//		OverlayNodeReportsTaskFinished onrtf = new OverlayNodeReportsTaskFinished();
-//		onrtf.setInfo(InetAddress.getLocalHost().getAddress(), port, nodeID);
-//		registryConnection.sendMessage(onrtf.getBytes());
-//	}
-	
-//	//deregister from the overlay
-//	public void deregister() throws IOException {
-//		SendDeregistration dereg = new SendDeregistration();
-//		dereg.setInfo(InetAddress.getLocalHost().getAddress(), port, nodeID);
-//		connection.sendMessage(dereg.getBytes());
-//	}
+	public void sendPassword(String password) throws IOException {
+		System.out.println("sending password to server");
+		SendPassword sendPass = new SendPassword();
+		sendPass.setPassword((byte)password.getBytes().length, password.getBytes());
+		connection.sendMessage(sendPass.getBytes());
+	}
 	
 	//convert IP to bytes
 	private String convertIP(byte[] ip) {
