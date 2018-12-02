@@ -11,6 +11,8 @@ import java.io.ObjectInput;
 import java.io.ObjectInputStream;
 import java.io.ObjectOutput;
 import java.io.ObjectOutputStream;
+import java.util.ArrayList;
+import java.util.List;
 
 import main.edu.colostate.cs.cs414.ByteMe.banqi.client.User;
 
@@ -28,6 +30,9 @@ public class SendUser implements Event {
 	int losses;
 	int draws;
 	int forfeits;
+	
+	Byte[] lengths;
+	List<byte[]> names = new ArrayList<byte[]>();
 
 	public void setInfo(byte[] name, byte nameLength, byte[] email,  byte emailLength, byte[] password, byte passLength,
 			byte[] date, byte dateLength, int wins, int losses, int draws, int forfeits) {
@@ -43,6 +48,11 @@ public class SendUser implements Event {
 		this.losses = losses;
 		this.draws = draws;
 		this.forfeits = forfeits;
+	}
+	
+	public void setListUsers(Byte[] namesLengths, List<byte[]> names2) {
+		this.lengths = namesLengths;
+		this.names = names2;
 	}
 	
 	public byte[] getNickname() {
@@ -76,6 +86,10 @@ public class SendUser implements Event {
 	public int getForfeits() {
 		return forfeits;
 	}
+	
+	public List<byte[]> getNames() {
+		return names;
+	}
 
 	@Override
 	public byte getType() {
@@ -102,6 +116,14 @@ public class SendUser implements Event {
 		dout.writeInt(losses);
 		dout.writeInt(draws);
 		dout.writeInt(forfeits);
+		
+		int s = names.size();
+		dout.writeInt(s);
+		
+		for(int i = 0; i < names.size(); i++) {
+			dout.writeByte(lengths[i]);
+			dout.write(names.get(i));
+		}
 		
 		dout.flush();
 		marshalledBytes = baOutputStream.toByteArray();
@@ -138,6 +160,15 @@ public class SendUser implements Event {
 		losses = din.readInt();
 		draws = din.readInt();
 		forfeits = din.readInt();
+		
+		int s = din.readInt();
+		
+		for(int i = 0; i < s; i++) {
+			byte length = din.readByte();
+			byte[] nam = new byte[length];
+			din.readFully(nam);
+			names.add(nam);
+		}
 		
 
 		baInputStream.close();

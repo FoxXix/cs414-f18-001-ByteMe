@@ -1,8 +1,10 @@
 package main.edu.colostate.cs.cs414.ByteMe.banqi.server;
 
 import java.net.*;
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 import java.util.Random;
 
@@ -24,6 +26,7 @@ import main.edu.colostate.cs.cs414.ByteMe.banqi.wireformats.Protocol;
 //import cs455.overlay.wireformats.RegistryReportsDeregistrationStatus;
 import main.edu.colostate.cs.cs414.ByteMe.banqi.wireformats.RegistryReportsRegistrationStatus;
 import main.edu.colostate.cs.cs414.ByteMe.banqi.wireformats.RequestPassword;
+import main.edu.colostate.cs.cs414.ByteMe.banqi.wireformats.SendInvite;
 import main.edu.colostate.cs.cs414.ByteMe.banqi.wireformats.SendPassword;
 //import cs455.overlay.wireformats.RegistryRequestsTaskInitiate;
 //import cs455.overlay.wireformats.RegistryRequestsTrafficSummary;
@@ -101,8 +104,17 @@ public class UserNode extends Node{
 		LogIn lIn = new LogIn();
 		lIn.setNickname((byte)nickname.getBytes().length, nickname.getBytes());
 		lIn.setPassword((byte)password.getBytes().length, password.getBytes());
-		System.out.println("sending message");
+		lIn.setNodeId(nodeID);
+//		System.out.println("sending message");
 		connection.sendMessage(lIn.getBytes());
+	}
+	
+	//send invite (to be routed through server)
+	public void sendInvite(String invitee) throws IOException {
+		SendInvite sendInvite = new SendInvite();
+		sendInvite.setInvitee((byte)invitee.getBytes().length, invitee.getBytes());
+		sendInvite.setInviteFrom((byte)userProfile.getUserName().getBytes().length, userProfile.getUserName().getBytes());
+		connection.sendMessage(sendInvite.getBytes());
 	}
 
 	public void OnEvent(Event e, TCPConnection connect) throws IOException {
@@ -115,10 +127,6 @@ public class UserNode extends Node{
 			nodeID = regStatus.getStatus();
 //			System.out.println("Node ID = " + nodeID);
 //			System.out.println(Arrays.toString(regStatus.getInfoString()));
-			break;
-		case Protocol.RequestPassword:
-			RequestPassword reqP = (RequestPassword) e;
-			banqi.setRequestPassword();
 			break;
 		case Protocol.SendUser:
 			SendUser sendU = (SendUser) e;
@@ -139,12 +147,28 @@ public class UserNode extends Node{
 			userProfile = new UserProfile(nickname, email, password, date, wins, losses, draws, forfeits);
 			user = new User(userProfile);
 			banqi.setUser(user);
+			
+			List<byte[]> nam = new ArrayList<byte[]>();
+			List<String> names = new ArrayList<String>();
+			nam = sendU.getNames();
+			for(byte[] n : nam) {
+				String s = new String(n);
+				names.add(s);
+//				System.out.println(s);
+			}
+			
+			banqi.setNames(names);
 			break;
 		case Protocol.RegistryReportsDeregistrationStatus:
 //			RegistryReportsDeregistrationStatus rrd = (RegistryReportsDeregistrationStatus) e;
 			System.out.println("Exiting Overlay");
 			System.exit(0);
 			break;
+		case Protocol.SendInvite:
+			SendInvite sendInv = (SendInvite) e;
+			byte[] inF = sendInv.getInviteFrom();
+			String invFrom = new String(inF);
+			System.out.println("received invite from: " + invFrom);
 		}		
 	}
 	

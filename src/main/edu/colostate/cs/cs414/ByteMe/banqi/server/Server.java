@@ -22,6 +22,7 @@ import main.edu.colostate.cs.cs414.ByteMe.banqi.wireformats.Protocol;
 //import cs455.overlay.wireformats.RegistryReportsDeregistrationStatus;
 import main.edu.colostate.cs.cs414.ByteMe.banqi.wireformats.RegistryReportsRegistrationStatus;
 import main.edu.colostate.cs.cs414.ByteMe.banqi.wireformats.RequestPassword;
+import main.edu.colostate.cs.cs414.ByteMe.banqi.wireformats.SendInvite;
 import main.edu.colostate.cs.cs414.ByteMe.banqi.wireformats.SendPassword;
 //import cs455.overlay.wireformats.RegistryRequestsTaskInitiate;
 //import cs455.overlay.wireformats.RegistryRequestsTrafficSummary;
@@ -42,7 +43,10 @@ public class Server extends Node {
 	
 	private BanqiController banqiController;
 	private List<UserProfile> listOfProfiles = new ArrayList<UserProfile>();
+	private List<String> listOfUsersByNickname = new ArrayList<String>();
 	private List<BanqiGame> listCurrentGames;
+	private Map<String, String> listOfInvites = new HashMap<String, String>();
+	private Map<String, Integer> nameToNode = new HashMap<String, Integer>();
 //	private List<User> listOfUsers = new ArrayList<User>();
 	
 	private EventFactory eventFactory;
@@ -58,7 +62,7 @@ public class Server extends Node {
 	{	
 		
 		new Thread (() -> new CommandParser().registryCommands(this)).start();
-//		new Thread (() -> new CommandParser().registryCommands(this)).start();
+
 		eventFactory = new EventFactory(this);
 		server = new TCPServerThread(port);
 //		this.routeTables = new ArrayList<RoutingTable>();
@@ -67,6 +71,12 @@ public class Server extends Node {
 		banqiController = new BanqiController("/s/bach/l/under/sporsche/cs414/Banqi/UserProfiles.txt");
 		banqiController.readUsers();
 		listOfProfiles = banqiController.getListProfiles();
+		
+		//for each user, put the nickname into a new list of Strings
+		for(UserProfile u : listOfProfiles) {
+			listOfUsersByNickname.add(u.getUserName());
+		}
+		
 //		listOfUsers = banqiController.getListUsers();
 //		System.out.println(listOfProfiles);
 		Thread t = new Thread(server);
@@ -112,9 +122,17 @@ public class Server extends Node {
 			String password = new String(pass);
 			System.out.println("Nickname is:::::::" + nickname);
 			if(checkNickNameExists(nickname)) {
-				System.out.println("nickname exists");
+//				System.out.println("nickname exists");
 				if(checkPassword(nickname, password)) {
-					System.out.println("Password is correct");
+//					System.out.println("Password is correct");
+					//store the nickname with the nodeID in map
+					nameToNode.put(nickname, lIn.getNodeId());
+					for(Map.Entry<String, Integer> g : nameToNode.entrySet()) {
+						System.out.println(g);
+						System.out.println(nameToNode.get(nickname));
+						System.out.println(cache.getById(nameToNode.get(nickname)));
+						System.out.println("\n");
+					}
 					//return the User
 					for(UserProfile prof : listOfProfiles) {
 						if(prof.getUserName().equals(nickname)) {
@@ -123,17 +141,41 @@ public class Server extends Node {
 							sendU.setInfo(prof.getUserName().getBytes(), (byte)prof.getUserName().getBytes().length, prof.getEmail().getBytes(), (byte)prof.getEmail().getBytes().length,
 									prof.getPassword().getBytes(), (byte)prof.getPassword().getBytes().length, prof.getJoinedDate().getBytes(), (byte)prof.getJoinedDate().getBytes().length,
 									prof.getWins(), prof.getLosses(), prof.getDraws(), prof.getForfeits());
+							Byte[] namesLengths = new Byte[listOfUsersByNickname.size()];
+							List<byte[]> names = new ArrayList<byte[]>();
+							for(int i = 0; i < namesLengths.length; i++) {
+								namesLengths[i] = (byte)listOfUsersByNickname.get(i).getBytes().length;
+								byte[] toByte = listOfUsersByNickname.get(i).getBytes();
+								names.add(toByte);
+							}
+							sendU.setListUsers(namesLengths, names);
 							connect.sendMessage(sendU.getBytes());
 						}
 					}
 				}
-				RequestPassword reqPass = new RequestPassword();
-				connect.sendMessage(reqPass.getBytes());
 			}
-			else {
-				NicknameDoesNotExist nomatch = new NicknameDoesNotExist();
-				connect.sendMessage(nomatch.getBytes());
+			else {}
+			break;
+		case Protocol.SendInvite:;
+			SendInvite invite = (SendInvite) e;
+			//get inviter
+			byte[] invF = invite.getInviteFrom();
+			String inviteFrom = new String(invF);
+			//get invitee
+			byte[] invi = invite.getInvitee();
+			String invitee = new String(invi);
+			//add to hash map Invitee is key, invite from is value
+			System.out.println("invitee: " + invitee);
+			System.out.println("invite from: : " + inviteFrom);
+			listOfInvites.put(invitee, inviteFrom);
+			//send invite if invitee is logged on
+			if(nameToNode.containsKey(invitee)) {
+				sendInvite(invitee);
 			}
+
+			//****************************************************************
+			//write invite to file so that we can access them later!!
+			//****************************************************************
 			break;
 		}
 	}
@@ -145,13 +187,9 @@ public class Server extends Node {
 		boolean unique = false;
 		int rand = 0;
 		
-//		System.out.println("sent address is: " + sentAddress);
-//		System.out.println("original ip Address is: " + originalAddress);
-//		System.out.println("port is: " + sentPort);
-		
 		//new node is trying to register, check the IPAddress given vs the IP address from the socket
 		//if match, generate random number between 0 and 127, and store the info in (hashmap?)
-//		System.out.println("they are the same");
+
 
 		Random randomGenerator = new Random();
 		while (!unique) {
@@ -201,6 +239,25 @@ public class Server extends Node {
 			}
 		}
 		return false;
+	}
+	
+	private void sendInvite(String invitee) throws IOException {
+
+		TCPConnection connect = cache.getById(nameToNode.get(invitee));
+		for(Map.Entry<String, String> entry : listOfInvites.entrySet()) {
+			if(entry.getKey().equals(invitee)) {
+				//get both values and send to the invitee node
+				String invTo = invitee;
+				String invFr = entry.getValue();
+				SendInvite sendInv = new SendInvite();
+				sendInv.setInvitee((byte)invTo.getBytes().length, invTo.getBytes());
+				sendInv.setInviteFrom((byte)invFr.getBytes().length, invFr.getBytes());
+				connect.sendMessage(sendInv.getBytes());
+			}
+			else {
+				//do nothing
+			}
+		}
 	}
 
 	public static void deregisterNode(byte typeRec, byte[] ipAddrRec, int portNumRec, int nodeIDRec) {
