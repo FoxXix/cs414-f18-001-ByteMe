@@ -85,6 +85,10 @@ public class EventFactory {
 			Event sendOff = new SendLogOff();
 			sendOff.unPackBytes(message);
 			mNode.OnEvent(sendOff, connection);
+		case Protocol.SendInvite:
+			Event sendInv = new SendInvite();
+			sendInv.unPackBytes(message);
+			mNode.OnEvent(sendInv, connection);
 			break;
 //		case Protocol.SendDeregistration:
 //			//SendDeregistration

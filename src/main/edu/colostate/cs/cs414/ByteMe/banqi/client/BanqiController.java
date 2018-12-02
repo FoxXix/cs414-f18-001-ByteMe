@@ -11,7 +11,6 @@ import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.TimeUnit;
-
 import main.edu.colostate.cs.cs414.ByteMe.banqi.server.UserNode;
 
 public class BanqiController {
@@ -20,6 +19,7 @@ public class BanqiController {
 	//stores all created UserProfiles
 	protected List<UserProfile> listOfProfiles = new ArrayList<UserProfile>();
 	protected static List<User> users = new ArrayList<User>();
+	private List<String> userNames = new ArrayList<String>();
 	User U;
 	UserNode usernode;
 	
@@ -44,6 +44,11 @@ public class BanqiController {
 	
 	public BanqiController(UserNode usernode) {
 		this.usernode = usernode;
+	}
+	
+	public void setNames(List<String> names) {
+		this.userNames = names;
+		
 	}
 	
 	/* Reads a file for a User  and adds the contents to the list of User Profiles.
@@ -232,15 +237,25 @@ public class BanqiController {
 					System.out.println("To exit, type 'exit' and press Enter");
 					int count = 1;
 					int myIndex = -1;
-					for (User user : users) {
-						if (!user.getNickname().equals(U.getNickname())) {
-							System.out.println(count +") " + user.getNickname());
+					for (String s : userNames) {
+						if (!s.equals(U.getNickname())) {
+							System.out.println(count +") " + s);
 							count++;
-						} else
+						} else {
 							myIndex = count-1;
+						}
+
 					}
+//					for (User user : users) {
+//						if (!user.getNickname().equals(U.getNickname())) {
+//							System.out.println(count +") " + user.getNickname());
+//							count++;
+//						} else
+//							myIndex = count-1;
+//					}
 					
 					choice = read.readLine();
+//					System.out.println(choice);
 					int number = 0;
 				    if (choice.equals("exit")) {
 						c = true;
@@ -248,21 +263,25 @@ public class BanqiController {
 						do {
 							try {
 								number = Integer.parseInt(choice);
+//								System.out.println(number);
 							} catch (NumberFormatException e) {
 								System.out.println("Input not recognized, try again");
 								choice = read.readLine();
 							}
 						} while (number == 0);
 						
-						User invitee;
+						String invitee;
 					    if (number <= myIndex) {
-					    	invitee = users.get(number - 1);
+					    	invitee = userNames.get(number - 1);
+//					    	invitee = users.get(number - 1);
 					    } else {
-					    	invitee = users.get(number);
+					    	invitee = userNames.get(number);
+//					    	invitee = users.get(number);
 					    }
-					    // send invite
-					    new Invite(U, invitee);
-					    System.out.println("Sent invite to " + invitee.getNickname());
+					    // send invite message
+//					    new Invite(U, invitee);
+					    System.out.println("Sent invite to " + invitee);
+					    usernode.sendInvite(invitee);
 					}				    
 				}
 			} else if (choice.equals("exit")) {
