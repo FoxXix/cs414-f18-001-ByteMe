@@ -1,5 +1,4 @@
 package main.edu.colostate.cs.cs414.ByteMe.banqi.client;
-package main.edu.colostate.cs.cs414.ByteMe.banqi.server;
 
 import java.io.BufferedReader;
 import java.io.BufferedWriter;
