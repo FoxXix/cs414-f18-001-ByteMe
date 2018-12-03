@@ -31,7 +31,7 @@ public class LogIn implements Event{
 	
 	public void setNodeId(int node) {
 		this.nodeId = node;
-		System.out.println("nodeId in setNodeId" + this.nodeId);
+		//System.out.println("nodeId in setNodeId" + this.nodeId);
 	}
 	
 	public byte[] getNickname() {
