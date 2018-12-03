@@ -16,7 +16,7 @@ import main.edu.colostate.cs.cs414.ByteMe.banqi.server.UserNode;
 public class BanqiController {
 
 
-	private String profilesFile = "/s/bach/l/under/evansalz/cs414/UserProfiles.txt";
+	public String profilesFile = "/s/bach/l/under/evansalz/cs414/UserProfiles.txt";
 	//stores all created UserProfiles
 	protected List<UserProfile> listOfProfiles = new ArrayList<UserProfile>();
 	protected static List<User> users = new ArrayList<User>();
