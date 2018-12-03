@@ -56,6 +56,8 @@ public class UserNode extends Node{
 	
 	private UserProfile userProfile;
 	private User user;
+	private List<String> gamesInvitedTo = new ArrayList<String>();
+
 	
 	private void Initialize(String serverName, int port) throws IOException, InterruptedException
 	{
@@ -184,7 +186,11 @@ public class UserNode extends Node{
 			SendInvite sendInv = (SendInvite) e;
 			byte[] inF = sendInv.getInviteFrom();
 			String invFrom = new String(inF);
-			System.out.println("received invite from: " + invFrom);
+			gamesInvitedTo.add(invFrom);
+			System.out.println("\nYou received an invite from " + invFrom + "!");
+			System.out.println("\nPlease choose how to proceed. \n1) Play existing game");
+			System.out.println("2) Manage invites");
+			System.out.println("3) View profile");
 		}		
 	}
 	
@@ -203,19 +209,15 @@ public class UserNode extends Node{
  		sendPass.setPassword((byte)password.getBytes().length, password.getBytes());
  		connection.sendMessage(sendPass.getBytes());
  	}
-	
- 	public void sendPassword(String password) throws IOException {
- 		System.out.println("sending password to server");
- 		SendPassword sendPass = new SendPassword();
- 		sendPass.setPassword((byte)password.getBytes().length, password.getBytes());
- 		connection.sendMessage(sendPass.getBytes());
- 	}
 
 	public void logOff() throws IOException {
 		SendLogOff sendOff = new SendLogOff();
 		connection.sendMessage(sendOff.getBytes());
 	}
 	
+	public List<String> getGamesInvitedTo(){
+		return gamesInvitedTo;
+	}
 	//convert IP to bytes
 //	private String convertIP(byte[] ip) {
 //		String s = "";
