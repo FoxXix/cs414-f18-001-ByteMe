@@ -51,7 +51,6 @@ public class Server extends Node {
 	private List<UserProfile> listOfProfiles = new ArrayList<UserProfile>();
 	private List<String> listOfUsersByNickname = new ArrayList<String>();
 	private Map<BanqiGame, Map<String, String>> listCurrentGames = new HashMap<BanqiGame, Map<String, String>>();
-	private List<BanqiGame> listCurrentGames;
 	private Map<String, String> listOfInvites = new HashMap<String, String>();
 	private Map<String, Integer> nameToNode = new HashMap<String, Integer>();
 //	private List<User> listOfUsers = new ArrayList<User>();
