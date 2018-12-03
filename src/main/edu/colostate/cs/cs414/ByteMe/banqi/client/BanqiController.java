@@ -31,8 +31,8 @@ public class BanqiController {
 	
 	private boolean validProfile = false;
 	
-	public void setValidProfile() {
-		validProfile = true;
+	public void setValidProfile(boolean bool) {
+		validProfile = bool;
 	}
 	
 	//read user inputs
@@ -392,7 +392,6 @@ public class BanqiController {
 	  - date/time of the account creation
 	  - creating the new User Profile */
 	private void makeNewUser() throws IOException, InterruptedException {
-		boolean passMatch = false;
 		String nickname = "";
 		String email = "";
 		String password = "";
@@ -406,29 +405,10 @@ public class BanqiController {
 			
 			System.out.println("Please Enter a Password:");
 			password = read.readLine();
-
-			usernode.createProfile(nickname, email, password);
-			TimeUnit.SECONDS.sleep(1000);
-		} while (!validProfile);
-	}
-
-	/*This writes a new file to the storage system, in order to record the current details
-	of a User Profile.  The file will contain everything on the User Profile:
-	  - nickname, email, password, registration date
-	  - wins, losses, draws, forfeits
-	This file will be stored with the records of the Banqi Game system.
-	*/
-	private void writeToFile(UserProfile u) {
-		String s = u.getUserName() + " " + u.getEmail() + " " + u.getPassword() + " " + u.getJoinedDate()
-		 + " " + u.getWins() + " " + u.getLosses() + " " + u.getDraws() + " " + u.getForfeits();
-		try {
-			BufferedWriter out = new BufferedWriter(new FileWriter(profilesFile, true));
-			out.write(s);
-			out.close();
-		} catch(IOException e) {
 			
-		}
-		
+			usernode.createProfile(nickname, email, password);
+			TimeUnit.SECONDS.sleep(1);
+		} while (!validProfile);
 	}
 	
 	/*This function returns a user object given the users nickname. Null is returned if not found.

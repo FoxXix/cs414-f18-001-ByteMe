@@ -70,6 +70,16 @@ public class EventFactory {
 			sendPass.unPackBytes(message);
 			mNode.OnEvent(sendPass, connection);
 			break;
+		case Protocol.CreateProfile:
+			Event createProfile = new CreateProfile();
+			createProfile.unPackBytes(message);
+			mNode.OnEvent(createProfile, connection);
+			break;
+		case Protocol.ValidProfile:
+			Event validProfile = new ValidProfile();
+			validProfile.unPackBytes(message);
+			mNode.OnEvent(validProfile, connection);
+			break;
 //		case Protocol.SendDeregistration:
 //			//SendDeregistration
 //			Event sendDereg = new SendDeregistration();

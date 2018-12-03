@@ -18,12 +18,12 @@ public class CreateProfile implements Event{
 	private byte passwordLength;
 	
 	public void setNickname(byte length, byte[] nickname) {
-		this.nickname = password;
+		this.nickname = nickname;
 		this.nicknameLength = length;
 	}
 	
 	public void setEmail(byte length, byte[] email) {
-		this.email = password;
+		this.email = email;
 		this.emailLength = length;
 	}
 	
@@ -55,7 +55,6 @@ public class CreateProfile implements Event{
 		byte[] marshalledBytes = null;
 		ByteArrayOutputStream baOutputStream = new ByteArrayOutputStream();
 		DataOutputStream dout = new DataOutputStream(new BufferedOutputStream(baOutputStream));
-		
 		dout.writeByte(getType());
 		dout.writeByte(nicknameLength);
 		dout.write(nickname);

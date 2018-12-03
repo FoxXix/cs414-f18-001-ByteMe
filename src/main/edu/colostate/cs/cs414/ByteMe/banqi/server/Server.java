@@ -28,6 +28,7 @@ import main.edu.colostate.cs.cs414.ByteMe.banqi.wireformats.RequestPassword;
 //import cs455.overlay.wireformats.RegistrySendsNodeManifest;
 //import cs455.overlay.wireformats.SendDeregistration;
 import main.edu.colostate.cs.cs414.ByteMe.banqi.wireformats.SendRegistration;
+import main.edu.colostate.cs.cs414.ByteMe.banqi.wireformats.ValidProfile;
 
 import java.io.*;
 import java.time.LocalDateTime;
@@ -65,7 +66,7 @@ public class Server extends Node {
 		this.routeTables = new ArrayList<RoutingTable>();
 		this.cache = new TCPCache();
 		//read in all of the profiles
-		banqiController = new BanqiController("/s/bach/c/under/firefox/cs414/Banqi/UserProfiles.txt");
+		banqiController = new BanqiController("/home/brian/Documents/CS414/Banqi/UserProfiles.txt");
 		banqiController.readUsers();
 		listOfProfiles = banqiController.getListProfiles();
 //		listOfUsers = banqiController.getListUsers();
@@ -122,19 +123,25 @@ public class Server extends Node {
 			break;
 		case Protocol.CreateProfile:
 			CreateProfile cp = (CreateProfile) e;
+			System.out.println("Inside createProfile");
 			byte[] n = cp.getNickname();
 			String pname = new String(n);
 			byte[] em = cp.getEmail();
 			String email = new String(em);
 			byte[] p = cp.getPassword();
 			String passw = new String(p);
+			ValidProfile vp = new ValidProfile();
 			
 			if(checkNickNameExists(pname)) {
 				System.out.println("Nickname already exists");
+				vp.setValidProfile(false);
+				connect.sendMessage(vp.getBytes());
 				break;
 			}
 			if(checkEmailExists(email)) {
 				System.out.println("Email already exists");
+				vp.setValidProfile(false);
+				connect.sendMessage(vp.getBytes());
 				break;
 			}
 			DateTimeFormatter dtf = DateTimeFormatter.ofPattern("yyyy/MM/dd HH:mm:ss");
@@ -143,9 +150,10 @@ public class Server extends Node {
 			UserProfile newUser = new UserProfile(pname, email, passw, dtf.format(now), 0, 0, 0, 0);
 			listOfProfiles.add(newUser);
 			//users.add(new User(newUser));
-			writeToFile(newUser);
-			
-			connect.sendMessage(cp.getBytes());			
+			writeToFile(newUser);		
+			vp.setValidProfile(true);
+			System.out.println("About to send back to usernode");
+			connect.sendMessage(vp.getBytes());			
 			break;
 		}
 
@@ -159,7 +167,7 @@ public class Server extends Node {
 	*/
 	private void writeToFile(UserProfile u) {
 		String s = u.getUserName() + " " + u.getEmail() + " " + u.getPassword() + " " + u.getJoinedDate()
-		 + " " + u.getWins() + " " + u.getLosses() + " " + u.getDraws() + " " + u.getForfeits();
+		 + " " + u.getWins() + " " + u.getLosses() + " " + u.getDraws() + " " + u.getForfeits() + "\n";
 		try {
 			BufferedWriter out = new BufferedWriter(new FileWriter(banqiController.profilesFile, true));
 			out.write(s);

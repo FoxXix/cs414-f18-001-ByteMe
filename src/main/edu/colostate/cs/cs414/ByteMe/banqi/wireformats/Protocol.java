@@ -12,6 +12,7 @@ public class Protocol {
 	final public static int NickNameDoesNotExist = 8;
 	final public static int SendPassword = 9;
 	final public static int CreateProfile = 10;
+	final public static int ValidProfile = 14;
 	
 	
 //	final public static int RegistrySendsNodeManifest = 6;
