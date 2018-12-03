@@ -150,6 +150,7 @@ public class UserNode extends Node{
 		profile.setNickname((byte)nickname.getBytes().length, nickname.getBytes());
 		profile.setEmail((byte)email.getBytes().length, email.getBytes());
 		profile.setPassword((byte)password.getBytes().length, password.getBytes());
+		System.out.println(profile.getNickname().toString());
 		connection.sendMessage(profile.getBytes());
 	}
 	
