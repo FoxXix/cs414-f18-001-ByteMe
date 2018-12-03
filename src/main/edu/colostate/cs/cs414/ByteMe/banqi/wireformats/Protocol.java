@@ -11,6 +11,8 @@ public class Protocol {
 	final public static int RequestPassword = 7;
 	final public static int NickNameDoesNotExist = 8;
 	final public static int SendPassword = 9;
+	final public static int CreateProfile = 10;
+	final public static int ValidProfile = 14;
 	final public static int SendUser = 11;
 	final public static int SendLogOff = 34;
 	final public static int SendInvite = 12;

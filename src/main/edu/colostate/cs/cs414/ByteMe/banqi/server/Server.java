@@ -3,7 +3,6 @@ package main.edu.colostate.cs.cs414.ByteMe.banqi.server;
 import main.edu.colostate.cs.cs414.ByteMe.banqi.client.BanqiController;
 import main.edu.colostate.cs.cs414.ByteMe.banqi.client.BanqiGame;
 import main.edu.colostate.cs.cs414.ByteMe.banqi.client.User;
-//import main.edu.colostate.cs.cs414.ByteMe.banqi.client.User;
 import main.edu.colostate.cs.cs414.ByteMe.banqi.client.UserProfile;
 //import main.edu.colostate.cs.cs414.ByteMe.banqi.routing.Route;
 //import main.edu.colostate.cs.cs414.ByteMe.banqi.routing.RoutingTable;
@@ -12,6 +11,7 @@ import main.edu.colostate.cs.cs414.ByteMe.banqi.transport.TCPConnection;
 //import main.edu.colostate.cs.cs414.ByteMe.banqi.transport.TCPSender;
 import main.edu.colostate.cs.cs414.ByteMe.banqi.transport.TCPServerThread;
 import main.edu.colostate.cs.cs414.ByteMe.banqi.util.CommandParser;
+import main.edu.colostate.cs.cs414.ByteMe.banqi.wireformats.CreateProfile;
 import main.edu.colostate.cs.cs414.ByteMe.banqi.wireformats.Event;
 import main.edu.colostate.cs.cs414.ByteMe.banqi.wireformats.EventFactory;
 import main.edu.colostate.cs.cs414.ByteMe.banqi.wireformats.LogIn;
@@ -35,9 +35,12 @@ import main.edu.colostate.cs.cs414.ByteMe.banqi.wireformats.SendInvite;
 //import cs455.overlay.wireformats.SendDeregistration;
 
 import main.edu.colostate.cs.cs414.ByteMe.banqi.wireformats.SendRegistration;
+import main.edu.colostate.cs.cs414.ByteMe.banqi.wireformats.ValidProfile;
 import main.edu.colostate.cs.cs414.ByteMe.banqi.wireformats.SendUser;
 
 import java.io.*;
+import java.time.LocalDateTime;
+import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -74,7 +77,7 @@ public class Server extends Node {
 //		this.routeTables = new ArrayList<RoutingTable>();
 		this.cache = new TCPCache();
 		//read in all of the profiles
-		banqiController = new BanqiController("/s/bach/l/under/sporsche/cs414/Banqi/UserProfiles.txt");
+		banqiController = new BanqiController("/home/brian/Documents/CS414/Banqi/UserProfiles.txt");
 		banqiController.readUsers();
 		listOfProfiles = banqiController.getListProfiles();
 		
@@ -183,6 +186,40 @@ public class Server extends Node {
 			//write invite to file so that we can access them later!!
 			//****************************************************************
 			break;
+		case Protocol.CreateProfile:
+			CreateProfile cp = (CreateProfile) e;
+			System.out.println("Inside createProfile");
+			byte[] n = cp.getNickname();
+			String pname = new String(n);
+			byte[] em = cp.getEmail();
+			String email = new String(em);
+			byte[] p = cp.getPassword();
+			String passw = new String(p);
+			ValidProfile vp = new ValidProfile();
+			
+			if(checkNickNameExists(pname)) {
+				System.out.println("Nickname already exists");
+				vp.setValidProfile(false);
+				connect.sendMessage(vp.getBytes());
+				break;
+			}
+			if(checkEmailExists(email)) {
+				System.out.println("Email already exists");
+				vp.setValidProfile(false);
+				connect.sendMessage(vp.getBytes());
+				break;
+			}
+			DateTimeFormatter dtf = DateTimeFormatter.ofPattern("yyyy/MM/dd HH:mm:ss");
+			LocalDateTime now = LocalDateTime.now();
+
+			UserProfile newUser = new UserProfile(pname, email, passw, dtf.format(now), 0, 0, 0, 0);
+			listOfProfiles.add(newUser);
+			//users.add(new User(newUser));
+			writeToFile(newUser);		
+			vp.setValidProfile(true);
+			System.out.println("About to send back to usernode");
+			connect.sendMessage(vp.getBytes());			
+			break;
 		case Protocol.SendAccept:
 			SendAccept acc = (SendAccept) e;
 			byte[] accep = acc.getInvitee();
@@ -200,7 +237,25 @@ public class Server extends Node {
 		}
 	}
 	
-
+	/*This writes a new file to the storage system, in order to record the current details
+	of a User Profile.  The file will contain everything on the User Profile:
+	  - nickname, email, password, registration date
+	  - wins, losses, draws, forfeits
+	This file will be stored with the records of the Banqi Game system.
+	*/
+	private void writeToFile(UserProfile u) {
+		String s = u.getUserName() + " " + u.getEmail() + " " + u.getPassword() + " " + u.getJoinedDate()
+		 + " " + u.getWins() + " " + u.getLosses() + " " + u.getDraws() + " " + u.getForfeits() + "\n";
+		try {
+			BufferedWriter out = new BufferedWriter(new FileWriter(banqiController.profilesFile, true));
+			out.write(s);
+			out.close();
+		} catch(IOException e) {
+			System.out.println("error writing file");
+		}
+		
+	}
+  
 	public static int registerNode(byte type, byte[] address, int port) {
 		byte sentType = type;
 		byte[] sentAddress = address;
@@ -251,6 +306,17 @@ public class Server extends Node {
 		return false;
 	}
 	
+	private boolean checkEmailExists(String email) throws IOException {
+		for (UserProfile prof : listOfProfiles) {
+//			System.out.println("UserName is: " + prof.getUserName());
+			if (prof.getEmail().equals(email)) {
+				// log in, by entering password
+				return true;
+      }
+    }
+    return false;
+  }
+
 	private boolean checkPassword(String nickname, String password) {
 		for(UserProfile prof : listOfProfiles) {
 			if(prof.getUserName().equals(nickname)) {
@@ -258,7 +324,6 @@ public class Server extends Node {
 					return true;
 				}
 			}
-		}
 		return false;
 	}
 	

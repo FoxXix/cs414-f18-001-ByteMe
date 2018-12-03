@@ -15,6 +15,7 @@ import main.edu.colostate.cs.cs414.ByteMe.banqi.server.UserNode;
 
 public class BanqiController {
 
+
 	private String profilesFile = "/s/bach/l/under/evansalz/cs414/UserProfiles.txt";
 	//stores all created UserProfiles
 	protected List<UserProfile> listOfProfiles = new ArrayList<UserProfile>();
@@ -33,9 +34,11 @@ public class BanqiController {
 		this.U = u;
 	}
 	
-//	public void setRequestPassword() {
-//		requestPass = true;
-//	}
+	private boolean validProfile = false;
+	
+	public void setValidProfile(boolean bool) {
+		validProfile = bool;
+	}
 	
 	//read user inputs
 	private static BufferedReader read;
@@ -428,61 +431,24 @@ public class BanqiController {
 	The system takes care:
 	  - date/time of the account creation
 	  - creating the new User Profile */
-	private void makeNewUser() throws IOException {
-		boolean passMatch = false;
+	private void makeNewUser() throws IOException, InterruptedException {
 		String nickname = "";
 		String email = "";
 		String password = "";
 
-		// Enter data using BufferReader
-		System.out.println("Please Enter a Nickname:");
-		nickname = read.readLine();
-
-		System.out.println("Please Enter an Email Address:");
-		email = read.readLine();
-
-		while (!passMatch) {
+		do {
+			System.out.println("Please Enter a Nickname:");
+			nickname = read.readLine();
+	
+			System.out.println("Please Enter an Email Address:");
+			email = read.readLine();
+			
 			System.out.println("Please Enter a Password:");
 			password = read.readLine();
-
-			System.out.println("Please Re-enter Your Password:");
-			String reEntered = read.readLine();
-
-			if (password.equals(reEntered)) {
-				passMatch = true;
-			} else {
-				System.out.println("Passwords Do Not Match!");
-			}
-		}
-
-		DateTimeFormatter dtf = DateTimeFormatter.ofPattern("yyyy/MM/dd HH:mm:ss");
-		LocalDateTime now = LocalDateTime.now();
-
-		UserProfile newUser = new UserProfile(nickname, email, password, dtf.format(now), 0, 0, 0, 0);
-		listOfProfiles.add(newUser);
-		users.add(new User(newUser));
-//		System.out.println(listOfProfiles.size());
-		writeToFile(newUser);
-
-	}
-
-	/*This writes a new file to the storage system, in order to record the current details
-	of a User Profile.  The file will contain everything on the User Profile:
-	  - nickname, email, password, registration date
-	  - wins, losses, draws, forfeits
-	This file will be stored with the records of the Banqi Game system.
-	*/
-	private void writeToFile(UserProfile u) {
-		String s = u.getUserName() + " " + u.getEmail() + " " + u.getPassword() + " " + u.getJoinedDate()
-		 + " " + u.getWins() + " " + u.getLosses() + " " + u.getDraws() + " " + u.getForfeits();
-		try {
-			BufferedWriter out = new BufferedWriter(new FileWriter(profilesFile, true));
-			out.write(s);
-			out.close();
-		} catch(IOException e) {
 			
-		}
-		
+			usernode.createProfile(nickname, email, password);
+			TimeUnit.SECONDS.sleep(1);
+		} while (!validProfile);
 	}
 	
 	/*This function returns a user object given the users nickname. Null is returned if not found.

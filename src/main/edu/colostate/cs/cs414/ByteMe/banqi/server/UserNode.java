@@ -15,6 +15,7 @@ import main.edu.colostate.cs.cs414.ByteMe.banqi.transport.TCPCache;
 import main.edu.colostate.cs.cs414.ByteMe.banqi.transport.TCPConnection;
 import main.edu.colostate.cs.cs414.ByteMe.banqi.transport.TCPServerThread;
 import main.edu.colostate.cs.cs414.ByteMe.banqi.util.CommandParser;
+import main.edu.colostate.cs.cs414.ByteMe.banqi.wireformats.CreateProfile;
 import main.edu.colostate.cs.cs414.ByteMe.banqi.wireformats.Event;
 import main.edu.colostate.cs.cs414.ByteMe.banqi.wireformats.EventFactory;
 import main.edu.colostate.cs.cs414.ByteMe.banqi.wireformats.LogIn;
@@ -38,6 +39,7 @@ import main.edu.colostate.cs.cs414.ByteMe.banqi.wireformats.SendPassword;
 //import cs455.overlay.wireformats.RegistrySendsNodeManifest;
 //import main.edu.colostate.cs.cs414.ByteMe.banqi.wireformats.SendDeregistration;
 import main.edu.colostate.cs.cs414.ByteMe.banqi.wireformats.SendRegistration;
+import main.edu.colostate.cs.cs414.ByteMe.banqi.wireformats.ValidProfile;
 import main.edu.colostate.cs.cs414.ByteMe.banqi.wireformats.SendUser;
 
 import java.io.*;
@@ -177,6 +179,11 @@ public class UserNode extends Node{
 			banqi.setNames(names);
 
 			break;
+		case Protocol.ValidProfile:
+			ValidProfile validProfile = (ValidProfile) e;
+			banqi.setValidProfile(validProfile.isValidProfile());
+			if (!validProfile.isValidProfile()) System.out.println("Nickname and/or email already exists in our system. Try again.");
+			break;
 		case Protocol.RegistryReportsDeregistrationStatus:
 //			RegistryReportsDeregistrationStatus rrd = (RegistryReportsDeregistrationStatus) e;
 			System.out.println("Exiting Overlay");
@@ -203,13 +210,22 @@ public class UserNode extends Node{
 //		return password;
 //	}
 	
- 	public void sendPassword(String password) throws IOException {
- 		System.out.println("sending password to server");
- 		SendPassword sendPass = new SendPassword();
- 		sendPass.setPassword((byte)password.getBytes().length, password.getBytes());
- 		connection.sendMessage(sendPass.getBytes());
- 	}
-
+	public void sendPassword(String password) throws IOException {
+		//System.out.println("sending password to server");
+		SendPassword sendPass = new SendPassword();
+		sendPass.setPassword((byte)password.getBytes().length, password.getBytes());
+		connection.sendMessage(sendPass.getBytes());
+	}
+	
+	public void createProfile(String nickname, String email, String password) throws IOException {
+		//System.out.println("sending profile to server");
+		CreateProfile profile = new CreateProfile();
+		profile.setNickname((byte)nickname.getBytes().length, nickname.getBytes());
+		profile.setEmail((byte)email.getBytes().length, email.getBytes());
+		profile.setPassword((byte)password.getBytes().length, password.getBytes());
+		connection.sendMessage(profile.getBytes());
+	}
+  
 	public void logOff() throws IOException {
 		SendLogOff sendOff = new SendLogOff();
 		connection.sendMessage(sendOff.getBytes());

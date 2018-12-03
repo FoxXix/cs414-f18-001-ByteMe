@@ -76,6 +76,15 @@ public class EventFactory {
 			sendPass.unPackBytes(message);
 			mNode.OnEvent(sendPass, connection);
 			break;
+		case Protocol.CreateProfile:
+			Event createProfile = new CreateProfile();
+			createProfile.unPackBytes(message);
+			mNode.OnEvent(createProfile, connection);
+			break;
+		case Protocol.ValidProfile:
+			Event validProfile = new ValidProfile();
+			validProfile.unPackBytes(message);
+			mNode.OnEvent(validProfile, connection);
 		case Protocol.SendUser:
 			Event sendUse = new SendUser();
 			sendUse.unPackBytes(message);
