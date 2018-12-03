@@ -26,9 +26,13 @@ import main.edu.colostate.cs.cs414.ByteMe.banqi.wireformats.Protocol;
 //import cs455.overlay.wireformats.RegistryReportsDeregistrationStatus;
 import main.edu.colostate.cs.cs414.ByteMe.banqi.wireformats.RegistryReportsRegistrationStatus;
 import main.edu.colostate.cs.cs414.ByteMe.banqi.wireformats.RequestPassword;
+import main.edu.colostate.cs.cs414.ByteMe.banqi.wireformats.SendAccept;
 import main.edu.colostate.cs.cs414.ByteMe.banqi.wireformats.SendLogOff;
 import main.edu.colostate.cs.cs414.ByteMe.banqi.wireformats.SendInvite;
-// import main.edu.colostate.cs.cs414.ByteMe.banqi.wireformats.SendPassword;
+import main.edu.colostate.cs.cs414.ByteMe.banqi.wireformats.SendPassword;
+import main.edu.colostate.cs.cs414.ByteMe.banqi.wireformats.SendLogOff;
+import main.edu.colostate.cs.cs414.ByteMe.banqi.wireformats.SendInvite;
+import main.edu.colostate.cs.cs414.ByteMe.banqi.wireformats.SendPassword;
 //import cs455.overlay.wireformats.RegistryRequestsTaskInitiate;
 //import cs455.overlay.wireformats.RegistryRequestsTrafficSummary;
 //import cs455.overlay.wireformats.RegistrySendsNodeManifest;
@@ -52,6 +56,8 @@ public class UserNode extends Node{
 	
 	private UserProfile userProfile;
 	private User user;
+	private List<String> gamesInvitedTo = new ArrayList<String>();
+
 	
 	private void Initialize(String serverName, int port) throws IOException, InterruptedException
 	{
@@ -117,7 +123,16 @@ public class UserNode extends Node{
 		sendInvite.setInviteFrom((byte)userProfile.getUserName().getBytes().length, userProfile.getUserName().getBytes());
 		connection.sendMessage(sendInvite.getBytes());
 	}
+	
+	//message from UserNode to router declaring that 2 users have accepted a game invite
+	public void sendAccept(String invitee, String inviteFrom) throws IOException {
+		SendAccept sendAcc = new SendAccept();
+		sendAcc.setInvitee((byte)invitee.getBytes().length,  invitee.getBytes());
+		sendAcc.setInviteFrom((byte)inviteFrom.getBytes().length,  inviteFrom.getBytes());
+		connection.sendMessage(sendAcc.getBytes());
+	}
 
+	//Receives Event messages, and acts according to the type of Event that has arrived
 	public void OnEvent(Event e, TCPConnection connect) throws IOException {
 //		System.out.println("In OnEvent Messaging");
 		byte type = e.getType();
@@ -171,42 +186,49 @@ public class UserNode extends Node{
 			SendInvite sendInv = (SendInvite) e;
 			byte[] inF = sendInv.getInviteFrom();
 			String invFrom = new String(inF);
-			System.out.println("received invite from: " + invFrom);
+			gamesInvitedTo.add(invFrom);
+			System.out.println("\nYou received an invite from " + invFrom + "!");
+			System.out.println("\nPlease choose how to proceed. \n1) Play existing game");
+			System.out.println("2) Manage invites");
+			System.out.println("3) View profile");
 		}		
 	}
 	
-	public String askPassword() throws IOException {
-		BufferedReader read = new BufferedReader(new InputStreamReader(System.in));
-		System.out.println("Please Enter Your Password");
-		String password = read.readLine();
-		System.out.println(password);
-		read.close();
-		return password;
-	}
+//	public String askPassword() throws IOException {
+//		BufferedReader read = new BufferedReader(new InputStreamReader(System.in));
+//		System.out.println("Please Enter Your Password");
+//		String password = read.readLine();
+//		System.out.println(password);
+//		read.close();
+//		return password;
+//	}
 	
-// 	public void sendPassword(String password) throws IOException {
-// 		System.out.println("sending password to server");
-// 		SendPassword sendPass = new SendPassword();
-// 		sendPass.setPassword((byte)password.getBytes().length, password.getBytes());
-// 		connection.sendMessage(sendPass.getBytes());
-// 	}
-	
+ 	public void sendPassword(String password) throws IOException {
+ 		System.out.println("sending password to server");
+ 		SendPassword sendPass = new SendPassword();
+ 		sendPass.setPassword((byte)password.getBytes().length, password.getBytes());
+ 		connection.sendMessage(sendPass.getBytes());
+ 	}
+
 	public void logOff() throws IOException {
 		SendLogOff sendOff = new SendLogOff();
 		connection.sendMessage(sendOff.getBytes());
 	}
 	
-	//convert IP to bytes
-	private String convertIP(byte[] ip) {
-		String s = "";
-		for(int i = 0; i < ip.length; i++) {
-			s += ip[i] & 0xff;
-			if(i != ip.length - 1) {
-				s += ".";
-			}
-		}
-//		System.out.println(s);
-		return s;
+	public List<String> getGamesInvitedTo(){
+		return gamesInvitedTo;
 	}
+	//convert IP to bytes
+//	private String convertIP(byte[] ip) {
+//		String s = "";
+//		for(int i = 0; i < ip.length; i++) {
+//			s += ip[i] & 0xff;
+//			if(i != ip.length - 1) {
+//				s += ".";
+//			}
+//		}
+////		System.out.println(s);
+//		return s;
+//	}
 
 }

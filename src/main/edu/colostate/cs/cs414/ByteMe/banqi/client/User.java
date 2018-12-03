@@ -7,6 +7,8 @@ public class User {
 	
 	private UserProfile userProfile;
 	protected ArrayList<Invite> invites;
+	protected ArrayList<String> invitedUsers;
+	protected ArrayList<String> gamesInvitedTo;
 	
 	private String nickname;
 	private String email;
@@ -16,6 +18,8 @@ public class User {
 		this.userProfile = user;
 		this.nickname = user.getUserName();
 		invites = new ArrayList<Invite>();
+		invitedUsers = new ArrayList<String>();
+		gamesInvitedTo = new ArrayList<String>();
 	}
 
 	public UserProfile seeProfile(String nickname) throws NullPointerException {
@@ -49,7 +53,11 @@ public class User {
 	public void sendInvite(String nickname) throws NullPointerException {
 		if (BanqiController.getUser(nickname).equals(null))
 			throw new NullPointerException("User does not exist in the Banqi system and can't be invited.");
-		new Invite(this, nickname);
+		Invite newInvite = new Invite(this, nickname);
+		System.out.println("Invited " + nickname + ":" + newInvite);
+		invites.add(newInvite);
+		invitedUsers.add(nickname);
+		gamesInvitedTo.add(this.nickname);
 	}
 	
 	public Invite getInvite(User from) {
@@ -70,6 +78,10 @@ public class User {
 			System.out.println(count + ") From: " + invite.getFrom().nickname + " Time: " + invite.getTime() + " Status: " + invite.getStatus());
 			count++;
 		}
+		count = 1;
+		for (String inviter : invitedUsers) {
+			System.out.println(count + ") From: " + inviter);
+		}
 		if (invites.size() == 0) {
 			System.out.println("Empty");
 		}
@@ -85,6 +97,7 @@ public class User {
 	*/
 	public Boolean respondToInvite() {
 		System.out.println("Type the corresponding number of the invite to accept it");
+		
 		Scanner scanner = new Scanner( System.in );
 		int number = 0;
 		boolean valid = false;
@@ -149,5 +162,13 @@ public class User {
 
 	public void setPassword(String password) {
 		this.password = password;
+	}
+	
+	public ArrayList<String> getInvitedUsers(){
+		return invitedUsers;
+	}
+	
+	public ArrayList<String> getGamesInvitedTo(){
+		return gamesInvitedTo;
 	}
 }
