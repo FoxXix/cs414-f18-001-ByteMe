@@ -28,6 +28,7 @@ public class BanqiGame {
 	Tile atTile;
 	String choice;
 	
+	//start new game
 	public BanqiGame(User u1, User u2) {
 		board = new Board();
 		user1 = u1;
