@@ -65,7 +65,7 @@ public class Server extends Node {
 		this.routeTables = new ArrayList<RoutingTable>();
 		this.cache = new TCPCache();
 		//read in all of the profiles
-		banqiController = new BanqiController("/s/bach/l/under/sporsche/cs414/Banqi/UserProfiles.txt");
+		banqiController = new BanqiController("/s/bach/c/under/firefox/cs414/Banqi/UserProfiles.txt");
 		banqiController.readUsers();
 		listOfProfiles = banqiController.getListProfiles();
 //		listOfUsers = banqiController.getListUsers();
