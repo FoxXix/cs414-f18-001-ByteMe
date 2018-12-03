@@ -182,7 +182,10 @@ public class UserNode extends Node{
 		case Protocol.ValidProfile:
 			ValidProfile validProfile = (ValidProfile) e;
 			banqi.setValidProfile(validProfile.isValidProfile());
-			if (!validProfile.isValidProfile()) System.out.println("Nickname and/or email already exists in our system. Try again.");
+			if (!validProfile.isValidProfile()) 
+				System.out.println("Nickname and/or email already exists in our system. Try again.");
+			else 
+				System.out.println("Profile created!");
 			break;
 		case Protocol.RegistryReportsDeregistrationStatus:
 //			RegistryReportsDeregistrationStatus rrd = (RegistryReportsDeregistrationStatus) e;

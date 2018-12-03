@@ -85,6 +85,7 @@ public class EventFactory {
 			Event validProfile = new ValidProfile();
 			validProfile.unPackBytes(message);
 			mNode.OnEvent(validProfile, connection);
+			break;
 		case Protocol.SendUser:
 			Event sendUse = new SendUser();
 			sendUse.unPackBytes(message);
