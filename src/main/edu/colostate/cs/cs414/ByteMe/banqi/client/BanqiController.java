@@ -207,11 +207,10 @@ public class BanqiController {
 					for (String inviter : usernode.getGamesInvitedTo()) {
 						openInvites.add(inviter);
 						System.out.println(count + ") " + inviter);
-						count++;	
-						}						
+						count++;					
 					}
 					System.out.println("To exit, type 'exit' and press Enter");
-				
+
 					choice = read.readLine();
 					int number = 0;
 					if (choice.equals("exit")) {
@@ -226,16 +225,18 @@ public class BanqiController {
 								choice = read.readLine();
 							}
 						} while (number == 0);
-						
+
 						String inviter = openInvites.get(number-1);
 						startNewGame(BanqiController.getUser(inviter));
 						 // user to play with
 						exitStatus = true;
 					}
+				}
 			} else if (choice.equals("2")) {
 				boolean exitSystem2 = false;
 				while (!exitSystem2) {
 					System.out.println("Select a user from this list to send invite to:");
+
 					int count = 1;
 					int myIndex = -1;
 					for (String s : userNames) {
@@ -247,8 +248,7 @@ public class BanqiController {
 						}
 
 					}
-					System.out.println("To exit, type 'exit' and press Enter");
-
+					System.out.println("\nTo exit, type 'exit' and press Enter");
 //					for (User user : users) {
 //						if (!user.getNickname().equals(U.getNickname())) {
 //							System.out.println(count +") " + user.getNickname());
@@ -261,7 +261,7 @@ public class BanqiController {
 //					System.out.println(choice);
 					int number = 0;
 				    if (choice.equals("exit")) {
-					exitSystem2 = true;
+				    	exitSystem2 = true;
 					} else {
 						do {
 							try {
@@ -299,7 +299,6 @@ public class BanqiController {
 		}
 	}
 	
-
 	private void startNewGame(User user) throws IOException {
 		BanqiGame game = new BanqiGame(U, user);
 		game.setUpBoard();
