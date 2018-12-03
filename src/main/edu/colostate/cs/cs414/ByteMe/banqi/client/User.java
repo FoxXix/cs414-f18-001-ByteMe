@@ -31,14 +31,11 @@ public class User {
 		System.out.println("Draws: " + player.userProfile.getDraws());
 		System.out.println("Forfeits: " + player.userProfile.getForfeits());
 		
-		return player.userProfile;
+		return userProfile;
 	}
 	
 	/*To be implemented: For purposes of security, the User will eventually need to enter their credentials
 	in order to access components of the system associated with registered users.*/
-	private void enterCredentials() {
-		// TODO Auto-generated method stub
-	}
 
 	public void initiateGame(User invitee) throws NullPointerException {
 		if (BanqiController.getUser(invitee.getNickname()).equals(null))

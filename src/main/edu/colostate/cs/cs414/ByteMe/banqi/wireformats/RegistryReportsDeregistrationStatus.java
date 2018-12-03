@@ -8,16 +8,16 @@ import java.io.DataInputStream;
 import java.io.DataOutputStream;
 import java.io.IOException;
 
-public class RequestPassword implements Event{
+public class RegistryReportsDeregistrationStatus implements Event{
 
 	@Override
 	public byte getType() {
-		return 7;
+		return 5;
 	}
 
 	@Override
 	public byte[] getBytes() throws IOException {
-
+		
 		byte[] marshalledBytes = null;
 		ByteArrayOutputStream baOutputStream = new ByteArrayOutputStream();
 		DataOutputStream dout = new DataOutputStream(new BufferedOutputStream(baOutputStream));
@@ -31,18 +31,18 @@ public class RequestPassword implements Event{
 		dout.close();
 		return marshalledBytes;
 	}
-
-	@Override
+	
+	//unpack the marshalled bytes
 	public void unPackBytes(byte[] marshalledBytes) throws IOException {
-//		System.out.println("getting into unpack bytes");
-//		System.out.println(Arrays.toString(marshalledBytes));
+		
 		ByteArrayInputStream baInputStream = new ByteArrayInputStream(marshalledBytes);
 		DataInputStream din = new DataInputStream(new BufferedInputStream(baInputStream));
 		
 		int type = din.readByte();
-
+		
 		baInputStream.close();
 		din.close();
+		
 	}
 
 }

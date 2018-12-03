@@ -35,7 +35,7 @@ public class EventFactory {
 //		System.out.println("In Process Message");
 		//get the type of the message - read first 4 bytes
 		byte type = getType(message);
-//		System.out.println("type of message is: " + type);
+		System.out.println("type of message is: " + type);
 		
 		switch(type) {
 		case Protocol.SendRegistration:
@@ -50,6 +50,12 @@ public class EventFactory {
 			reportReg.unPackBytes(message);
 			mNode.OnEvent(reportReg, connection);
 			break;
+		case Protocol.RegistryReportsDeregistrationStatus:
+			//RegistryReportsDeregistrationStatus
+			Event reportDeReg = new RegistryReportsDeregistrationStatus();
+			reportDeReg.unPackBytes(message);
+			mNode.OnEvent(reportDeReg, connection);
+			break;
 		case Protocol.LogIn:
 			Event logIn = new LogIn();
 			logIn.unPackBytes(message);
@@ -61,20 +67,34 @@ public class EventFactory {
 			mNode.OnEvent(password, connection);
 			break;
 		case Protocol.NickNameDoesNotExist:
-			Event noName = new RequestPassword();
+			Event noName = new NicknameDoesNotExist();
 			noName.unPackBytes(message);
 			mNode.OnEvent(noName, connection);
+			break;
+		case Protocol.SendPassword:
+			Event sendPass = new SendPassword();
+			sendPass.unPackBytes(message);
+			mNode.OnEvent(sendPass, connection);
+			break;
+		case Protocol.SendUser:
+			Event sendUse = new SendUser();
+			sendUse.unPackBytes(message);
+			mNode.OnEvent(sendUse, connection);
+			break;
+		case Protocol.SendLogOff:
+			Event sendOff = new SendLogOff();
+			sendOff.unPackBytes(message);
+			mNode.OnEvent(sendOff, connection);
+		case Protocol.SendInvite:
+			Event sendInv = new SendInvite();
+			sendInv.unPackBytes(message);
+			mNode.OnEvent(sendInv, connection);
 			break;
 //		case Protocol.SendDeregistration:
 //			//SendDeregistration
 //			Event sendDereg = new SendDeregistration();
 //			sendDereg.unPackBytes(message);
 //			mNode.OnEvent(sendDereg, connection);
-//			break;
-//		case Protocol.RegistryReportsDeregistrationStatus:
-//			//RegistryReportsDeregistrationStatus
-//			Event reportDereg = new RegistryReportsDeregistrationStatus();
-//			mNode.OnEvent(reportDereg, connection);
 //			break;
 //		case Protocol.RegistrySendsNodeManifest:
 //			//RegistrySendsNodeManifest

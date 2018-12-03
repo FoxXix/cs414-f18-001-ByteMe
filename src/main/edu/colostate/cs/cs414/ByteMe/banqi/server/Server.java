@@ -2,9 +2,10 @@ package main.edu.colostate.cs.cs414.ByteMe.banqi.server;
 
 import main.edu.colostate.cs.cs414.ByteMe.banqi.client.BanqiController;
 import main.edu.colostate.cs.cs414.ByteMe.banqi.client.BanqiGame;
+import main.edu.colostate.cs.cs414.ByteMe.banqi.client.User;
 import main.edu.colostate.cs.cs414.ByteMe.banqi.client.UserProfile;
-import main.edu.colostate.cs.cs414.ByteMe.banqi.routing.Route;
-import main.edu.colostate.cs.cs414.ByteMe.banqi.routing.RoutingTable;
+//import main.edu.colostate.cs.cs414.ByteMe.banqi.routing.Route;
+//import main.edu.colostate.cs.cs414.ByteMe.banqi.routing.RoutingTable;
 import main.edu.colostate.cs.cs414.ByteMe.banqi.transport.TCPCache;
 import main.edu.colostate.cs.cs414.ByteMe.banqi.transport.TCPConnection;
 import main.edu.colostate.cs.cs414.ByteMe.banqi.transport.TCPSender;
@@ -18,14 +19,19 @@ import main.edu.colostate.cs.cs414.ByteMe.banqi.wireformats.NicknameDoesNotExist
 //import cs455.overlay.wireformats.OverlayNodeReportsTaskFinished;
 //import cs455.overlay.wireformats.OverlayNodeReportsTrafficSummary;
 import main.edu.colostate.cs.cs414.ByteMe.banqi.wireformats.Protocol;
+import main.edu.colostate.cs.cs414.ByteMe.banqi.wireformats.RegistryReportsDeregistrationStatus;
 //import cs455.overlay.wireformats.RegistryReportsDeregistrationStatus;
 import main.edu.colostate.cs.cs414.ByteMe.banqi.wireformats.RegistryReportsRegistrationStatus;
 import main.edu.colostate.cs.cs414.ByteMe.banqi.wireformats.RequestPassword;
+import main.edu.colostate.cs.cs414.ByteMe.banqi.wireformats.SendLogOff;
+import main.edu.colostate.cs.cs414.ByteMe.banqi.wireformats.SendInvite;
+//import main.edu.colostate.cs.cs414.ByteMe.banqi.wireformats.SendPassword;
 //import cs455.overlay.wireformats.RegistryRequestsTaskInitiate;
 //import cs455.overlay.wireformats.RegistryRequestsTrafficSummary;
 //import cs455.overlay.wireformats.RegistrySendsNodeManifest;
 //import cs455.overlay.wireformats.SendDeregistration;
 import main.edu.colostate.cs.cs414.ByteMe.banqi.wireformats.SendRegistration;
+import main.edu.colostate.cs.cs414.ByteMe.banqi.wireformats.SendUser;
 
 import java.io.*;
 import java.util.ArrayList;
@@ -39,13 +45,17 @@ public class Server extends Node {
 	
 	private BanqiController banqiController;
 	private List<UserProfile> listOfProfiles = new ArrayList<UserProfile>();
+	private List<String> listOfUsersByNickname = new ArrayList<String>();
 	private List<BanqiGame> listCurrentGames;
+	private Map<String, String> listOfInvites = new HashMap<String, String>();
+	private Map<String, Integer> nameToNode = new HashMap<String, Integer>();
+//	private List<User> listOfUsers = new ArrayList<User>();
 	
 	private EventFactory eventFactory;
 	private static int[] nodeIds = new int[128];
 	private static Map<Integer, Tuple<byte[], Integer>> nodesRegistered = new HashMap<Integer, Tuple<byte[], Integer>>();
 	private static TCPServerThread server = null;;
-	ArrayList<RoutingTable> routeTables = null;
+//	ArrayList<RoutingTable> routeTables = null;
 	int[] allMessNodes = null;
 	TCPCache cache = null;
 	
@@ -54,15 +64,22 @@ public class Server extends Node {
 	{	
 		
 		new Thread (() -> new CommandParser().registryCommands(this)).start();
-//		new Thread (() -> new CommandParser().registryCommands(this)).start();
+
 		eventFactory = new EventFactory(this);
 		server = new TCPServerThread(port);
-		this.routeTables = new ArrayList<RoutingTable>();
+//		this.routeTables = new ArrayList<RoutingTable>();
 		this.cache = new TCPCache();
 		//read in all of the profiles
 		banqiController = new BanqiController("/s/bach/l/under/sporsche/cs414/Banqi/UserProfiles.txt");
 		banqiController.readUsers();
 		listOfProfiles = banqiController.getListProfiles();
+		
+		//for each user, put the nickname into a new list of Strings
+		for(UserProfile u : listOfProfiles) {
+			listOfUsersByNickname.add(u.getUserName());
+		}
+		
+//		listOfUsers = banqiController.getListUsers();
 //		System.out.println(listOfProfiles);
 		Thread t = new Thread(server);
 		t.start();
@@ -103,37 +120,70 @@ public class Server extends Node {
 			LogIn lIn = (LogIn) e;
 			byte[] name = lIn.getNickname();
 			String nickname = new String(name);
-//			System.out.println("Nickname is:::::::" + nickname);
+			byte[] pass = lIn.getPassword();
+			String password = new String(pass);
+			System.out.println("Nickname is:::::::" + nickname);
 			if(checkNickNameExists(nickname)) {
 //				System.out.println("nickname exists");
-				RequestPassword reqPass = new RequestPassword();
-				connect.sendMessage(reqPass.getBytes());
+				if(checkPassword(nickname, password)) {
+//					System.out.println("Password is correct");
+					//store the nickname with the nodeID in map
+					nameToNode.put(nickname, lIn.getNodeId());
+					for(Map.Entry<String, Integer> g : nameToNode.entrySet()) {
+						System.out.println(g);
+						System.out.println(nameToNode.get(nickname));
+						System.out.println(cache.getById(nameToNode.get(nickname)));
+						System.out.println("\n");
+					}
+					//return the User
+					for(UserProfile prof : listOfProfiles) {
+						if(prof.getUserName().equals(nickname)) {
+							System.out.println("creating user to send to UserNode");
+							SendUser sendU = new SendUser();
+							sendU.setInfo(prof.getUserName().getBytes(), (byte)prof.getUserName().getBytes().length, prof.getEmail().getBytes(), (byte)prof.getEmail().getBytes().length,
+									prof.getPassword().getBytes(), (byte)prof.getPassword().getBytes().length, prof.getJoinedDate().getBytes(), (byte)prof.getJoinedDate().getBytes().length,
+									prof.getWins(), prof.getLosses(), prof.getDraws(), prof.getForfeits());
+							Byte[] namesLengths = new Byte[listOfUsersByNickname.size()];
+							List<byte[]> names = new ArrayList<byte[]>();
+							for(int i = 0; i < namesLengths.length; i++) {
+								namesLengths[i] = (byte)listOfUsersByNickname.get(i).getBytes().length;
+								byte[] toByte = listOfUsersByNickname.get(i).getBytes();
+								names.add(toByte);
+							}
+							sendU.setListUsers(namesLengths, names);
+							connect.sendMessage(sendU.getBytes());
+						}
+					}
+				}
 			}
-			else {
-				NicknameDoesNotExist nomatch = new NicknameDoesNotExist();
-				connect.sendMessage(nomatch.getBytes());
+			else {}
+			break;
+		case Protocol.SendInvite:;
+			SendInvite invite = (SendInvite) e;
+			//get inviter
+			byte[] invF = invite.getInviteFrom();
+			String inviteFrom = new String(invF);
+			//get invitee
+			byte[] invi = invite.getInvitee();
+			String invitee = new String(invi);
+			//add to hash map Invitee is key, invite from is value
+			System.out.println("invitee: " + invitee);
+			System.out.println("invite from: : " + inviteFrom);
+			listOfInvites.put(invitee, inviteFrom);
+			//send invite if invitee is logged on
+			if(nameToNode.containsKey(invitee)) {
+				sendInvite(invitee);
 			}
-//		case Protocol.NodeReportsOverlaySetupStatus:
-//			NodeReportsOverlaySetupStatus nR = (NodeReportsOverlaySetupStatus) e;
-//			int stat = nR.getStatus();
-//			byte[] info = nR.getInfoString();
-//			String s = new String(info);
-////			System.out.println(s + stat);
-//			break;
-//		case Protocol.OverlayNodeReportsTaskFinished:
-//			OverlayNodeReportsTaskFinished taskFinished = (OverlayNodeReportsTaskFinished) e;
-//			checkCompletion(taskFinished.getID());
-//			break;
-//		case Protocol.SendDeregistration:
-//			SendDeregistration dereg = (SendDeregistration) e;
-//			RegistryReportsDeregistrationStatus rrds = new RegistryReportsDeregistrationStatus();
-////			System.out.println("saldjflskdf" + this.cache.getById(dereg.getNodeId()));
-//			this.cache.getById(dereg.getNodeId()).sendMessage(rrds.getBytes());
-//			this.cache.remove(dereg.getNodeId());
-//			this.nodesRegistered.remove(dereg.getNodeId());
-//			break;
-		}
 
+			//****************************************************************
+			//write invite to file so that we can access them later!!
+			//****************************************************************
+			break;
+		case Protocol.SendLogOff:
+			SendLogOff lOut = (SendLogOff) e;
+			RegistryReportsDeregistrationStatus deregStatus = new RegistryReportsDeregistrationStatus();
+		
+		}
 	}
 	
 	public static int registerNode(byte type, byte[] address, int port) {
@@ -143,13 +193,9 @@ public class Server extends Node {
 		boolean unique = false;
 		int rand = 0;
 		
-//		System.out.println("sent address is: " + sentAddress);
-//		System.out.println("original ip Address is: " + originalAddress);
-//		System.out.println("port is: " + sentPort);
-		
 		//new node is trying to register, check the IPAddress given vs the IP address from the socket
 		//if match, generate random number between 0 and 127, and store the info in (hashmap?)
-//		System.out.println("they are the same");
+
 
 		Random randomGenerator = new Random();
 		while (!unique) {
@@ -189,21 +235,40 @@ public class Server extends Node {
 		}
 		return false;
 	}
+	
+	private boolean checkPassword(String nickname, String password) {
+		for(UserProfile prof : listOfProfiles) {
+			if(prof.getUserName().equals(nickname)) {
+				if(prof.getPassword().equals(password)) {
+					return true;
+				}
+			}
+		}
+		return false;
+	}
+	
+	private void sendInvite(String invitee) throws IOException {
+
+		TCPConnection connect = cache.getById(nameToNode.get(invitee));
+		for(Map.Entry<String, String> entry : listOfInvites.entrySet()) {
+			if(entry.getKey().equals(invitee)) {
+				//get both values and send to the invitee node
+				String invTo = invitee;
+				String invFr = entry.getValue();
+				SendInvite sendInv = new SendInvite();
+				sendInv.setInvitee((byte)invTo.getBytes().length, invTo.getBytes());
+				sendInv.setInviteFrom((byte)invFr.getBytes().length, invFr.getBytes());
+				connect.sendMessage(sendInv.getBytes());
+			}
+			else {
+				//do nothing
+			}
+		}
+	}
 
 	public static void deregisterNode(byte typeRec, byte[] ipAddrRec, int portNumRec, int nodeIDRec) {
 		//remove the entry in the hashmap that corresponds to nodeIDRec
 	}
-	
-//	public void sendPackets(int numPackets) throws IOException {
-//		
-//		for (Integer i = 0; i < allMessNodes.length; i++) {
-//			TCPConnection connect = cache.getById(allMessNodes[i]);
-//			RegistryRequestsTaskInitiate initiateTask = new RegistryRequestsTaskInitiate();
-//			initiateTask.setInfo(numPackets);
-//			connect.sendMessage(initiateTask.getBytes());
-//		}
-//	}
-	
 	
 	public void printListOfNodes() {
 		for (Entry<Integer, Tuple<byte[], Integer>> key : nodesRegistered.entrySet()) {
@@ -214,49 +279,4 @@ public class Server extends Node {
 			System.out.println(k + " " + ip + " " + p);
 		}
 	}
-	
-	// reads the Users file and adds them to the list of Profiles
-//	public void readUsers() throws FileNotFoundException, IOException {
-//		FileReader file = new FileReader("/s/bach/l/under/sporsche/cs414/Banqi/UserProfiles.txt");
-//		BufferedReader buff = new BufferedReader(file);
-//		String line = null;
-//		while ((line = buff.readLine()) != null) {
-//			String name = "";
-//			String email = "";
-//			String pass = "";
-//			String date = "";
-//			int wins = 0;
-//			int losses = 0;
-//			int draws = 0;
-//			int forf = 0;
-//			String[] parts = line.split(" ");
-//			for (int i = 0; i < parts.length; i++) {
-//				if (i == 0) {
-//					name = parts[i];
-//				} else if (i == 1) {
-//					email = parts[i];
-//				} else if (i == 2) {
-//					pass = parts[i];
-//				} else if (i == 3) {
-//					date = parts[i] + " ";
-//				} else if (i == 4) {
-//					date += parts[i];
-//				} else if (i == 5) {
-//					wins = Integer.parseInt(parts[i]);
-//				} else if (i == 6) {
-//					losses = Integer.parseInt(parts[i]);
-//				} else if (i == 7) {
-//					draws = Integer.parseInt(parts[i]);
-//				} else if (i == 8) {
-//					forf = Integer.parseInt(parts[i]);
-//				} else {
-//					System.out.println("There shouldn't be anything more on this line");
-//				}
-//			}
-//			UserProfile us = new UserProfile(name, email, pass, date, wins, losses, draws, forf);
-//			listOfProfiles.add(us);
-//		}
-//		buff.close();
-//
-//	}
 }
