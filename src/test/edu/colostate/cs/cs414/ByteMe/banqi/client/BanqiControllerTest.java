@@ -31,7 +31,8 @@ public class BanqiControllerTest {
 	@Test
 	public void testCtorNameNull() {
 		try {
-			BanqiController b = new BanqiController(null);
+			String file = null;
+			BanqiController b = new BanqiController(file);
 		} 
 		catch(NullPointerException e) {
 			return;

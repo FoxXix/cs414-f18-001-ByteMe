@@ -26,6 +26,14 @@ import main.edu.colostate.cs.cs414.ByteMe.banqi.wireformats.RegistryReportsRegis
 import main.edu.colostate.cs.cs414.ByteMe.banqi.wireformats.SendAccept;
 import main.edu.colostate.cs.cs414.ByteMe.banqi.wireformats.SendLogOff;
 import main.edu.colostate.cs.cs414.ByteMe.banqi.wireformats.SendInvite;
+import main.edu.colostate.cs.cs414.ByteMe.banqi.wireformats.SendLogOff;
+import main.edu.colostate.cs.cs414.ByteMe.banqi.wireformats.SendInvite;
+//import main.edu.colostate.cs.cs414.ByteMe.banqi.wireformats.SendPassword;
+//import cs455.overlay.wireformats.RegistryRequestsTaskInitiate;
+//import cs455.overlay.wireformats.RegistryRequestsTrafficSummary;
+//import cs455.overlay.wireformats.RegistrySendsNodeManifest;
+//import cs455.overlay.wireformats.SendDeregistration;
+
 import main.edu.colostate.cs.cs414.ByteMe.banqi.wireformats.SendRegistration;
 import main.edu.colostate.cs.cs414.ByteMe.banqi.wireformats.SendUser;
 
@@ -184,12 +192,12 @@ public class Server extends Node {
 			String sender = new String(sen);
 			//start a new game
 			startNewGame(sender, acceptor);
-
+      break;
 		case Protocol.SendLogOff:
 			SendLogOff lOut = (SendLogOff) e;
 			RegistryReportsDeregistrationStatus deregStatus = new RegistryReportsDeregistrationStatus();
 			connect.sendMessage(deregStatus.getBytes());
-
+      break;
 		}
 	}
 	

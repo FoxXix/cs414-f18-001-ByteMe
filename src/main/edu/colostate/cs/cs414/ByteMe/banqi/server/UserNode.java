@@ -29,7 +29,10 @@ import main.edu.colostate.cs.cs414.ByteMe.banqi.wireformats.RequestPassword;
 import main.edu.colostate.cs.cs414.ByteMe.banqi.wireformats.SendAccept;
 import main.edu.colostate.cs.cs414.ByteMe.banqi.wireformats.SendLogOff;
 import main.edu.colostate.cs.cs414.ByteMe.banqi.wireformats.SendInvite;
- import main.edu.colostate.cs.cs414.ByteMe.banqi.wireformats.SendPassword;
+import main.edu.colostate.cs.cs414.ByteMe.banqi.wireformats.SendPassword;
+import main.edu.colostate.cs.cs414.ByteMe.banqi.wireformats.SendLogOff;
+import main.edu.colostate.cs.cs414.ByteMe.banqi.wireformats.SendInvite;
+import main.edu.colostate.cs.cs414.ByteMe.banqi.wireformats.SendPassword;
 //import cs455.overlay.wireformats.RegistryRequestsTaskInitiate;
 //import cs455.overlay.wireformats.RegistryRequestsTrafficSummary;
 //import cs455.overlay.wireformats.RegistrySendsNodeManifest;
@@ -201,6 +204,13 @@ public class UserNode extends Node{
  		connection.sendMessage(sendPass.getBytes());
  	}
 	
+ 	public void sendPassword(String password) throws IOException {
+ 		System.out.println("sending password to server");
+ 		SendPassword sendPass = new SendPassword();
+ 		sendPass.setPassword((byte)password.getBytes().length, password.getBytes());
+ 		connection.sendMessage(sendPass.getBytes());
+ 	}
+
 	public void logOff() throws IOException {
 		SendLogOff sendOff = new SendLogOff();
 		connection.sendMessage(sendOff.getBytes());
