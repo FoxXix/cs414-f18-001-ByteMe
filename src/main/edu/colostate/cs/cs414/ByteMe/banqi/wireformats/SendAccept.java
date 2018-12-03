@@ -7,48 +7,36 @@ import java.io.ByteArrayOutputStream;
 import java.io.DataInputStream;
 import java.io.DataOutputStream;
 import java.io.IOException;
-import java.util.Arrays;
 
-public class LogIn implements Event{
+public class SendAccept implements Event{
 	
-	private byte[] nickname;
-	private byte nameLength;
+	private byte[] invitee;
+	private byte inviteeLength;
 	
-	private byte[] password;
-	private byte passwordLength;
+	private byte[] inviteFrom;
+	private byte inviteFromLength;
 	
-	private int nodeId = -1;
-	
-	public void setNickname(byte length, byte[] nickname) {
-		this.nickname = nickname;
-		this.nameLength = length;
+	public void setInvitee(byte length, byte[] invitee) {
+		this.invitee = invitee;
+		this.inviteeLength = length;
 	}
 	
-	public void setPassword(byte length, byte[] password) {
-		this.passwordLength = length;
-		this.password = password;
+	public void setInviteFrom(byte length, byte[] inviter) {
+		this.inviteFrom = inviter;
+		this.inviteFromLength = length;
 	}
 	
-	public void setNodeId(int node) {
-		this.nodeId = node;
-		System.out.println("nodeId in setNodeId" + this.nodeId);
+	public byte[] getInvitee() {
+		return invitee;
 	}
 	
-	public byte[] getNickname() {
-		return nickname;
-	}
-	
-	public byte[] getPassword() {
-		return password;
-	}
-	
-	public int getNodeId() {
-		return nodeId;
+	public byte[] getInviteFrom() {
+		return inviteFrom;
 	}
 
 	@Override
 	public byte getType() {
-		return 6;
+		return 13;
 	}
 
 	@Override
@@ -63,11 +51,10 @@ public class LogIn implements Event{
 
 		
 		dout.writeByte(getType());
-		dout.writeByte(nameLength);
-		dout.write(nickname);
-		dout.writeByte(passwordLength);
-		dout.write(password);
-		dout.writeInt(nodeId);
+		dout.writeByte(inviteeLength);
+		dout.write(invitee);
+		dout.writeByte(inviteFromLength);
+		dout.write(inviteFrom);
 		
 		dout.flush();
 		marshalledBytes = baOutputStream.toByteArray();
@@ -86,14 +73,13 @@ public class LogIn implements Event{
 		byte lengthRec = din.readByte();
 		byte[] name = new byte[lengthRec];
 		din.readFully(name);
-		byte lengthPass = din.readByte();
-		byte[] pass = new byte[lengthPass];
-		din.readFully(pass);
-		nickname = name;
-		password = pass;
+
+		invitee = name;
 		
-		nodeId = din.readInt();
-		System.out.println("nodeId is: " + nodeId);
+		byte lengthFRec = din.readByte();
+		byte[] nameF = new byte[lengthFRec];
+		din.readFully(nameF);
+		inviteFrom = nameF;
 
 		baInputStream.close();
 		din.close();

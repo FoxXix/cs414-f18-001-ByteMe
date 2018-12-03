@@ -1,13 +1,16 @@
 package main.edu.colostate.cs.cs414.ByteMe.banqi.server;
 
 import java.net.*;
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 import java.util.Random;
 
 import main.edu.colostate.cs.cs414.ByteMe.banqi.client.BanqiController;
 import main.edu.colostate.cs.cs414.ByteMe.banqi.client.User;
+import main.edu.colostate.cs.cs414.ByteMe.banqi.client.UserProfile;
 import main.edu.colostate.cs.cs414.ByteMe.banqi.transport.TCPCache;
 import main.edu.colostate.cs.cs414.ByteMe.banqi.transport.TCPConnection;
 import main.edu.colostate.cs.cs414.ByteMe.banqi.transport.TCPServerThread;
@@ -24,6 +27,12 @@ import main.edu.colostate.cs.cs414.ByteMe.banqi.wireformats.Protocol;
 //import cs455.overlay.wireformats.RegistryReportsDeregistrationStatus;
 import main.edu.colostate.cs.cs414.ByteMe.banqi.wireformats.RegistryReportsRegistrationStatus;
 import main.edu.colostate.cs.cs414.ByteMe.banqi.wireformats.RequestPassword;
+import main.edu.colostate.cs.cs414.ByteMe.banqi.wireformats.SendAccept;
+import main.edu.colostate.cs.cs414.ByteMe.banqi.wireformats.SendLogOff;
+import main.edu.colostate.cs.cs414.ByteMe.banqi.wireformats.SendInvite;
+import main.edu.colostate.cs.cs414.ByteMe.banqi.wireformats.SendPassword;
+import main.edu.colostate.cs.cs414.ByteMe.banqi.wireformats.SendLogOff;
+import main.edu.colostate.cs.cs414.ByteMe.banqi.wireformats.SendInvite;
 import main.edu.colostate.cs.cs414.ByteMe.banqi.wireformats.SendPassword;
 //import cs455.overlay.wireformats.RegistryRequestsTaskInitiate;
 //import cs455.overlay.wireformats.RegistryRequestsTrafficSummary;
@@ -31,6 +40,7 @@ import main.edu.colostate.cs.cs414.ByteMe.banqi.wireformats.SendPassword;
 //import main.edu.colostate.cs.cs414.ByteMe.banqi.wireformats.SendDeregistration;
 import main.edu.colostate.cs.cs414.ByteMe.banqi.wireformats.SendRegistration;
 import main.edu.colostate.cs.cs414.ByteMe.banqi.wireformats.ValidProfile;
+import main.edu.colostate.cs.cs414.ByteMe.banqi.wireformats.SendUser;
 
 import java.io.*;
 
@@ -46,7 +56,10 @@ public class UserNode extends Node{
 	TCPConnection connection = null;
 	BanqiController banqi = new BanqiController(this);
 	
+	private UserProfile userProfile;
 	private User user;
+	private List<String> gamesInvitedTo = new ArrayList<String>();
+
 	
 	private void Initialize(String serverName, int port) throws IOException, InterruptedException
 	{
@@ -96,13 +109,32 @@ public class UserNode extends Node{
 	}
 	
 	//send a message to the server requesting to LogIn to an existing account
-	public void logIn(String nickname) throws IOException {
+	public void logIn(String nickname, String password) throws IOException {
 		LogIn lIn = new LogIn();
 		lIn.setNickname((byte)nickname.getBytes().length, nickname.getBytes());
-		System.out.println("sending message");
+		lIn.setPassword((byte)password.getBytes().length, password.getBytes());
+		lIn.setNodeId(nodeID);
+//		System.out.println("sending message");
 		connection.sendMessage(lIn.getBytes());
 	}
+	
+	//send invite (to be routed through server)
+	public void sendInvite(String invitee) throws IOException {
+		SendInvite sendInvite = new SendInvite();
+		sendInvite.setInvitee((byte)invitee.getBytes().length, invitee.getBytes());
+		sendInvite.setInviteFrom((byte)userProfile.getUserName().getBytes().length, userProfile.getUserName().getBytes());
+		connection.sendMessage(sendInvite.getBytes());
+	}
+	
+	//message from UserNode to router declaring that 2 users have accepted a game invite
+	public void sendAccept(String invitee, String inviteFrom) throws IOException {
+		SendAccept sendAcc = new SendAccept();
+		sendAcc.setInvitee((byte)invitee.getBytes().length,  invitee.getBytes());
+		sendAcc.setInviteFrom((byte)inviteFrom.getBytes().length,  inviteFrom.getBytes());
+		connection.sendMessage(sendAcc.getBytes());
+	}
 
+	//Receives Event messages, and acts according to the type of Event that has arrived
 	public void OnEvent(Event e, TCPConnection connect) throws IOException {
 //		System.out.println("In OnEvent Messaging");
 		byte type = e.getType();
@@ -114,9 +146,38 @@ public class UserNode extends Node{
 //			System.out.println("Node ID = " + nodeID);
 //			System.out.println(Arrays.toString(regStatus.getInfoString()));
 			break;
-		case Protocol.RequestPassword:
-			RequestPassword reqP = (RequestPassword) e;
-			banqi.setRequestPassword();
+		case Protocol.SendUser:
+			SendUser sendU = (SendUser) e;
+			
+			//get userprofile info and create User instance
+			byte[] name = sendU.getNickname();
+			String nickname = new String(name);
+			byte[] em = sendU.getEmail();
+			String email = new String(em);
+			byte[] pas = sendU.getPassword();
+			String password = new String(pas);
+			byte[] dat = sendU.getDate();
+			String date = new String(dat);
+			int wins = sendU.getWins();
+			int losses = sendU.getLosses();
+			int draws = sendU.getDraws();
+			int forfeits = sendU.getForfeits();
+			userProfile = new UserProfile(nickname, email, password, date, wins, losses, draws, forfeits);
+			user = new User(userProfile);
+			banqi.setUser(user);
+			banqi.setUserStatus(true);
+			
+			List<byte[]> nam = new ArrayList<byte[]>();
+			List<String> names = new ArrayList<String>();
+			nam = sendU.getNames();
+			for(byte[] n : nam) {
+				String s = new String(n);
+				names.add(s);
+//				System.out.println(s);
+			}
+			
+			banqi.setNames(names);
+
 			break;
 		case Protocol.ValidProfile:
 			ValidProfile validProfile = (ValidProfile) e;
@@ -127,17 +188,27 @@ public class UserNode extends Node{
 //			RegistryReportsDeregistrationStatus rrd = (RegistryReportsDeregistrationStatus) e;
 			System.out.println("Exiting Overlay");
 			System.exit(0);
+			break;
+		case Protocol.SendInvite:
+			SendInvite sendInv = (SendInvite) e;
+			byte[] inF = sendInv.getInviteFrom();
+			String invFrom = new String(inF);
+			gamesInvitedTo.add(invFrom);
+			System.out.println("\nYou received an invite from " + invFrom + "!");
+			System.out.println("\nPlease choose how to proceed. \n1) Play existing game");
+			System.out.println("2) Manage invites");
+			System.out.println("3) View profile");
 		}		
 	}
 	
-	public String askPassword() throws IOException {
-		BufferedReader read = new BufferedReader(new InputStreamReader(System.in));
-		System.out.println("Please Enter Your Password");
-		String password = read.readLine();
-		System.out.println(password);
-		read.close();
-		return password;
-	}
+//	public String askPassword() throws IOException {
+//		BufferedReader read = new BufferedReader(new InputStreamReader(System.in));
+//		System.out.println("Please Enter Your Password");
+//		String password = read.readLine();
+//		System.out.println(password);
+//		read.close();
+//		return password;
+//	}
 	
 	public void sendPassword(String password) throws IOException {
 		//System.out.println("sending password to server");
@@ -154,18 +225,26 @@ public class UserNode extends Node{
 		profile.setPassword((byte)password.getBytes().length, password.getBytes());
 		connection.sendMessage(profile.getBytes());
 	}
-	
-	//convert IP to bytes
-	private String convertIP(byte[] ip) {
-		String s = "";
-		for(int i = 0; i < ip.length; i++) {
-			s += ip[i] & 0xff;
-			if(i != ip.length - 1) {
-				s += ".";
-			}
-		}
-//		System.out.println(s);
-		return s;
+  
+	public void logOff() throws IOException {
+		SendLogOff sendOff = new SendLogOff();
+		connection.sendMessage(sendOff.getBytes());
 	}
+	
+	public List<String> getGamesInvitedTo(){
+		return gamesInvitedTo;
+	}
+	//convert IP to bytes
+//	private String convertIP(byte[] ip) {
+//		String s = "";
+//		for(int i = 0; i < ip.length; i++) {
+//			s += ip[i] & 0xff;
+//			if(i != ip.length - 1) {
+//				s += ".";
+//			}
+//		}
+////		System.out.println(s);
+//		return s;
+//	}
 
 }

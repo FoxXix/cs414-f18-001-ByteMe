@@ -7,6 +7,8 @@ import java.util.List;
 import java.util.Random;
 import java.util.Scanner;
 
+import main.edu.colostate.cs.cs414.ByteMe.banqi.server.Server;
+
 public class BanqiGame {
 
 	private Board board;
@@ -17,24 +19,29 @@ public class BanqiGame {
 	private int emptyTiles 	= 32;
 	private int redPieces 	= 16;
 	private int blackPieces = 16;
-	private boolean f = false;
+	private boolean forfeit = false;
 	private boolean won = false;
+	private Server server;
 	
 	HashMap<String, String> map = new HashMap<>();
 	Scanner scanner = new Scanner( System.in );
 	Tile atTile;
 	String choice;
 	
+	//start new game
 	public BanqiGame(User u1, User u2) {
 		board = new Board();
 		user1 = u1;
 		user2 = u2;
-		//userProfile1 = u1.getUserProfile();
-		//userProfile2 = u2.getUserProfile();
+
 	}
 	
 	public Board getBoard() {
 		return board;
+	}
+	
+	public void setServer(Server serv) {
+		this.server = serv;
 	}
 	
 	/* Calls the setPieces method to add both Red and Black pieces to the Banqi Game Board */
@@ -49,6 +56,8 @@ public class BanqiGame {
 		players.add(user2);
 		int turns = 0;
 		while (!won) {
+			//this should work, each turn we will need to get the state of the board
+			//and call the sendBoard method in server to communicate each move that was made
 			makeMove(players.get(turns % 2));
 			turns++;
 		}
@@ -70,9 +79,8 @@ public class BanqiGame {
 		
 		while (!startMove(user));
 		
-		if (!f) {
+		if (!forfeit && !won) {
 			int[] atPosition = getPosition(choice);
-			
 			atTile = board.getTileInfo(atPosition);
 			
 			if (!atTile.getPiece().isVisible()) {
@@ -92,6 +100,7 @@ public class BanqiGame {
 				printBoard();
 			} 
 			else {
+				int[] toPosition =  null;
 				do {
 					System.out.println("What direction do you want to move " + atTile.getPiece().getName() + "? (Up/Down/Left/Right)");
 					
@@ -99,30 +108,13 @@ public class BanqiGame {
 					
 					if ("udlrUDLR".indexOf(choice.charAt(0)) == -1) {
 						System.out.println("Move unknown");
+					} else {
+						toPosition = validateBounds(atPosition, choice.charAt(0));
 					}
-				} while ("udlrUDLR".indexOf(choice.charAt(0)) == -1);
+				} while (toPosition != null);//while ("udlrUDLR".indexOf(choice.charAt(0)) == -1);
 				
-				scanner.close();
+				scanner.close();				
 				
-				int[] toPosition = null;
-				switch (choice.charAt(0)) {
-					case 'u':
-					case 'U': 
-						toPosition = new int[]{atPosition[0], atPosition[1] - 1};
-						break;
-					case 'd':
-					case 'D': 
-						toPosition = new int[]{atPosition[0], atPosition[1] + 1};
-						break;
-					case 'l':
-					case 'L': 
-						toPosition = new int[]{atPosition[0] - 1, atPosition[1]};
-						break;
-					case 'r':
-					case 'R': 
-						toPosition = new int[]{atPosition[0] + 1, atPosition[1]};
-						break;
-				}
 				// can this piece take the other piece?
 				if (board.getTileInfo(atPosition).getPiece().getRank() >= board.getTileInfo(toPosition).getPiece().getRank()) {
 					if (board.getTileInfo(toPosition).getPiece().getColor() == "Red") { // keep track of # of player pieces
@@ -149,6 +141,39 @@ public class BanqiGame {
 		}
 	}
 	
+	
+	/* This method takes in the position of the piece that is to be
+	 * moved and the direction it wants to be moved to. It validates
+	 * that the move would be valid and within the bounds of the 
+	 * board.
+	*/
+	private int[] validateBounds(int[] at, char direction) {
+		int[] toPosition = null;
+		switch (choice.charAt(0)) {
+			case 'u':
+			case 'U':
+				if (at[1] == 0) return null;
+				toPosition = new int[]{at[0], at[1] - 1};
+				break;
+			case 'd':
+			case 'D': 
+				if (at[1] == 7) return null;
+				toPosition = new int[]{at[0], at[1] + 1};
+				break;
+			case 'l':
+			case 'L': 
+				if (at[0] == 0) return null;
+				toPosition = new int[]{at[0] - 1, at[1]};
+				break;
+			case 'r':
+			case 'R': 
+				if (at[0] == 3) return null;
+				toPosition = new int[]{at[0] + 1, at[1]};
+				break;
+		}
+		return toPosition;
+	}
+	
 	/*This method ensures that a User is selecting a valid move,
 	and that they Piece they are trying to move is of their own color.
 	This way, a User knows if the move can be made prior to entering
@@ -158,17 +183,25 @@ public class BanqiGame {
 		System.out.println("Enter a coordinate to select a piece.");
 		System.out.println("To forfeit, type 'forfeit' and press Enter");
 		choice = scanner.nextLine();
-		 if (choice.equals("forfeit")) { // forfeit
-				f = true;
-				return true; 
+		choice = choice.toUpperCase();
+		String validXInputs = "1234";
+		String validYInputs = "ABCDEFGH";
+		
+		 if (choice.equals("FORFEIT")) { // forfeit
+			forfeit = true;
+			won = true;
+			return true; 
 		} else if (choice.length() != 2) {   // not the right length
 			System.out.println("Input not recognized");
-		} else if ("1234ABCDEFGH".indexOf(choice.charAt(0)) == -1 || "1234ABCDEFGH".indexOf(choice.charAt(1)) == -1) { // not valid character
-				System.out.println("Invalid coordinate");
+		} else if ((validXInputs+validYInputs).indexOf(choice.charAt(0)) == -1 || (validXInputs+validYInputs).indexOf(choice.charAt(1)) == -1) { // not valid character
+			System.out.println("Invalid coordinate");
+		} else if ((validXInputs.indexOf(choice.charAt(0)) != -1 && validXInputs.indexOf(choice.charAt(1)) != -1) ||
+				   (validYInputs.indexOf(choice.charAt(0)) != -1 && validYInputs.indexOf(choice.charAt(1)) != -1)) { // gave "valid input", but invalid coordinate eg: ff or 23
+			System.out.println("Invalid coordinate, double axis");
 		} else if (board.getTileInfo(getPosition(choice)).getPiece().isVisible() &&
-				board.getTileInfo(getPosition(choice)).getPiece().getColor() != getColor(user.getNickname())) { // picked opposite color AND it's visisble
+			board.getTileInfo(getPosition(choice)).getPiece().getColor() != getColor(user.getNickname())) { // picked opposite color AND it's visible
 			System.out.println("That's not your piece! Try again!");
-		} else {
+		} else {			
 			return true; // all looks good, go!
 		}
 		
@@ -350,20 +383,20 @@ public class BanqiGame {
 	private String getColor(String nickname) {
 		return map.get(nickname);
 	}
-	
-	public static void main(String[] args) throws IOException { 
-		UserProfile up1 = new UserProfile("User1", "email", "pass", "date", 0,0,0,0);
-		UserProfile up2 = new UserProfile("User2", "email", "pass", "date", 0,0,0,0);
-		User user1 = new User(up1);
-		User user2 = new User(up2);
-		BanqiGame b = new BanqiGame(user1, user2);
-		System.out.println(user1.getNickname());
-		b.setUpBoard();
-		b.printBoard();
-		b.makeMove(user1);
-		b.makeMove(user2);
-		b.makeMove(user1);
-    } 
-	
+
+//	
+//	public static void main(String[] args) throws IOException { 
+//		UserProfile up1 = new UserProfile("User1", "email", "pass", "date", 0,0,0,0);
+//		UserProfile up2 = new UserProfile("User2", "email", "pass", "date", 0,0,0,0);
+//		User user1 = new User(up1);
+//		User user2 = new User(up2);
+//		BanqiGame b = new BanqiGame(user1, user2);
+//		System.out.println(user1.getNickname());
+//		b.setUpBoard();
+//		b.printBoard();
+//		b.makeMove(user1);
+//		b.makeMove(user2);
+//		b.makeMove(user1);
+//    } 
 
 }

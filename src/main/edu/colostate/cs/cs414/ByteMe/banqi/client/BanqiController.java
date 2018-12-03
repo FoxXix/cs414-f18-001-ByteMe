@@ -11,22 +11,27 @@ import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.TimeUnit;
-
 import main.edu.colostate.cs.cs414.ByteMe.banqi.server.UserNode;
 
 public class BanqiController {
 
-	public String profilesFile;
+
+	private String profilesFile = "/s/bach/l/under/evansalz/cs414/UserProfiles.txt";
 	//stores all created UserProfiles
 	protected List<UserProfile> listOfProfiles = new ArrayList<UserProfile>();
 	protected static List<User> users = new ArrayList<User>();
+	private List<String> userNames = new ArrayList<String>();
+	private List<String> openInvites = new ArrayList<String>();
+	
+	
 	User U;
 	UserNode usernode;
 	
-	private boolean requestPass = false;
+	private boolean isUser = false;
+//	private boolean requestPass = false;
 	
-	public void setRequestPassword() {
-		requestPass = true;
+	public void setUser(User u) {
+		this.U = u;
 	}
 	
 	private boolean validProfile = false;
@@ -45,6 +50,11 @@ public class BanqiController {
 	
 	public BanqiController(UserNode usernode) {
 		this.usernode = usernode;
+	}
+	
+	public void setNames(List<String> names) {
+		this.userNames = names;
+		
 	}
 	
 	/* Reads a file for a User  and adds the contents to the list of User Profiles.
@@ -109,21 +119,26 @@ public class BanqiController {
 	
 	}
 
-	/* The method controls the entrance into anf exit from the game system as well as registration.
+	/* The method controls the entrance into and exit from the game system as well as registration.
 	While controlling the running of the system, this calls upon other methods to do these tasks.
 	It allows for and connects to the following tasks:
-	  - Log in (for exsiting users) [enter '1']
+	  - Log in (for existing users) [enter '1']
 	  - Create an account/profile (for new users) [enter '2']
 	  - Log out [enter 'exit']
 	If the input is not one of the previous options, the user is prompted that the input is not recognized.
 	*/
 	public void runProgram() throws IOException, InterruptedException {
-//		readUsers();
+		readUsers();
 		String choice;
 		read = new BufferedReader(new InputStreamReader(System.in));
 		printTitle();
-		boolean b = false;
-		while (b == false) {
+		boolean existingUser = false;
+		boolean exitSystem = false;
+		int loginAttempts = 0;
+		while (existingUser == false) {
+			if (loginAttempts > 0) {
+				System.out.println("\nThe nickname and/or password entered is not associated with a registered User.  Please reenter your credentials.");
+			}
 			System.out.println("1) Login");
 			System.out.println("2) Create profile");
 			System.out.println("To exit, type 'exit' and press Enter");
@@ -134,22 +149,26 @@ public class BanqiController {
 			if (choice.equals("1")) {
 				getUserName();
 				TimeUnit.SECONDS.sleep(1);
-				System.out.println(requestPass);
-				if(requestPass == true) {
-					enterCredentials();
+
+				if (isUser == true) {
+					existingUser = true;
 				}
-				b = true;
+				loginAttempts++;
+
 			} else if (choice.equals("2")) {
 				makeNewUser();
 			} else if (choice.equals("exit")) {
-				b = true;
+				exitSystem = true;
 			} else {
 				System.out.println("Input not recognized");
 			}
+			if (exitSystem) {
+				read.close();
+			}
 		}
 		// user has logged in
-		b = false;
-		while (!b) {
+		while (!exitSystem) {
+			System.out.println("\nWelcome to Banqi!  Please enter the number of what you'd like to do.");
 			System.out.println("\n1) Play existing game");
 			System.out.println("2) Manage invites");
 			System.out.println("3) View profile");
@@ -163,7 +182,7 @@ public class BanqiController {
 			} else if (choice.equals("3")) {
 				viewProfile();
 			} else if (choice.equals("exit")) {
-				b = true;
+				exitSystem = true;
 			} else {
 				System.out.println("Input not recognized");
 			}
@@ -184,24 +203,21 @@ public class BanqiController {
 			
 			choice = read.readLine();
 			if (choice.equals("1")) {
-				boolean c = false;
-				System.out.println("Select invite from list to accept:");
-				System.out.println("To exit, type 'exit' and press Enter");
-				while (!c) {
+				boolean exitStatus = false;
+				System.out.println("Select an invite from this list to accept:");
+				while (!exitStatus) {
 					int count = 1;
-					List<Invite> openInvites = new ArrayList<Invite>();
-					for (Invite invite : U.invites) {
-						if (invite.getStatus().equals("Open")) {
-							openInvites.add(invite);
-							System.out.println(count + ") " + invite.toString());
-							count++;
-						}						
+					for (String inviter : usernode.getGamesInvitedTo()) {
+						openInvites.add(inviter);
+						System.out.println(count + ") " + inviter);
+						count++;					
 					}
-					
+					System.out.println("To exit, type 'exit' and press Enter");
+
 					choice = read.readLine();
 					int number = 0;
 					if (choice.equals("exit")) {
-						c = true;
+						exitStatus = true;
 					}
 					else {
 						do {
@@ -212,50 +228,69 @@ public class BanqiController {
 								choice = read.readLine();
 							}
 						} while (number == 0);
-						
-						Invite invite = openInvites.get(number);
-						startNewGame(invite.getFrom()); // user to play with
-						c = true;
+
+						String inviter = openInvites.get(number-1);
+						startNewGame(BanqiController.getUser(inviter));
+						 // user to play with
+						exitStatus = true;
 					}
 				}
 			} else if (choice.equals("2")) {
-				boolean c = false;
-				while (!c) {
-					System.out.println("Select user from list to send invite to:");
-					System.out.println("To exit, type 'exit' and press Enter");
+				boolean exitSystem2 = false;
+				while (!exitSystem2) {
+					System.out.println("Select a user from this list to send invite to:");
+
 					int count = 1;
 					int myIndex = -1;
-					for (User user : users) {
-						if (!user.getNickname().equals(U.getNickname())) {
-							System.out.println(count +") " + user.getNickname());
+					for (String s : userNames) {
+						if (!s.equals(U.getNickname())) {
+							System.out.println(count +") " + s);
 							count++;
-						} else
+						} else {
 							myIndex = count-1;
+						}
+
 					}
+					System.out.println("\nTo exit, type 'exit' and press Enter");
+//					for (User user : users) {
+//						if (!user.getNickname().equals(U.getNickname())) {
+//							System.out.println(count +") " + user.getNickname());
+//							count++;
+//						} else
+//							myIndex = count-1;
+//					}
 					
 					choice = read.readLine();
+//					System.out.println(choice);
 					int number = 0;
 				    if (choice.equals("exit")) {
-						c = true;
+				    	exitSystem2 = true;
 					} else {
 						do {
 							try {
 								number = Integer.parseInt(choice);
+//								System.out.println(number);
 							} catch (NumberFormatException e) {
 								System.out.println("Input not recognized, try again");
 								choice = read.readLine();
 							}
 						} while (number == 0);
 						
-						User invitee;
+						String invitee;
 					    if (number <= myIndex) {
-					    	invitee = users.get(number - 1);
+					    	invitee = userNames.get(number - 1);
+//					    	invitee = users.get(number - 1);
 					    } else {
-					    	invitee = users.get(number);
+					    	invitee = userNames.get(number);
+//					    	invitee = users.get(number);
 					    }
-					    // send invite
-					    new Invite(U, invitee);
-					    System.out.println("Sent invite to " + invitee.getNickname());
+					    // send invite message
+//					    new Invite(U, invitee);
+					    System.out.println("Sent invite to " + invitee);
+					    usernode.sendInvite(invitee);
+					    U.sendInvite(invitee);
+					    U.gamesInvitedTo.add(invitee);
+					    System.out.println(U.gamesInvitedTo);
 					}				    
 				}
 			} else if (choice.equals("exit")) {
@@ -273,10 +308,12 @@ public class BanqiController {
 		game.printBoard();
 		game.play();
 	}
-	
+
+
 	private void viewProfile() throws IOException {
 		boolean b = false;
 		String choice;
+		System.out.println(U.getNickname());
 		U.seeProfile(U.getNickname());
 		while (!b) {			
 			System.out.println("\n1) Search for player");
@@ -321,7 +358,10 @@ public class BanqiController {
 		String name = "";
 		System.out.println("Please Enter your nickname");
 		name = read.readLine();
-		usernode.logIn(name);
+		System.out.println("Please enter your password");
+		String password = read.readLine();
+		System.out.println(password);
+		usernode.logIn(name, password);
 //		boolean found = false;
 //		do {
 //			name = "";
@@ -370,7 +410,7 @@ public class BanqiController {
 		String password = read.readLine();
 		System.out.println(password);
 		usernode.sendPassword(password);
-		//// System.out.println(prof.getPassword());
+//		 System.out.println(prof.getPassword());
 		// if(!(password.equals(prof.getPassword()))) {
 		// count++;
 		// System.out.println("Password was incorrect, you have " + (3 - count) + "
@@ -420,6 +460,10 @@ public class BanqiController {
 			}
 		}
 		return null;
+	}
+	
+	public void setUserStatus(boolean userStatus) {
+		this.isUser = userStatus;
 	}
 	
 	private void printTitle() {
