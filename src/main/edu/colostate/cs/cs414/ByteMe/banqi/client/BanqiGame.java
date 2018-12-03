@@ -7,6 +7,8 @@ import java.util.List;
 import java.util.Random;
 import java.util.Scanner;
 
+import main.edu.colostate.cs.cs414.ByteMe.banqi.server.Server;
+
 public class BanqiGame {
 
 	private Board board;
@@ -19,6 +21,7 @@ public class BanqiGame {
 	private int blackPieces = 16;
 	private boolean f = false;
 	private boolean won = false;
+	private Server server;
 	
 	HashMap<String, String> map = new HashMap<>();
 	Scanner scanner = new Scanner( System.in );
@@ -29,12 +32,15 @@ public class BanqiGame {
 		board = new Board();
 		user1 = u1;
 		user2 = u2;
-		//userProfile1 = u1.getUserProfile();
-		//userProfile2 = u2.getUserProfile();
+
 	}
 	
 	public Board getBoard() {
 		return board;
+	}
+	
+	public void setServer(Server serv) {
+		this.server = serv;
 	}
 	
 	/* Calls the setPieces method to add both Red and Black pieces to the Banqi Game Board */
@@ -49,6 +55,8 @@ public class BanqiGame {
 		players.add(user2);
 		int turns = 0;
 		while (!won) {
+			//this should work, each turn we will need to get the state of the board
+			//and call the sendBoard method in server to communicate each move that was made
 			makeMove(players.get(turns % 2));
 			turns++;
 		}
@@ -350,20 +358,20 @@ public class BanqiGame {
 	private String getColor(String nickname) {
 		return map.get(nickname);
 	}
-	
-	public static void main(String[] args) throws IOException { 
-		UserProfile up1 = new UserProfile("User1", "email", "pass", "date", 0,0,0,0);
-		UserProfile up2 = new UserProfile("User2", "email", "pass", "date", 0,0,0,0);
-		User user1 = new User(up1);
-		User user2 = new User(up2);
-		BanqiGame b = new BanqiGame(user1, user2);
-		System.out.println(user1.getNickname());
-		b.setUpBoard();
-		b.printBoard();
-		b.makeMove(user1);
-		b.makeMove(user2);
-		b.makeMove(user1);
-    } 
+//	
+//	public static void main(String[] args) throws IOException { 
+//		UserProfile up1 = new UserProfile("User1", "email", "pass", "date", 0,0,0,0);
+//		UserProfile up2 = new UserProfile("User2", "email", "pass", "date", 0,0,0,0);
+//		User user1 = new User(up1);
+//		User user2 = new User(up2);
+//		BanqiGame b = new BanqiGame(user1, user2);
+//		System.out.println(user1.getNickname());
+//		b.setUpBoard();
+//		b.printBoard();
+//		b.makeMove(user1);
+//		b.makeMove(user2);
+//		b.makeMove(user1);
+//    } 
 	
 
 }

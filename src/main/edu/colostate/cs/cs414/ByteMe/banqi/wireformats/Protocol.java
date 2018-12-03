@@ -12,7 +12,9 @@ public class Protocol {
 	final public static int NickNameDoesNotExist = 8;
 	final public static int SendPassword = 9;
 	final public static int SendUser = 11;
+	final public static int SendLogOff = 34;
 	final public static int SendInvite = 12;
+	final public static int SendAccept = 13;
 	
 //	final public static int RegistrySendsNodeManifest = 6;
 //	final public static int NodeReportsOverlaySetupStatus = 7;

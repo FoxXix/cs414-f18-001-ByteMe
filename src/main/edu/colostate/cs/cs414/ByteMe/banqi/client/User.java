@@ -33,25 +33,25 @@ public class User {
 	/*To be implemented: For purposes of security, the User will eventually need to enter their credentials
 	in order to access components of the system associated with registered users.*/
 
-	public void initiateGame(User invitee) {
-		new BanqiGame(this, invitee);		
-	}
+//	public void initiateGame(User invitee) {
+//		new BanqiGame(this, invitee);		
+//	}
 	
 	/*A User may invite any number of other Users to play a new Banqi Game.  A single call to this method
 	is associated with a single invite.  The required paramter is the nickname of the User they wish to invite.  
 	This creates the association relationship between the User (host) and the invited User.*/
-	public void sendInvite(String nickname) {
-		new Invite(this, nickname);
-	}
-	
-	public Invite getInvite(User from) {
-		for (Invite invite: invites) {
-			if (invite.getFrom().equals(from)) {
-				return invite;
-			}
-		}
-		return null;
-	}
+//	public void sendInvite(String nickname) {
+//		new Invite(this, nickname);
+//	}
+//	
+//	public Invite getInvite(User from) {
+//		for (Invite invite: invites) {
+//			if (invite.getFrom().equals(from)) {
+//				return invite;
+//			}
+//		}
+//		return null;
+//	}
 
 	
 	/*Unless a User has no game invites, this prints out any invites for a given User.  

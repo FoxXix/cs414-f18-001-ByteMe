@@ -23,15 +23,16 @@ public class BanqiController {
 	User U;
 	UserNode usernode;
 	
-	private boolean requestPass = false;
+	private boolean isUser = false;
+//	private boolean requestPass = false;
 	
 	public void setUser(User u) {
 		this.U = u;
 	}
 	
-	public void setRequestPassword() {
-		requestPass = true;
-	}
+//	public void setRequestPassword() {
+//		requestPass = true;
+//	}
 	
 	//read user inputs
 	private static BufferedReader read;
@@ -112,10 +113,10 @@ public class BanqiController {
 	
 	}
 
-	/* The method controls the entrance into anf exit from the game system as well as registration.
+	/* The method controls the entrance into and exit from the game system as well as registration.
 	While controlling the running of the system, this calls upon other methods to do these tasks.
 	It allows for and connects to the following tasks:
-	  - Log in (for exsiting users) [enter '1']
+	  - Log in (for existing users) [enter '1']
 	  - Create an account/profile (for new users) [enter '2']
 	  - Log out [enter 'exit']
 	If the input is not one of the previous options, the user is prompted that the input is not recognized.
@@ -125,8 +126,13 @@ public class BanqiController {
 		String choice;
 		read = new BufferedReader(new InputStreamReader(System.in));
 		printTitle();
-		boolean b = false;
-		while (b == false) {
+		boolean existingUser = false;
+		boolean exitSystem = false;
+		int loginAttempts = 0;
+		while (existingUser == false) {
+			if (loginAttempts > 0) {
+				System.out.println("\nThe nickname and/or password entered is not associated with a registered User.  Please reenter your credentials.");
+			}
 			System.out.println("1) Login");
 			System.out.println("2) Create profile");
 			System.out.println("To exit, type 'exit' and press Enter");
@@ -136,23 +142,26 @@ public class BanqiController {
 			// attempt log-in
 			if (choice.equals("1")) {
 				getUserName();
-//				TimeUnit.SECONDS.sleep(1);
-//				System.out.println(requestPass);
-//				if(requestPass == true) {
-//					enterCredentials();
-//				}
-				b = true;
+				TimeUnit.SECONDS.sleep(1);
+
+				if (isUser == true) {
+					existingUser = true;
+				}
+				loginAttempts++;
+
 			} else if (choice.equals("2")) {
 				makeNewUser();
 			} else if (choice.equals("exit")) {
-				b = true;
+				exitSystem = true;
 			} else {
 				System.out.println("Input not recognized");
 			}
+			if (exitSystem) {
+				read.close();
+			}
 		}
 		// user has logged in
-		b = false;
-		while (!b) {
+		while (!exitSystem) {
 			System.out.println("\n1) Play existing game");
 			System.out.println("2) Manage invites");
 			System.out.println("3) View profile");
@@ -166,7 +175,7 @@ public class BanqiController {
 			} else if (choice.equals("3")) {
 				viewProfile();
 			} else if (choice.equals("exit")) {
-				b = true;
+				exitSystem = true;
 			} else {
 				System.out.println("Input not recognized");
 			}
@@ -217,7 +226,11 @@ public class BanqiController {
 						} while (number == 0);
 						
 						Invite invite = openInvites.get(number);
-						startNewGame(invite.getFrom()); // user to play with
+						
+						//***********************************************************************************
+//						startNewGame(invite.getFrom()); // user to play with
+						//***********************************************************************************
+						
 						c = true;
 					}
 				}
@@ -284,12 +297,14 @@ public class BanqiController {
 		}
 	}
 	
-	private void startNewGame(User user) throws IOException {
-		BanqiGame game = new BanqiGame(U, user);
-		game.setUpBoard();
-		game.printBoard();
-		game.play();
-	}
+	//***********************************************************************************
+//	private void startNewGame(User user) throws IOException {
+//		BanqiGame game = new BanqiGame(U, user);
+//		game.setUpBoard();
+//		game.printBoard();
+//		game.play();
+//	}
+	//***********************************************************************************
 	
 	private void viewProfile() throws IOException {
 		boolean b = false;
@@ -478,6 +493,10 @@ public class BanqiController {
 			}
 		}
 		return null;
+	}
+	
+	public void setUserStatus(boolean userStatus) {
+		this.isUser = userStatus;
 	}
 	
 	private void printTitle() {

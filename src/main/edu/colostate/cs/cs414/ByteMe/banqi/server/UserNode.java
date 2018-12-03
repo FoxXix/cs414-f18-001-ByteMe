@@ -26,8 +26,10 @@ import main.edu.colostate.cs.cs414.ByteMe.banqi.wireformats.Protocol;
 //import cs455.overlay.wireformats.RegistryReportsDeregistrationStatus;
 import main.edu.colostate.cs.cs414.ByteMe.banqi.wireformats.RegistryReportsRegistrationStatus;
 import main.edu.colostate.cs.cs414.ByteMe.banqi.wireformats.RequestPassword;
+import main.edu.colostate.cs.cs414.ByteMe.banqi.wireformats.SendAccept;
+import main.edu.colostate.cs.cs414.ByteMe.banqi.wireformats.SendLogOff;
 import main.edu.colostate.cs.cs414.ByteMe.banqi.wireformats.SendInvite;
-import main.edu.colostate.cs.cs414.ByteMe.banqi.wireformats.SendPassword;
+ import main.edu.colostate.cs.cs414.ByteMe.banqi.wireformats.SendPassword;
 //import cs455.overlay.wireformats.RegistryRequestsTaskInitiate;
 //import cs455.overlay.wireformats.RegistryRequestsTrafficSummary;
 //import cs455.overlay.wireformats.RegistrySendsNodeManifest;
@@ -116,7 +118,16 @@ public class UserNode extends Node{
 		sendInvite.setInviteFrom((byte)userProfile.getUserName().getBytes().length, userProfile.getUserName().getBytes());
 		connection.sendMessage(sendInvite.getBytes());
 	}
+	
+	//message from UserNode to router declaring that 2 users have accepted a game invite
+	public void sendAccept(String invitee, String inviteFrom) throws IOException {
+		SendAccept sendAcc = new SendAccept();
+		sendAcc.setInvitee((byte)invitee.getBytes().length,  invitee.getBytes());
+		sendAcc.setInviteFrom((byte)inviteFrom.getBytes().length,  inviteFrom.getBytes());
+		connection.sendMessage(sendAcc.getBytes());
+	}
 
+	//Receives Event messages, and acts according to the type of Event that has arrived
 	public void OnEvent(Event e, TCPConnection connect) throws IOException {
 //		System.out.println("In OnEvent Messaging");
 		byte type = e.getType();
@@ -147,6 +158,7 @@ public class UserNode extends Node{
 			userProfile = new UserProfile(nickname, email, password, date, wins, losses, draws, forfeits);
 			user = new User(userProfile);
 			banqi.setUser(user);
+			banqi.setUserStatus(true);
 			
 			List<byte[]> nam = new ArrayList<byte[]>();
 			List<String> names = new ArrayList<String>();
@@ -158,6 +170,7 @@ public class UserNode extends Node{
 			}
 			
 			banqi.setNames(names);
+
 			break;
 		case Protocol.RegistryReportsDeregistrationStatus:
 //			RegistryReportsDeregistrationStatus rrd = (RegistryReportsDeregistrationStatus) e;
@@ -172,33 +185,38 @@ public class UserNode extends Node{
 		}		
 	}
 	
-	public String askPassword() throws IOException {
-		BufferedReader read = new BufferedReader(new InputStreamReader(System.in));
-		System.out.println("Please Enter Your Password");
-		String password = read.readLine();
-		System.out.println(password);
-		read.close();
-		return password;
-	}
+//	public String askPassword() throws IOException {
+//		BufferedReader read = new BufferedReader(new InputStreamReader(System.in));
+//		System.out.println("Please Enter Your Password");
+//		String password = read.readLine();
+//		System.out.println(password);
+//		read.close();
+//		return password;
+//	}
 	
-	public void sendPassword(String password) throws IOException {
-		System.out.println("sending password to server");
-		SendPassword sendPass = new SendPassword();
-		sendPass.setPassword((byte)password.getBytes().length, password.getBytes());
-		connection.sendMessage(sendPass.getBytes());
+ 	public void sendPassword(String password) throws IOException {
+ 		System.out.println("sending password to server");
+ 		SendPassword sendPass = new SendPassword();
+ 		sendPass.setPassword((byte)password.getBytes().length, password.getBytes());
+ 		connection.sendMessage(sendPass.getBytes());
+ 	}
+	
+	public void logOff() throws IOException {
+		SendLogOff sendOff = new SendLogOff();
+		connection.sendMessage(sendOff.getBytes());
 	}
 	
 	//convert IP to bytes
-	private String convertIP(byte[] ip) {
-		String s = "";
-		for(int i = 0; i < ip.length; i++) {
-			s += ip[i] & 0xff;
-			if(i != ip.length - 1) {
-				s += ".";
-			}
-		}
-//		System.out.println(s);
-		return s;
-	}
+//	private String convertIP(byte[] ip) {
+//		String s = "";
+//		for(int i = 0; i < ip.length; i++) {
+//			s += ip[i] & 0xff;
+//			if(i != ip.length - 1) {
+//				s += ".";
+//			}
+//		}
+////		System.out.println(s);
+//		return s;
+//	}
 
 }

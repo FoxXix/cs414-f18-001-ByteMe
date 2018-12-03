@@ -3,31 +3,29 @@ package main.edu.colostate.cs.cs414.ByteMe.banqi.server;
 import main.edu.colostate.cs.cs414.ByteMe.banqi.client.BanqiController;
 import main.edu.colostate.cs.cs414.ByteMe.banqi.client.BanqiGame;
 import main.edu.colostate.cs.cs414.ByteMe.banqi.client.User;
+//import main.edu.colostate.cs.cs414.ByteMe.banqi.client.User;
 import main.edu.colostate.cs.cs414.ByteMe.banqi.client.UserProfile;
 //import main.edu.colostate.cs.cs414.ByteMe.banqi.routing.Route;
 //import main.edu.colostate.cs.cs414.ByteMe.banqi.routing.RoutingTable;
 import main.edu.colostate.cs.cs414.ByteMe.banqi.transport.TCPCache;
 import main.edu.colostate.cs.cs414.ByteMe.banqi.transport.TCPConnection;
-import main.edu.colostate.cs.cs414.ByteMe.banqi.transport.TCPSender;
+//import main.edu.colostate.cs.cs414.ByteMe.banqi.transport.TCPSender;
 import main.edu.colostate.cs.cs414.ByteMe.banqi.transport.TCPServerThread;
 import main.edu.colostate.cs.cs414.ByteMe.banqi.util.CommandParser;
 import main.edu.colostate.cs.cs414.ByteMe.banqi.wireformats.Event;
 import main.edu.colostate.cs.cs414.ByteMe.banqi.wireformats.EventFactory;
 import main.edu.colostate.cs.cs414.ByteMe.banqi.wireformats.LogIn;
-import main.edu.colostate.cs.cs414.ByteMe.banqi.wireformats.NicknameDoesNotExist;
+//import main.edu.colostate.cs.cs414.ByteMe.banqi.wireformats.NicknameDoesNotExist;
 //import cs455.overlay.wireformats.NodeReportsOverlaySetupStatus;
 //import cs455.overlay.wireformats.OverlayNodeReportsTaskFinished;
 //import cs455.overlay.wireformats.OverlayNodeReportsTrafficSummary;
 import main.edu.colostate.cs.cs414.ByteMe.banqi.wireformats.Protocol;
+import main.edu.colostate.cs.cs414.ByteMe.banqi.wireformats.RegistryReportsDeregistrationStatus;
 //import cs455.overlay.wireformats.RegistryReportsDeregistrationStatus;
 import main.edu.colostate.cs.cs414.ByteMe.banqi.wireformats.RegistryReportsRegistrationStatus;
-import main.edu.colostate.cs.cs414.ByteMe.banqi.wireformats.RequestPassword;
+import main.edu.colostate.cs.cs414.ByteMe.banqi.wireformats.SendAccept;
+import main.edu.colostate.cs.cs414.ByteMe.banqi.wireformats.SendLogOff;
 import main.edu.colostate.cs.cs414.ByteMe.banqi.wireformats.SendInvite;
-import main.edu.colostate.cs.cs414.ByteMe.banqi.wireformats.SendPassword;
-//import cs455.overlay.wireformats.RegistryRequestsTaskInitiate;
-//import cs455.overlay.wireformats.RegistryRequestsTrafficSummary;
-//import cs455.overlay.wireformats.RegistrySendsNodeManifest;
-//import cs455.overlay.wireformats.SendDeregistration;
 import main.edu.colostate.cs.cs414.ByteMe.banqi.wireformats.SendRegistration;
 import main.edu.colostate.cs.cs414.ByteMe.banqi.wireformats.SendUser;
 
@@ -44,7 +42,8 @@ public class Server extends Node {
 	private BanqiController banqiController;
 	private List<UserProfile> listOfProfiles = new ArrayList<UserProfile>();
 	private List<String> listOfUsersByNickname = new ArrayList<String>();
-	private List<BanqiGame> listCurrentGames;
+	private Map<BanqiGame, Map<String, String>> listCurrentGames = new HashMap<BanqiGame, Map<String, String>>();
+//	private List<BanqiGame> listCurrentGames;
 	private Map<String, String> listOfInvites = new HashMap<String, String>();
 	private Map<String, Integer> nameToNode = new HashMap<String, Integer>();
 //	private List<User> listOfUsers = new ArrayList<User>();
@@ -177,9 +176,24 @@ public class Server extends Node {
 			//write invite to file so that we can access them later!!
 			//****************************************************************
 			break;
+		case Protocol.SendAccept:
+			SendAccept acc = (SendAccept) e;
+			byte[] accep = acc.getInvitee();
+			String acceptor = new String(accep);
+			byte[] sen = acc.getInviteFrom();
+			String sender = new String(sen);
+			//start a new game
+			startNewGame(sender, acceptor);
+
+		case Protocol.SendLogOff:
+			SendLogOff lOut = (SendLogOff) e;
+			RegistryReportsDeregistrationStatus deregStatus = new RegistryReportsDeregistrationStatus();
+			connect.sendMessage(deregStatus.getBytes());
+
 		}
 	}
 	
+
 	public static int registerNode(byte type, byte[] address, int port) {
 		byte sentType = type;
 		byte[] sentAddress = address;
@@ -259,10 +273,42 @@ public class Server extends Node {
 			}
 		}
 	}
+	
+	private void startNewGame(String sender, String acceptor) throws IOException {
+		UserProfile sendProfile = null;
+		UserProfile accepProfile = null;
+		for(UserProfile up : listOfProfiles) {
+			if(up.getUserName().equals(sender)) {
+				sendProfile = up;
+			}
+			if(up.getUserName().equals(acceptor)) {
+				 accepProfile = up;
+			}
+			else {
+				System.out.println("A profile was not found, this shouldn't have happened!");
+			}
+		}
+		User player1 = new User(sendProfile);
+		User player2 = new User(accepProfile);
+		BanqiGame game = new BanqiGame(player1, player2);
+		game.setServer(this);
+		game.setUpBoard();
+		game.play();
+		
+	}
+	
+	// sends the state of the board to the other player, justPlayed is the name of the player has just taken a turn.
+	// toPlay is the name of the player who plays next
+	// parameters definitely subject to change
+	public void sendBoardState(String justPlayed, String toPlay) {
+		
+	}
 
 	public static void deregisterNode(byte typeRec, byte[] ipAddrRec, int portNumRec, int nodeIDRec) {
 		//remove the entry in the hashmap that corresponds to nodeIDRec
 	}
+	
+	
 	
 	public void printListOfNodes() {
 		for (Entry<Integer, Tuple<byte[], Integer>> key : nodesRegistered.entrySet()) {
