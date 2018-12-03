@@ -159,6 +159,7 @@ public class BanqiController {
 				makeNewUser();
 			} else if (choice.equals("exit")) {
 				exitSystem = true;
+				existingUser = true;
 			} else {
 				System.out.println("Input not recognized");
 			}
