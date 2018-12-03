@@ -345,11 +345,15 @@ public class BanqiController {
 						do {
 							try {
 								number = Integer.parseInt(choice);
+								if (number >= userNames.size()) {
+									number = 0;
+									throw new NumberFormatException();
+								}
 							} catch (NumberFormatException e) {
 								System.out.println("Input not recognized, try again");
 								choice = read.readLine();
 							}
-						} while (number == 0 || number > userNames.size());
+						} while (number == 0);
 						
 						String user;
 					    if (number <= myIndex) {
