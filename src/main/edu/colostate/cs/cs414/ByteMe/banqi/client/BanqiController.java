@@ -287,11 +287,11 @@ public class BanqiController {
 					    }
 					    // send invite message
 //					    new Invite(U, invitee);
-					    System.out.println("Sent invite to " + invitee);
+					    //System.out.println("Sent invite to " + invitee);
 					    usernode.sendInvite(invitee);
 					    U.sendInvite(invitee);
 					    U.gamesInvitedTo.add(invitee);
-					    System.out.println(U.gamesInvitedTo);
+					    //System.out.println(U.gamesInvitedTo);
 					}				    
 				}
 			} else if (choice.equals("exit")) {
