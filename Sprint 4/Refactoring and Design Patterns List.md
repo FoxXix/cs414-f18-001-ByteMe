@@ -11,6 +11,10 @@
 
 **Pull up method:** 
 * Each of the classes for the individual Banqi Game pieces had it's own makeMove() method.  Looking back on this later, the team found that all pieces had the same move, except for the Cannon piece.  Therefore, the pull up method took care of this functionality for all the classes besides the one that still needed to override the superclass's makeMove() method.
+
+**Gameplay on two computers:**
+* The code was refactored so that gameplay was split between two devices, rather than two players playing on one individual device.  The overall functionality of the code did not change the way the game is coded, however, it was used to improve the nonfunctional attributes of the system.  In this case, to allow users to play by means of a server connection, so they can play from a distance.
+
 ## Current Design Patterns:
 1. Builder (Creational Design Pattern): BanqiController.java in 
 package main.edu.colostate.cs.cs414.ByteMe.banqi.client implements the builder pattern.
