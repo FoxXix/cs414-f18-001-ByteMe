@@ -100,6 +100,11 @@ public class EventFactory {
 			start.unPackBytes(message);
 			mNode.OnEvent(start, connection);
 			break;
+		case Protocol.SendMove:
+			Event move = new SendMove();
+			move.unPackBytes(message);
+			mNode.OnEvent(move, connection);
+			break;
 //		case Protocol.SendDeregistration:
 //			//SendDeregistration
 //			Event sendDereg = new SendDeregistration();

@@ -345,9 +345,11 @@ public class UserNode extends Node{
 	}
 	
 	public void sendMove(List<String[]> pieceNameArray, List<String[]> pieceColorArray,
-			List<boolean[]> pieceVisArray, String opponent) throws IOException {
-		
+		List<boolean[]> pieceVisArray, String opponent) throws IOException {
+		System.out.println(opponent);
 		SendMove sendM = new SendMove();
+		sendM.setPlayerName((byte)opponent.getBytes().length, opponent.getBytes());
+		sendM.setTurn(false);
 		for (int i = 0; i < pieceNameArray.size(); i++) {
 			ArrayList<byte[]> byteList = new ArrayList<byte[]>();
 			byte[] nN = new byte[4];

@@ -1,5 +1,6 @@
 package main.edu.colostate.cs.cs414.ByteMe.banqi.client;
 
+import java.io.BufferedReader;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -22,8 +23,10 @@ public class BanqiGame {
 	private boolean f = false;
 	private boolean won = false;
 	
+	private static BufferedReader read;
+	
 	HashMap<String, String> map = new HashMap<>();
-	Scanner scanner = new Scanner( System.in );
+//	Scanner scanner = new Scanner( System.in );
 	Tile atTile;
 	String choice;
 	
@@ -33,6 +36,10 @@ public class BanqiGame {
 		user1 = u1;
 		user2 = u2;
 
+	}
+	
+	public void setReader(BufferedReader read) {
+		this.read = read;
 	}
 	
 	public Board getBoard() {
@@ -103,14 +110,14 @@ public class BanqiGame {
 				do {
 					System.out.println("What direction do you want to move " + atTile.getPiece().getName() + "? (Up/Down/Left/Right)");
 					
-					choice = scanner.nextLine();
+					choice = read.readLine();
 					
 					if ("udlrUDLR".indexOf(choice.charAt(0)) == -1) {
 						System.out.println("Move unknown");
 					}
 				} while ("udlrUDLR".indexOf(choice.charAt(0)) == -1);
 				
-				scanner.close();
+//				scanner.close();
 				
 				int[] toPosition = null;
 				switch (choice.charAt(0)) {
@@ -162,10 +169,11 @@ public class BanqiGame {
 	This way, a User knows if the move can be made prior to entering
 	the makeMove method.
 	*/
-	private boolean startMove(User user) {
+	private boolean startMove(User user) throws IOException {
 		System.out.println("Enter a coordinate to select a piece.");
 		System.out.println("To forfeit, type 'forfeit' and press Enter");
-		choice = scanner.nextLine();
+		choice = read.readLine();
+		System.out.println(choice);
 		 if (choice.equals("forfeit")) { // forfeit
 				f = true;
 				return true; 

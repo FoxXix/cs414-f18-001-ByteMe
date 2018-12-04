@@ -472,14 +472,14 @@ public class BanqiController {
 
 	}
 
-	public void playGame(String opponent, List<String[]> pieceNames, List<String[]> pieceColors,
-			List<boolean[]> pieceVis) {
-		System.out.println("In Play Game method");
-		User opponen = this.getUser(opponent);
-		game = new BanqiGame(U, opponen);
-		Board board = updateBoard(pieceNames, pieceColors, pieceVis);
-
-	}
+//	public void playGame(String opponent, List<String[]> pieceNames, List<String[]> pieceColors,
+//			List<boolean[]> pieceVis) {
+//		System.out.println("In Play Game method");
+//		User opponen = this.getUser(opponent);
+//		game = new BanqiGame(U, opponen);
+//		Board board = updateBoard(pieceNames, pieceColors, pieceVis);
+//
+//	}
 
 	public Board updateBoard(List<String[]> pieceNames, List<String[]> pieceColors, List<boolean[]> pieceVis) {
 		System.out.println("in updateboard");
@@ -564,6 +564,7 @@ public class BanqiController {
 
 	public void startGame(String opponent, boolean turn) throws IOException {
 		game = new BanqiGame(U, BanqiController.getUser(opponent));
+		game.setReader(read);
 		game.updateBoard(board);
 		game.printBoard();
 		while (turn != true) {
@@ -593,7 +594,7 @@ public class BanqiController {
 			pieceColorArray.add(pieceColors);
 			pieceVisArray.add(isVis);
 
-			usernode.sendMove(pieceNameArray, pieceColorArray, pieceVisArray, opponent);
+			usernode.sendMove(pieceNameArray, pieceColorArray, pieceVisArray, U.getNickname());
 		}
 	}
 
