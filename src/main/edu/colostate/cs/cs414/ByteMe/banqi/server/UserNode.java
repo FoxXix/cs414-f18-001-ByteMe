@@ -198,9 +198,9 @@ public class UserNode extends Node{
 			String invFrom = new String(inF);
 			gamesInvitedTo.add(invFrom);
 			System.out.println("\nYou received an invite from " + invFrom + "!");
-			System.out.println("\nPlease choose how to proceed. \n1) Play existing game");
-			System.out.println("2) Manage invites");
-			System.out.println("3) View profile");
+			//System.out.println("\nPlease choose how to proceed. \n1) Play existing game");
+			//System.out.println("2) Manage invites");
+			//System.out.println("3) View profile");
 		}		
 	}
 	

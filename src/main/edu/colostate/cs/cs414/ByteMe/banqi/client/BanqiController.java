@@ -195,7 +195,7 @@ public class BanqiController {
 		boolean b = false;
 		String choice;
 		
-		U.getInviteStatus();
+		//U.getInviteStatus();
 		
 		while (!b) {
 			System.out.println("\n1) Accept invite");
