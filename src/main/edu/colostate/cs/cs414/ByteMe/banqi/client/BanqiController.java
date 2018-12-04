@@ -1,13 +1,9 @@
 package main.edu.colostate.cs.cs414.ByteMe.banqi.client;
 
 import java.io.BufferedReader;
-import java.io.BufferedWriter;
 import java.io.FileReader;
-import java.io.FileWriter;
 import java.io.IOException;
 import java.io.InputStreamReader;
-import java.time.LocalDateTime;
-import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.TimeUnit;
@@ -388,25 +384,6 @@ public class BanqiController {
 		String password = read.readLine();
 		//System.out.println(password);
 		usernode.logIn(name, password);
-	}
-
-	/* This method permits a User to view their own Profile, so they can see their game stats.
-	With the entrance of nickname that exists in the system, 
-	the User Profile associated with that nickname is presented to the User.
-	*/
-	private UserProfile getOwnUser(String nickname) throws IOException {
-		for (UserProfile prof : listOfProfiles) {
-//			System.out.println("UserName is: " + prof.getUserName());
-			if (prof.getUserName().equals(nickname)) {
-				// log in, by entering password
-//				boolean success = enterCredentials(prof);
-//				if (success) {
-//					System.out.println("Welcome User " + prof.getUserName() + "!");
-//					return prof;
-//				}
-			}
-		}
-		return null;
 	}
 
 	/* This implements the functionality needed to register a new User.
