@@ -188,117 +188,112 @@ public class BanqiController {
 	}
 	
 	private void manageInvites() throws IOException {
-		boolean b = false;
+		boolean exitStatus = false;
 		String choice;
-		
-		//U.getInviteStatus();
-		
-		while (!b) {
+				
+		while (!exitStatus) {
 			System.out.println("\n1) Accept invite");
 			System.out.println("2) Send Invite");
 			System.out.println("To exit, type 'exit' and press Enter");
 			
 			choice = read.readLine();
 			if (choice.equals("1")) {
-				boolean exitStatus = false;
-				System.out.println("Select an invite from this list to accept:");
-				while (!exitStatus) {
-					int count = 1;
-					for (String inviter : usernode.getGamesInvitedTo()) {
-						openInvites.add(inviter);
-						System.out.println(count + ") " + inviter);
-						count++;					
-					}
-					System.out.println("To exit, type 'exit' and press Enter");
-
-					choice = read.readLine();
-					int number = 0;
-					if (choice.equals("exit")) {
-						exitStatus = true;
-					}
-					else {
-						do {
-							try {
-								number = Integer.parseInt(choice);
-							} catch (NumberFormatException e) {
-								System.out.println("Input not recognized, try again");
-								choice = read.readLine();
-							}
-						} while (number == 0);
-
-						String inviter = openInvites.get(number-1);
-						startNewGame(BanqiController.getUser(inviter));
-						 // user to play with
-						exitStatus = true;
-					}
-				}
+				acceptInvite();
 			} else if (choice.equals("2")) {
-				boolean exitSystem2 = false;
-				while (!exitSystem2) {
-					System.out.println("Select a user from this list to send invite to:");
-
-					int count = 1;
-					int myIndex = -1;
-					for (String s : userNames) {
-						if (!s.equals(U.getNickname())) {
-							System.out.println(count +") " + s);
-							count++;
-						} else {
-							myIndex = count-1;
-						}
-
-					}
-					System.out.println("\nTo exit, type 'exit' and press Enter");
-//					for (User user : users) {
-//						if (!user.getNickname().equals(U.getNickname())) {
-//							System.out.println(count +") " + user.getNickname());
-//							count++;
-//						} else
-//							myIndex = count-1;
-//					}
-					
-					choice = read.readLine();
-//					System.out.println(choice);
-					int number = 0;
-				    if (choice.equals("exit")) {
-				    	exitSystem2 = true;
-					} else {
-						do {
-							try {
-								number = Integer.parseInt(choice);
-//								System.out.println(number);
-							} catch (NumberFormatException e) {
-								System.out.println("Input not recognized, try again");
-								choice = read.readLine();
-							}
-						} while (number == 0);
-						
-						String invitee;
-					    if (number <= myIndex) {
-					    	invitee = userNames.get(number - 1);
-//					    	invitee = users.get(number - 1);
-					    } else {
-					    	invitee = userNames.get(number);
-//					    	invitee = users.get(number);
-					    }
-					    // send invite message
-//					    new Invite(U, invitee);
-					    //System.out.println("Sent invite to " + invitee);
-					    usernode.sendInvite(invitee);
-					    U.sendInvite(invitee);
-					    U.gamesInvitedTo.add(invitee);
-					    //System.out.println(U.gamesInvitedTo);
-					}				    
-				}
+				sendNewInvite();
 			} else if (choice.equals("exit")) {
-				b = true;
+				exitStatus = true;
 			} else {
 				System.out.println("Input not recognized");
 			}
-			b = true;
+			exitStatus = true;
 		}
 	}
-	
+	private void sendNewInvite() throws IOException {
+		String choice;
+		boolean exitSystem2 = false;
+		while (!exitSystem2) {
+			System.out.println("Select a user from this list to send invite to:");
+
+			int count = 1;
+			int myIndex = -1;
+			for (String s : userNames) {
+				if (!s.equals(U.getNickname())) {
+					System.out.println(count +") " + s);
+					count++;
+				} else {
+					myIndex = count-1;
+				}
+
+			}
+			System.out.println("\nTo exit, type 'exit' and press Enter");
+			
+			choice = read.readLine();
+			int number = 0;
+		    if (choice.equals("exit")) {
+		    	exitSystem2 = true;
+			} else {
+				do {
+					try {
+						number = Integer.parseInt(choice);
+					} catch (NumberFormatException e) {
+						System.out.println("Input not recognized, try again");
+						choice = read.readLine();
+					}
+				} while (number == 0);
+				
+				String invitee;
+			    if (number <= myIndex) {
+			    	invitee = userNames.get(number - 1);
+//					    	invitee = users.get(number - 1);
+			    } else {
+			    	invitee = userNames.get(number);
+//					    	invitee = users.get(number);
+			    }
+//				new Invite(U, invitee);
+			    System.out.println("Sent invite to " + invitee);
+			    usernode.sendInvite(invitee);
+			    U.sendInvite(invitee);
+			    U.gamesInvitedTo.add(invitee);
+			    System.out.println(U.gamesInvitedTo);
+			}				    
+		}
+	}
+
+	private void acceptInvite() throws IOException {
+		String choice;
+		boolean exitStatus = false;
+		System.out.println("Select an invite from this list to accept:");
+		while (!exitStatus) {
+			int count = 1;
+			for (String inviter : usernode.getGamesInvitedTo()) {
+				openInvites.add(inviter);
+				System.out.println(count + ") " + inviter);
+				count++;					
+			}
+			System.out.println("To exit, type 'exit' and press Enter");
+			
+			choice = read.readLine();
+			int number = 0;
+			if (choice.equals("exit")) {
+				exitStatus = true;
+			}
+			else {
+				do {
+					try {
+						number = Integer.parseInt(choice);
+					} catch (NumberFormatException e) {
+						System.out.println("Input not recognized, try again");
+						choice = read.readLine();
+					}
+				} while (number == 0);
+
+				String inviter = openInvites.get(number-1);
+				startNewGame(BanqiController.getUser(inviter)); // user to play with
+				exitStatus = true;
+			}
+		}
+	}
 	private void startNewGame(User user) throws IOException {
 		BanqiGame game = new BanqiGame(U, user);
 		game.setUpBoard();
@@ -308,66 +303,42 @@ public class BanqiController {
 
 
 	private void viewProfile() throws IOException {
-		boolean b = false;
+		boolean exitStatus = false;
 		String choice;
 		System.out.println(U.getNickname());
 		U.seeProfile(U.getNickname());
-		while (!b) {			
+		while (!exitStatus) {			
 			System.out.println("\n1) Search for player");
 			System.out.println("To exit, type 'exit' and press Enter");
 			
 			choice = read.readLine();
 			if (choice.equals("1")) {
-				boolean c = false;
-				while (!c) {
-					System.out.println("Enter the number of the user to view or type 'exit'");
-					
-					int count = 1;
-					int myIndex = -1;
-					for (String s : userNames) {
-						if (!s.equals(U.getNickname())) {
-							System.out.println(count +") " + s);
-							count++;
-						} else {
-							myIndex = count-1;
-						}
-					}
-					choice = read.readLine();
-					
-					int number = 0;
-				    if (choice.equals("exit")) {
-				    	c = true;
-					} else {
-						do {
-							try {
-								number = Integer.parseInt(choice);
-								if (number >= userNames.size()) {
-									number = 0;
-									throw new NumberFormatException();
-								}
-							} catch (NumberFormatException e) {
-								System.out.println("Input not recognized, try again");
-								choice = read.readLine();
-							}
-						} while (number == 0);
-						
-						String user;
-					    if (number <= myIndex) {
-					    	user = userNames.get(number - 1);
-					    	users.get(number-1).seeProfile(user);
-					    } else {
-					    	user = userNames.get(number);
-					    	users.get(number).seeProfile(user);
-					    }
-					}
-					    
-					c = true;
-				}
+				searchForUser();
 			} else if (choice.equals("exit")) {
-				b = true;
+				exitStatus = true;
 			} else {
 				System.out.println("Input not recognized");
 			}
+		}
+	}
+	
+	private void searchForUser() throws IOException {
+		String choice;
+		boolean exitStatus = false;
+		while (!exitStatus) {
+			System.out.println("Type the nickname of the user to view or type 'exit'");
+			choice = read.readLine();
+			if (!choice.equals("exit")) {						
+				for (User user : users) {
+					if (user.getNickname().equals(choice)) {
+						user.seeProfile(user.getNickname());
+						exitStatus = true;
+						break;
+					}
+				}
+				System.out.println("User not found");
+			}
+			exitStatus = true;
 		}
 	}
 
