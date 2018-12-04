@@ -52,11 +52,6 @@ public class BanqiController {
 		this.userNames = names;
 		
 	}
-	
-	/* Reads a file for a User  and adds the contents to the list of User Profiles.
-	The file contains the unique account details as well as the user's game performance.
-	With all of the data from this file, a new User Profile gets created.
-	*/
 
 	public List<UserProfile> getListProfiles(){
 		return listOfProfiles;
@@ -66,7 +61,11 @@ public class BanqiController {
 	{
 		return users;
 	}
-	// reads the Users file and adds them to the list of Profiles
+	
+	/* Reads a file for a User  and adds the contents to the list of User Profiles.
+	The file contains the unique account details as well as the user's game performance.
+	With all of the data from this file, a new User Profile gets created.
+	*/	
 	public void readUsers() throws IOException {
 
 		FileReader file = new FileReader(profilesFile);
