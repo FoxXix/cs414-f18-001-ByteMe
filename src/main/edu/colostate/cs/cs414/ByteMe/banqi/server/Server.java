@@ -445,6 +445,100 @@ public class Server extends Node {
 		// startG.setVis(pieceVisArray);
 		// connectAcceptor.sendMessage(startG.getBytes());
 
+		StartGame startG2 = new StartGame();
+		startG2.setPlayerName((byte) acceptor.getBytes().length, acceptor.getBytes());
+		startG2.setTurn(true);
+
+		for (int i = 0; i < pieceNameArray.size(); i++) {
+			ArrayList<byte[]> byteList = new ArrayList<byte[]>();
+			byte[] nN = new byte[4];
+			// System.out.println(pieceNameArray.get(i).length);
+			for (int j = 0; j < pieceNameArray.get(i).length; j++) {
+				byte nLength = (byte) pieceNameArray.get(i)[j].getBytes().length;
+				nN[j] = nLength;
+				byteList.add(pieceNameArray.get(i)[j].getBytes());
+
+			}
+			if (i == 0) {
+				startG2.setNameLengths(nN);
+				startG2.setNames0(byteList);
+			} else if (i == 1) {
+				startG2.setNameLengths1(nN);
+				startG2.setNames1(byteList);
+			} else if (i == 2) {
+				startG2.setNameLengths2(nN);
+				startG2.setNames2(byteList);
+			} else if (i == 3) {
+				startG2.setNameLengths3(nN);
+				startG2.setNames3(byteList);
+			} else if (i == 4) {
+				startG2.setNameLengths4(nN);
+				startG2.setNames4(byteList);
+			} else if (i == 5) {
+				startG2.setNameLengths5(nN);
+				startG2.setNames5(byteList);
+			} else if (i == 6) {
+				startG2.setNameLengths6(nN);
+				startG2.setNames6(byteList);
+			} else if (i == 7) {
+				startG2.setNameLengths7(nN);
+				startG2.setNames7(byteList);
+			}
+
+		}
+
+		//List<ArrayList<byte[]>> pieceColorBytes = new ArrayList<ArrayList<byte[]>>();
+
+		System.out.println("before color loop");
+		System.out.println(pieceColorArray.size());
+		for (int i = 0; i < pieceColorArray.size(); i++) {
+			System.out.println(i);
+			ArrayList<byte[]> byteList = new ArrayList<byte[]>();
+			byte[] cN = new byte[4];
+			boolean[] v = pieceVisArray.get(i);
+			for (int j = 0; j < pieceColorArray.get(i).length; j++) {
+				byte cLength = (byte) pieceColorArray.get(i)[j].getBytes().length;
+				cN[j] = cLength;
+				byteList.add(pieceColorArray.get(i)[j].getBytes());
+
+			}
+			if (i == 0) {
+				System.out.println(Arrays.toString(cN));
+				startG2.setColorLengths0(cN);
+				startG2.setColor0(byteList);
+				startG2.setVis0(v);
+			} else if (i == 1) {
+				startG2.setColorLengths1(cN);
+				startG2.setColor1(byteList);
+				startG2.setVis1(v);
+			} else if (i == 2) {
+				startG2.setColorLengths2(cN);
+				startG2.setColor2(byteList);
+				startG2.setVis2(v);
+			} else if (i == 3) {
+				startG2.setColorLengths3(cN);
+				startG2.setColor3(byteList);
+				startG2.setVis3(v);
+			} else if (i == 4) {
+				startG2.setColorLengths4(cN);
+				startG2.setColor4(byteList);
+				startG2.setVis4(v);
+			} else if (i == 5) {
+				startG2.setColorLengths5(cN);
+				startG2.setColor5(byteList);
+				startG2.setVis5(v);
+			} else if (i == 6) {
+				startG2.setColorLengths6(cN);
+				startG2.setColor6(byteList);
+				startG2.setVis6(v);
+			} else if (i == 7) {
+				startG2.setColorLengths7(cN);
+				startG2.setColor7(byteList);
+				startG2.setVis7(v);
+			}
+
+		}
+		connectAcceptor.sendMessage(startG2.getBytes());
 	}
 
 	// sends the state of the board to the other player, justPlayed is the name of
