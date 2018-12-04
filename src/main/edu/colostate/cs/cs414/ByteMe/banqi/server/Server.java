@@ -340,6 +340,7 @@ public class Server extends Node {
 
 		StartGame startG = new StartGame();
 		startG.setPlayerName((byte) acceptor.getBytes().length, acceptor.getBytes());
+		startG.setTurn(true);
 
 		for (int i = 0; i < pieceNameArray.size(); i++) {
 			ArrayList<byte[]> byteList = new ArrayList<byte[]>();

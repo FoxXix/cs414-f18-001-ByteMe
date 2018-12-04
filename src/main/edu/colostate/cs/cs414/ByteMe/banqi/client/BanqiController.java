@@ -555,11 +555,38 @@ public class BanqiController {
 		System.out.println(title);
 	}
 
-	public void startGame(String opponent) throws IOException {
+	public void startGame(String opponent, boolean turn) throws IOException {
 		game = new BanqiGame(U, BanqiController.getUser(opponent));
 		game.updateBoard(board);
 		game.printBoard();
-		game.makeMove(U);
+		if(turn == true) {
+			System.out.println("It is your turn, please make a move");
+			game.makeMove(U);
+		} else {
+			System.out.println("It is not your turn, please wait for your opponent to play");
+		}
+		
+		//move has been made, get state of the game board
+		List<String[]> pieceNameArray = new ArrayList<String[]>(8);
+		List<String[]> pieceColorArray = new ArrayList<String[]>(8);
+		List<boolean[]> pieceVisArray = new ArrayList<boolean[]>(8);
+
+		for (int i = 0; i < 8; i++) {
+			String[] pieceNames = new String[4];
+			String[] pieceColors = new String[4];
+			boolean[] isVis = new boolean[4];
+			for (int j = 0; j < 4; j++) {
+				// System.out.println("j: " + j + "i: " + i);
+				pieceNames[j] = game.getBoard().getTileInfo(j, i).getPiece().getName();
+				// System.out.println(pieceNames[j]);
+				pieceColors[j] = game.getBoard().getTileInfo(j, i).getPiece().getColor();
+				// System.out.println(pieceColors[j]);
+				isVis[j] = game.getBoard().getTileInfo(j, i).getPiece().isVisible();
+			}
+			pieceNameArray.add(pieceNames);
+			pieceColorArray.add(pieceColors);
+			pieceVisArray.add(isVis);
+		}
 	}
 	
 //	public static void main(String args[]) throws IOException {

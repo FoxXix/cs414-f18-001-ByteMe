@@ -207,19 +207,21 @@ public class UserNode extends Node{
 			byte[] oppoPlayer = start.getPlayerName();
 			String opponent = new String(oppoPlayer);
 			System.out.println(opponent);
-			
+			boolean turn = start.getTurn();
+			ArrayList<byte[]> pieName = new ArrayList<byte[]>();
+			ArrayList<byte[]> colName = new ArrayList<byte[]>();
 			List<String[]> pieceNames = new ArrayList<String[]>();
 			List<String[]> colNames = new ArrayList<String[]>();
 			List<boolean[]> visible = new ArrayList<boolean[]>();
-			ArrayList<byte[]> pieName = new ArrayList<byte[]>();
-			ArrayList<byte[]> colName = new ArrayList<byte[]>();
 			for(int i = 0; i < 8; i++) {
+//				System.out.println(i);
 				String[] strName = new String[4];
 				String[] colNam = new String[4];
 				if(i == 0) {
 					pieName = start.getNam0();
 					colName = start.getcolC0();
-					for(int b = 0; b < pieName.size(); b++) {
+					System.out.println(pieName.size());
+					for(int b = 0; b < 4; b++) {
 						String s = new String(pieName.get(b));
 						strName[b] = s;
 						String sC = new String(colName.get(b));
@@ -229,7 +231,8 @@ public class UserNode extends Node{
 				} else if(i == 1) {
 					pieName = start.getNam1();
 					colName = start.getcolC1();
-					for(int b = 0; b < pieName.size(); b++) {
+					System.out.println(pieName.size());
+					for(int b = 0; b < 4; b++) {
 						String s = new String(pieName.get(b));
 						strName[b] = s;
 						String sC = new String(colName.get(b));
@@ -239,7 +242,8 @@ public class UserNode extends Node{
 				} else if(i == 2) {
 					pieName = start.getNam2();
 					colName = start.getcolC2();
-					for(int b = 0; b < pieName.size(); b++) {
+					System.out.println(pieName.size());
+					for(int b = 0; b < 4; b++) {
 						String s = new String(pieName.get(b));
 						strName[b] = s;
 						String sC = new String(colName.get(b));
@@ -249,7 +253,8 @@ public class UserNode extends Node{
 				} else if(i == 3) {
 					pieName = start.getNam3();
 					colName = start.getcolC3();
-					for(int b = 0; b < pieName.size(); b++) {
+					System.out.println(pieName.size());
+					for(int b = 0; b < 4; b++) {
 						String s = new String(pieName.get(b));
 						strName[b] = s;
 						String sC = new String(colName.get(b));
@@ -259,7 +264,8 @@ public class UserNode extends Node{
 				} else if(i == 4) {
 					pieName = start.getNam4();
 					colName = start.getcolC4();
-					for(int b = 0; b < pieName.size(); b++) {
+					System.out.println(pieName.size());
+					for(int b = 0; b < 4; b++) {
 						String s = new String(pieName.get(b));
 						strName[b] = s;
 						String sC = new String(colName.get(b));
@@ -269,7 +275,8 @@ public class UserNode extends Node{
 				} else if(i == 5) {
 					pieName = start.getNam5();
 					colName = start.getcolC5();
-					for(int b = 0; b < pieName.size(); b++) {
+					System.out.println(pieName.size());
+					for(int b = 0; b < 4; b++) {
 						String s = new String(pieName.get(b));
 						strName[b] = s;
 						String sC = new String(colName.get(b));
@@ -279,7 +286,8 @@ public class UserNode extends Node{
 				} else if(i == 6) {
 					pieName = start.getNam6();
 					colName = start.getcolC6();
-					for(int b = 0; b < pieName.size(); b++) {
+					System.out.println(pieName.size());
+					for(int b = 0; b < 4; b++) {
 						String s = new String(pieName.get(b));
 						strName[b] = s;
 						String sC = new String(colName.get(b));
@@ -289,7 +297,8 @@ public class UserNode extends Node{
 				} else if(i == 7) {
 					pieName = start.getNam7();
 					colName = start.getcolC7();
-					for(int b = 0; b < pieName.size(); b++) {
+					System.out.println(pieName.size());
+					for(int b = 0; b < 4; b++) {
 						String s = new String(pieName.get(b));
 						strName[b] = s;
 						String sC = new String(colName.get(b));
@@ -297,9 +306,11 @@ public class UserNode extends Node{
 					}
 					visible.add(start.getVis7());
 				} else {}
+				pieceNames.add(strName);
+				colNames.add(colNam);
 			}
 			makeBoard(pieceNames, colNames, visible);
-			banqi.startGame(opponent);
+			banqi.startGame(opponent, turn);
 			break;
 		}		
 	}

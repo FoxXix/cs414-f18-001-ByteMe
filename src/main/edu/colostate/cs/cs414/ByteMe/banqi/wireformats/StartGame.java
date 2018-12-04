@@ -58,6 +58,11 @@ public class StartGame implements Event {
 
 	private byte[] playerName;
 	private byte length;
+	private boolean turn = false;
+	
+	public void setTurn(boolean turn) {
+		this.turn = turn;
+	}
 
 	public void setPlayerName(byte length, byte[] name) {
 		this.length = length;
@@ -303,6 +308,10 @@ public class StartGame implements Event {
 	public boolean[] getVis7() {
 		return vis7;
 	}
+	
+	public boolean getTurn() {
+		return turn;
+	}
 
 	// public List<ArrayList<byte[]>> getPieceNames() { = new boolean[4];
 	// return pieceNames;
@@ -331,6 +340,7 @@ public class StartGame implements Event {
 		dout.writeByte(getType());
 		dout.writeByte(length);
 		dout.write(playerName);
+		dout.writeBoolean(turn);
 
 		for (int j = 0; j < 4; j++) {
 			// byte l = (byte)g.getBytes().length;
@@ -443,6 +453,7 @@ public class StartGame implements Event {
 		byte[] playName = new byte[leng];
 		din.readFully(playName);
 		playerName = playName;
+		turn = din.readBoolean();
 
 		byte[] names = new byte[4];
 		byte[] colors = new byte[4];
@@ -451,15 +462,15 @@ public class StartGame implements Event {
 
 			byte l = din.readByte();
 			byte[] gt = new byte[l];
-			System.out.println("name length: " + gt.length);
+//			System.out.println("name length: " + gt.length);
 			din.readFully(gt);
-			System.out.println(gt);
+//			System.out.println(gt);
 			names = gt;
 			namN0.add(names);
 
 			byte lc = din.readByte();
 			byte[] ct = new byte[lc];
-			System.out.println("color byte length: " + ct.length);
+//			System.out.println("color byte length: " + ct.length);
 			din.readFully(ct);
 			colC0.add(ct);
 			
@@ -468,15 +479,15 @@ public class StartGame implements Event {
 			//----------------------------------------------------------------
 			byte l1 = din.readByte();
 			byte[] gt1 = new byte[l1];
-			System.out.println("name length: " + gt1.length);
+//			System.out.println("name length: " + gt1.length);
 			din.readFully(gt1);
-			System.out.println(gt1);
+//			System.out.println(gt1);
 			names = gt1;
 			namN1.add(names);
 
 			byte lc1 = din.readByte();
 			byte[] ct1 = new byte[lc1];
-			System.out.println("color byte length: " + ct1.length);
+//			System.out.println("color byte length: " + ct1.length);
 			din.readFully(ct1);
 			colC1.add(ct1);
 			
@@ -485,15 +496,15 @@ public class StartGame implements Event {
 			//----------------------------------------------------------------
 			byte l2 = din.readByte();
 			byte[] gt2 = new byte[l2];
-			System.out.println("name length: " + gt2.length);
+//			System.out.println("name length: " + gt2.length);
 			din.readFully(gt2);
-			System.out.println(gt2);
+//			System.out.println(gt2);
 			names = gt2;
 			namN2.add(names);
 
 			byte lc2 = din.readByte();
 			byte[] ct2 = new byte[lc2];
-			System.out.println("color byte length: " + ct2.length);
+//			System.out.println("color byte length: " + ct2.length);
 			din.readFully(ct2);
 			colC2.add(ct2);
 			
@@ -502,15 +513,15 @@ public class StartGame implements Event {
 			//----------------------------------------------------------------
 			byte l3 = din.readByte();
 			byte[] gt3 = new byte[l3];
-			System.out.println("name length: " + gt3.length);
+//			System.out.println("name length: " + gt3.length);
 			din.readFully(gt3);
-			System.out.println(gt3);
+//			System.out.println(gt3);
 			names = gt3;
 			namN3.add(names);
 
 			byte lc3 = din.readByte();
 			byte[] ct3 = new byte[lc3];
-			System.out.println("color byte length: " + ct3.length);
+//			System.out.println("color byte length: " + ct3.length);
 			din.readFully(ct3);
 			colC3.add(ct3);
 			
@@ -519,15 +530,15 @@ public class StartGame implements Event {
 			//----------------------------------------------------------------
 			byte l4 = din.readByte();
 			byte[] gt4 = new byte[l4];
-			System.out.println("name length: " + gt4.length);
+//			System.out.println("name length: " + gt4.length);
 			din.readFully(gt4);
-			System.out.println(gt1);
+//			System.out.println(gt1);
 			names = gt4;
 			namN4.add(names);
 
 			byte lc4 = din.readByte();
 			byte[] ct4 = new byte[lc4];
-			System.out.println("color byte length: " + ct4.length);
+//			System.out.println("color byte length: " + ct4.length);
 			din.readFully(ct4);
 			colC4.add(ct4);
 			
@@ -536,15 +547,15 @@ public class StartGame implements Event {
 			//----------------------------------------------------------------
 			byte l5 = din.readByte();
 			byte[] gt5 = new byte[l5];
-			System.out.println("name length: " + gt5.length);
+//			System.out.println("name length: " + gt5.length);
 			din.readFully(gt5);
-			System.out.println(gt5);
+//			System.out.println(gt5);
 			names = gt1;
-			namN1.add(names);
+			namN5.add(names);
 
 			byte lc5 = din.readByte();
 			byte[] ct5 = new byte[lc5];
-			System.out.println("color byte length: " + ct5.length);
+//			System.out.println("color byte length: " + ct5.length);
 			din.readFully(ct5);
 			colC5.add(ct5);
 			
@@ -553,15 +564,15 @@ public class StartGame implements Event {
 			//----------------------------------------------------------------
 			byte l6 = din.readByte();
 			byte[] gt6 = new byte[l6];
-			System.out.println("name length: " + gt6.length);
+//			System.out.println("name length: " + gt6.length);
 			din.readFully(gt6);
-			System.out.println(gt6);
+//			System.out.println(gt6);
 			names = gt6;
 			namN6.add(names);
 
 			byte lc6 = din.readByte();
 			byte[] ct6 = new byte[lc6];
-			System.out.println("color byte length: " + ct6.length);
+//			System.out.println("color byte length: " + ct6.length);
 			din.readFully(ct6);
 			colC6.add(ct6);
 			
@@ -570,17 +581,17 @@ public class StartGame implements Event {
 			//----------------------------------------------------------------
 			byte l7 = din.readByte();
 			byte[] gt7 = new byte[l7];
-			System.out.println("name length: " + gt7.length);
+//			System.out.println("name length: " + gt7.length);
 			din.readFully(gt7);
-			System.out.println(gt7);
+//			System.out.println(gt7);
 			names = gt7;
 			namN7.add(names);
 
 			byte lc7 = din.readByte();
 			byte[] ct7 = new byte[lc7];
-			System.out.println("color byte length: " + ct7.length);
+//			System.out.println("color byte length: " + ct7.length);
 			din.readFully(ct7);
-			colC1.add(ct7);
+			colC7.add(ct7);
 			
 			boolean v7 = din.readBoolean();;
 			vis7[j] = v7;
