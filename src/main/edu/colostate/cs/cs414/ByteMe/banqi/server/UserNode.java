@@ -2,42 +2,23 @@ package main.edu.colostate.cs.cs414.ByteMe.banqi.server;
 
 import java.net.*;
 import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
-import java.util.Random;
-
 import main.edu.colostate.cs.cs414.ByteMe.banqi.client.BanqiController;
 import main.edu.colostate.cs.cs414.ByteMe.banqi.client.User;
 import main.edu.colostate.cs.cs414.ByteMe.banqi.client.UserProfile;
 import main.edu.colostate.cs.cs414.ByteMe.banqi.transport.TCPCache;
 import main.edu.colostate.cs.cs414.ByteMe.banqi.transport.TCPConnection;
 import main.edu.colostate.cs.cs414.ByteMe.banqi.transport.TCPServerThread;
-import main.edu.colostate.cs.cs414.ByteMe.banqi.util.CommandParser;
 import main.edu.colostate.cs.cs414.ByteMe.banqi.wireformats.CreateProfile;
 import main.edu.colostate.cs.cs414.ByteMe.banqi.wireformats.Event;
 import main.edu.colostate.cs.cs414.ByteMe.banqi.wireformats.EventFactory;
 import main.edu.colostate.cs.cs414.ByteMe.banqi.wireformats.LogIn;
-//import cs455.overlay.wireformats.NodeReportsOverlaySetupStatus;
-//import cs455.overlay.wireformats.OverlayNodeReportsTaskFinished;
-//import cs455.overlay.wireformats.OverlayNodeReportsTrafficSummary;
-//import cs455.overlay.wireformats.OverlayNodeSendsData;
 import main.edu.colostate.cs.cs414.ByteMe.banqi.wireformats.Protocol;
-//import cs455.overlay.wireformats.RegistryReportsDeregistrationStatus;
 import main.edu.colostate.cs.cs414.ByteMe.banqi.wireformats.RegistryReportsRegistrationStatus;
-import main.edu.colostate.cs.cs414.ByteMe.banqi.wireformats.RequestPassword;
 import main.edu.colostate.cs.cs414.ByteMe.banqi.wireformats.SendAccept;
 import main.edu.colostate.cs.cs414.ByteMe.banqi.wireformats.SendLogOff;
 import main.edu.colostate.cs.cs414.ByteMe.banqi.wireformats.SendInvite;
 import main.edu.colostate.cs.cs414.ByteMe.banqi.wireformats.SendPassword;
-import main.edu.colostate.cs.cs414.ByteMe.banqi.wireformats.SendLogOff;
-import main.edu.colostate.cs.cs414.ByteMe.banqi.wireformats.SendInvite;
-import main.edu.colostate.cs.cs414.ByteMe.banqi.wireformats.SendPassword;
-//import cs455.overlay.wireformats.RegistryRequestsTaskInitiate;
-//import cs455.overlay.wireformats.RegistryRequestsTrafficSummary;
-//import cs455.overlay.wireformats.RegistrySendsNodeManifest;
-//import main.edu.colostate.cs.cs414.ByteMe.banqi.wireformats.SendDeregistration;
 import main.edu.colostate.cs.cs414.ByteMe.banqi.wireformats.SendRegistration;
 import main.edu.colostate.cs.cs414.ByteMe.banqi.wireformats.ValidProfile;
 import main.edu.colostate.cs.cs414.ByteMe.banqi.wireformats.SendUser;
@@ -182,7 +163,10 @@ public class UserNode extends Node{
 		case Protocol.ValidProfile:
 			ValidProfile validProfile = (ValidProfile) e;
 			banqi.setValidProfile(validProfile.isValidProfile());
-			if (!validProfile.isValidProfile()) System.out.println("Nickname and/or email already exists in our system. Try again.");
+			if (!validProfile.isValidProfile()) 
+				System.out.println("Nickname and/or email already exists in our system. Try again.");
+			else 
+				System.out.println("Profile created!");
 			break;
 		case Protocol.RegistryReportsDeregistrationStatus:
 //			RegistryReportsDeregistrationStatus rrd = (RegistryReportsDeregistrationStatus) e;
@@ -195,9 +179,8 @@ public class UserNode extends Node{
 			String invFrom = new String(inF);
 			gamesInvitedTo.add(invFrom);
 			System.out.println("\nYou received an invite from " + invFrom + "!");
-			System.out.println("\nPlease choose how to proceed. \n1) Play existing game");
-			System.out.println("2) Manage invites");
-			System.out.println("3) View profile");
+			System.out.println("To manage this invite, enter '2'.\n");
+			System.out.println("If you are not on the main menu, enter 'exit' and then '2'.\n");
 		}		
 	}
 	

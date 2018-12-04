@@ -35,7 +35,7 @@ public class EventFactory {
 //		System.out.println("In Process Message");
 		//get the type of the message - read first 4 bytes
 		byte type = getType(message);
-		System.out.println("type of message is: " + type);
+		//System.out.println("type of message is: " + type);
 		
 		switch(type) {
 		case Protocol.SendRegistration:
@@ -85,6 +85,7 @@ public class EventFactory {
 			Event validProfile = new ValidProfile();
 			validProfile.unPackBytes(message);
 			mNode.OnEvent(validProfile, connection);
+			break;
 		case Protocol.SendUser:
 			Event sendUse = new SendUser();
 			sendUse.unPackBytes(message);

@@ -7,8 +7,6 @@ import java.util.List;
 import java.util.Random;
 import java.util.Scanner;
 
-import main.edu.colostate.cs.cs414.ByteMe.banqi.server.Server;
-
 public class BanqiGame {
 
 	private Board board;
@@ -21,7 +19,6 @@ public class BanqiGame {
 	private int blackPieces = 16;
 	private boolean forfeit = false;
 	private boolean won = false;
-	private Server server;
 	
 	HashMap<String, String> map = new HashMap<>();
 	Scanner scanner = new Scanner( System.in );
@@ -38,10 +35,6 @@ public class BanqiGame {
 	
 	public Board getBoard() {
 		return board;
-	}
-	
-	public void setServer(Server serv) {
-		this.server = serv;
 	}
 	
 	/* Calls the setPieces method to add both Red and Black pieces to the Banqi Game Board */
