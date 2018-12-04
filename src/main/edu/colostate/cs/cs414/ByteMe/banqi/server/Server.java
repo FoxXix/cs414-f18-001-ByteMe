@@ -431,7 +431,7 @@ public class Server extends Node {
 			}
 
 		}
-		connectSender.sendMessage(startG.getBytes());
+		connectAcceptor.sendMessage(startG.getBytes());
 		// try {
 		// TimeUnit.SECONDS.sleep(2);
 		// } catch (InterruptedException e) {
@@ -446,7 +446,7 @@ public class Server extends Node {
 		// connectAcceptor.sendMessage(startG.getBytes());
 
 		StartGame startG2 = new StartGame();
-		startG2.setPlayerName((byte) acceptor.getBytes().length, acceptor.getBytes());
+		startG2.setPlayerName((byte) sender.getBytes().length, sender.getBytes());
 		startG2.setTurn(true);
 
 		for (int i = 0; i < pieceNameArray.size(); i++) {
