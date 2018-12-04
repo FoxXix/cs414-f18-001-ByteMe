@@ -29,13 +29,17 @@ import main.edu.colostate.cs.cs414.ByteMe.banqi.wireformats.RequestPassword;
 import main.edu.colostate.cs.cs414.ByteMe.banqi.wireformats.SendAccept;
 import main.edu.colostate.cs.cs414.ByteMe.banqi.wireformats.SendLogOff;
 import main.edu.colostate.cs.cs414.ByteMe.banqi.wireformats.SendInvite;
- import main.edu.colostate.cs.cs414.ByteMe.banqi.wireformats.SendPassword;
+import main.edu.colostate.cs.cs414.ByteMe.banqi.wireformats.SendPassword;
+import main.edu.colostate.cs.cs414.ByteMe.banqi.wireformats.SendLogOff;
+import main.edu.colostate.cs.cs414.ByteMe.banqi.wireformats.SendInvite;
+import main.edu.colostate.cs.cs414.ByteMe.banqi.wireformats.SendPassword;
 //import cs455.overlay.wireformats.RegistryRequestsTaskInitiate;
 //import cs455.overlay.wireformats.RegistryRequestsTrafficSummary;
 //import cs455.overlay.wireformats.RegistrySendsNodeManifest;
 //import main.edu.colostate.cs.cs414.ByteMe.banqi.wireformats.SendDeregistration;
 import main.edu.colostate.cs.cs414.ByteMe.banqi.wireformats.SendRegistration;
 import main.edu.colostate.cs.cs414.ByteMe.banqi.wireformats.SendUser;
+import main.edu.colostate.cs.cs414.ByteMe.banqi.wireformats.StartGame;
 
 import java.io.*;
 
@@ -53,6 +57,8 @@ public class UserNode extends Node{
 	
 	private UserProfile userProfile;
 	private User user;
+	private List<String> gamesInvitedTo = new ArrayList<String>();
+
 	
 	private void Initialize(String serverName, int port) throws IOException, InterruptedException
 	{
@@ -181,7 +187,22 @@ public class UserNode extends Node{
 			SendInvite sendInv = (SendInvite) e;
 			byte[] inF = sendInv.getInviteFrom();
 			String invFrom = new String(inF);
-			System.out.println("received invite from: " + invFrom);
+			gamesInvitedTo.add(invFrom);
+			System.out.println("\nYou received an invite from " + invFrom + "!");
+			System.out.println("\nPlease choose how to proceed. \n1) Play existing game");
+			System.out.println("2) Manage invites");
+			System.out.println("3) View profile");
+			break;
+		case Protocol.StartGame:
+			StartGame start = (StartGame) e;
+			byte[] oppoPlayer = start.getPlayerName();
+			String opponent = new String(oppoPlayer);
+			System.out.println(opponent);
+			List<ArrayList<byte[]>> pieceNames = start.getPieceNames();
+			List<ArrayList<byte[]>> pieceColors = start.getPieceColors();
+			List<boolean[]> pieceVis = start.getPieceVis();
+//			banqi.playGame(opponent, pieceNames, pieceColors, pieceVis);
+			break;
 		}		
 	}
 	
@@ -200,12 +221,15 @@ public class UserNode extends Node{
  		sendPass.setPassword((byte)password.getBytes().length, password.getBytes());
  		connection.sendMessage(sendPass.getBytes());
  	}
-	
+
 	public void logOff() throws IOException {
 		SendLogOff sendOff = new SendLogOff();
 		connection.sendMessage(sendOff.getBytes());
 	}
 	
+	public List<String> getGamesInvitedTo(){
+		return gamesInvitedTo;
+	}
 	//convert IP to bytes
 //	private String convertIP(byte[] ip) {
 //		String s = "";
