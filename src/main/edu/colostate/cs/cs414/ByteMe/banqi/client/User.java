@@ -54,7 +54,7 @@ public class User {
 		if (BanqiController.getUser(nickname).equals(null))
 			throw new NullPointerException("User does not exist in the Banqi system and can't be invited.");
 		Invite newInvite = new Invite(this, nickname);
-		System.out.println("Invited " + nickname + ". " + newInvite + "\n");
+		System.out.println("Invited " + nickname + " to play Banqi!\n");
 		invites.add(newInvite);
 		invitedUsers.add(nickname);
 		gamesInvitedTo.add(this.nickname);
