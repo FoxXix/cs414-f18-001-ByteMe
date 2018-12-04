@@ -26,6 +26,7 @@ import main.edu.colostate.cs.cs414.ByteMe.banqi.wireformats.RegistryReportsDereg
 import main.edu.colostate.cs.cs414.ByteMe.banqi.wireformats.RegistryReportsRegistrationStatus;
 import main.edu.colostate.cs.cs414.ByteMe.banqi.wireformats.SendAccept;
 import main.edu.colostate.cs.cs414.ByteMe.banqi.wireformats.SendLogOff;
+import main.edu.colostate.cs.cs414.ByteMe.banqi.wireformats.SendMove;
 import main.edu.colostate.cs.cs414.ByteMe.banqi.wireformats.SendInvite;
 import main.edu.colostate.cs.cs414.ByteMe.banqi.wireformats.SendLogOff;
 import main.edu.colostate.cs.cs414.ByteMe.banqi.wireformats.SendInvite;
@@ -196,6 +197,116 @@ public class Server extends Node {
 			String sender = new String(sen);
 			// start a new game
 			startNewGame(sender, acceptor);
+			break;
+		case Protocol.SendMove:
+			SendMove sendMove = (SendMove) e;
+			byte[] oppoPlayer = sendMove.getPlayerName();
+			String opponent = new String(oppoPlayer);
+			System.out.println(opponent);
+			boolean turn = sendMove.getTurn();
+			ArrayList<byte[]> pieName = new ArrayList<byte[]>();
+			ArrayList<byte[]> colName = new ArrayList<byte[]>();
+			List<String[]> pieceNames = new ArrayList<String[]>();
+			List<String[]> colNames = new ArrayList<String[]>();
+			List<boolean[]> visible = new ArrayList<boolean[]>();
+			for(int i = 0; i < 8; i++) {
+//				System.out.println(i);
+				String[] strName = new String[4];
+				String[] colNam = new String[4];
+				if(i == 0) {
+					pieName = sendMove.getNam0();
+					colName = sendMove.getcolC0();
+					System.out.println(pieName.size());
+					for(int b = 0; b < 4; b++) {
+						String s = new String(pieName.get(b));
+						strName[b] = s;
+						String sC = new String(colName.get(b));
+						colNam[b] = sC;
+					}
+					visible.add(sendMove.getVis0());
+				} else if(i == 1) {
+					pieName = sendMove.getNam1();
+					colName = sendMove.getcolC1();
+					System.out.println(pieName.size());
+					for(int b = 0; b < 4; b++) {
+						String s = new String(pieName.get(b));
+						strName[b] = s;
+						String sC = new String(colName.get(b));
+						colNam[b] = sC;
+					}
+					visible.add(sendMove.getVis1());
+				} else if(i == 2) {
+					pieName = sendMove.getNam2();
+					colName = sendMove.getcolC2();
+					System.out.println(pieName.size());
+					for(int b = 0; b < 4; b++) {
+						String s = new String(pieName.get(b));
+						strName[b] = s;
+						String sC = new String(colName.get(b));
+						colNam[b] = sC;
+					}
+					visible.add(sendMove.getVis2());
+				} else if(i == 3) {
+					pieName = sendMove.getNam3();
+					colName = sendMove.getcolC3();
+					System.out.println(pieName.size());
+					for(int b = 0; b < 4; b++) {
+						String s = new String(pieName.get(b));
+						strName[b] = s;
+						String sC = new String(colName.get(b));
+						colNam[b] = sC;
+					}
+					visible.add(sendMove.getVis3());
+				} else if(i == 4) {
+					pieName = sendMove.getNam4();
+					colName = sendMove.getcolC4();
+					System.out.println(pieName.size());
+					for(int b = 0; b < 4; b++) {
+						String s = new String(pieName.get(b));
+						strName[b] = s;
+						String sC = new String(colName.get(b));
+						colNam[b] = sC;
+					}
+					visible.add(sendMove.getVis4());
+				} else if(i == 5) {
+					pieName = sendMove.getNam5();
+					colName = sendMove.getcolC5();
+					System.out.println(pieName.size());
+					for(int b = 0; b < 4; b++) {
+						String s = new String(pieName.get(b));
+						strName[b] = s;
+						String sC = new String(colName.get(b));
+						colNam[b] = sC;
+					}
+					visible.add(sendMove.getVis5());
+				} else if(i == 6) {
+					pieName = sendMove.getNam6();
+					colName = sendMove.getcolC6();
+					System.out.println(pieName.size());
+					for(int b = 0; b < 4; b++) {
+						String s = new String(pieName.get(b));
+						strName[b] = s;
+						String sC = new String(colName.get(b));
+						colNam[b] = sC;
+					}
+					visible.add(sendMove.getVis6());
+				} else if(i == 7) {
+					pieName = sendMove.getNam7();
+					colName = sendMove.getcolC7();
+					System.out.println(pieName.size());
+					for(int b = 0; b < 4; b++) {
+						String s = new String(pieName.get(b));
+						strName[b] = s;
+						String sC = new String(colName.get(b));
+						colNam[b] = sC;
+					}
+					visible.add(sendMove.getVis7());
+				} else {}
+				pieceNames.add(strName);
+				colNames.add(colNam);
+			}
+			//now send the Move to the opposing user
+			
 			break;
 		case Protocol.SendLogOff:
 			SendLogOff lOut = (SendLogOff) e;
@@ -432,18 +543,102 @@ public class Server extends Node {
 
 		}
 		connectSender.sendMessage(startG.getBytes());
-		// try {
-		// TimeUnit.SECONDS.sleep(2);
-		// } catch (InterruptedException e) {
-		// // TODO Auto-generated catch block
-		// e.printStackTrace();
-		// }
-		// StartGame startG2 = new StartGame();
-		// startG2.setPlayerName((byte)sender.getBytes().length, sender.getBytes());
-		// startG.setNames(pieceNameArray);
-		// startG.setColors(pieceColorArray);
-		// startG.setVis(pieceVisArray);
-		// connectAcceptor.sendMessage(startG.getBytes());
+
+
+		StartGame startG2 = new StartGame();
+		startG2.setPlayerName((byte) acceptor.getBytes().length, acceptor.getBytes());
+		startG2.setTurn(false);
+
+		for (int i = 0; i < pieceNameArray.size(); i++) {
+			ArrayList<byte[]> byteList = new ArrayList<byte[]>();
+			byte[] nN = new byte[4];
+			// System.out.println(pieceNameArray.get(i).length);
+			for (int j = 0; j < pieceNameArray.get(i).length; j++) {
+				byte nLength = (byte) pieceNameArray.get(i)[j].getBytes().length;
+				nN[j] = nLength;
+				byteList.add(pieceNameArray.get(i)[j].getBytes());
+
+			}
+			if (i == 0) {
+				startG2.setNameLengths(nN);
+				startG2.setNames0(byteList);
+			} else if (i == 1) {
+				startG2.setNameLengths1(nN);
+				startG2.setNames1(byteList);
+			} else if (i == 2) {
+				startG2.setNameLengths2(nN);
+				startG2.setNames2(byteList);
+			} else if (i == 3) {
+				startG2.setNameLengths3(nN);
+				startG2.setNames3(byteList);
+			} else if (i == 4) {
+				startG2.setNameLengths4(nN);
+				startG2.setNames4(byteList);
+			} else if (i == 5) {
+				startG2.setNameLengths5(nN);
+				startG2.setNames5(byteList);
+			} else if (i == 6) {
+				startG2.setNameLengths6(nN);
+				startG2.setNames6(byteList);
+			} else if (i == 7) {
+				startG2.setNameLengths7(nN);
+				startG2.setNames7(byteList);
+			}
+
+		}
+
+		//List<ArrayList<byte[]>> pieceColorBytes = new ArrayList<ArrayList<byte[]>>();
+
+		System.out.println("before color loop");
+		System.out.println(pieceColorArray.size());
+		for (int i = 0; i < pieceColorArray.size(); i++) {
+			System.out.println(i);
+			ArrayList<byte[]> byteList = new ArrayList<byte[]>();
+			byte[] cN = new byte[4];
+			boolean[] v = pieceVisArray.get(i);
+			for (int j = 0; j < pieceColorArray.get(i).length; j++) {
+				byte cLength = (byte) pieceColorArray.get(i)[j].getBytes().length;
+				cN[j] = cLength;
+				byteList.add(pieceColorArray.get(i)[j].getBytes());
+
+			}
+			if (i == 0) {
+				System.out.println(Arrays.toString(cN));
+				startG2.setColorLengths0(cN);
+				startG2.setColor0(byteList);
+				startG2.setVis0(v);
+			} else if (i == 1) {
+				startG2.setColorLengths1(cN);
+				startG2.setColor1(byteList);
+				startG2.setVis1(v);
+			} else if (i == 2) {
+				startG2.setColorLengths2(cN);
+				startG2.setColor2(byteList);
+				startG2.setVis2(v);
+			} else if (i == 3) {
+				startG2.setColorLengths3(cN);
+				startG2.setColor3(byteList);
+				startG2.setVis3(v);
+			} else if (i == 4) {
+				startG2.setColorLengths4(cN);
+				startG2.setColor4(byteList);
+				startG2.setVis4(v);
+			} else if (i == 5) {
+				startG2.setColorLengths5(cN);
+				startG2.setColor5(byteList);
+				startG2.setVis5(v);
+			} else if (i == 6) {
+				startG2.setColorLengths6(cN);
+				startG2.setColor6(byteList);
+				startG2.setVis6(v);
+			} else if (i == 7) {
+				startG2.setColorLengths7(cN);
+				startG2.setColor7(byteList);
+				startG2.setVis7(v);
+			}
+
+		}
+		connectAcceptor.sendMessage(startG2.getBytes());
 
 	}
 

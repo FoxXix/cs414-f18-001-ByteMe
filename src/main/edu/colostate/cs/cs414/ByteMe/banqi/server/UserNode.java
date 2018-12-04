@@ -37,6 +37,7 @@ import main.edu.colostate.cs.cs414.ByteMe.banqi.wireformats.RegistryReportsRegis
 import main.edu.colostate.cs.cs414.ByteMe.banqi.wireformats.RequestPassword;
 import main.edu.colostate.cs.cs414.ByteMe.banqi.wireformats.SendAccept;
 import main.edu.colostate.cs.cs414.ByteMe.banqi.wireformats.SendLogOff;
+import main.edu.colostate.cs.cs414.ByteMe.banqi.wireformats.SendMove;
 import main.edu.colostate.cs.cs414.ByteMe.banqi.wireformats.SendInvite;
 import main.edu.colostate.cs.cs414.ByteMe.banqi.wireformats.SendPassword;
 import main.edu.colostate.cs.cs414.ByteMe.banqi.wireformats.SendLogOff;
@@ -341,6 +342,102 @@ public class UserNode extends Node{
 			}
 		}
 		banqi.setBoard(b);
+	}
+	
+	public void sendMove(List<String[]> pieceNameArray, List<String[]> pieceColorArray,
+			List<boolean[]> pieceVisArray, String opponent) throws IOException {
+		
+		SendMove sendM = new SendMove();
+		for (int i = 0; i < pieceNameArray.size(); i++) {
+			ArrayList<byte[]> byteList = new ArrayList<byte[]>();
+			byte[] nN = new byte[4];
+			// System.out.println(pieceNameArray.get(i).length);
+			for (int j = 0; j < pieceNameArray.get(i).length; j++) {
+				byte nLength = (byte) pieceNameArray.get(i)[j].getBytes().length;
+				nN[j] = nLength;
+				byteList.add(pieceNameArray.get(i)[j].getBytes());
+
+			}
+			if (i == 0) {
+				sendM.setNameLengths(nN);
+				sendM.setNames0(byteList);
+			} else if (i == 1) {
+				sendM.setNameLengths1(nN);
+				sendM.setNames1(byteList);
+			} else if (i == 2) {
+				sendM.setNameLengths2(nN);
+				sendM.setNames2(byteList);
+			} else if (i == 3) {
+				sendM.setNameLengths3(nN);
+				sendM.setNames3(byteList);
+			} else if (i == 4) {
+				sendM.setNameLengths4(nN);
+				sendM.setNames4(byteList);
+			} else if (i == 5) {
+				sendM.setNameLengths5(nN);
+				sendM.setNames5(byteList);
+			} else if (i == 6) {
+				sendM.setNameLengths6(nN);
+				sendM.setNames6(byteList);
+			} else if (i == 7) {
+				sendM.setNameLengths7(nN);
+				sendM.setNames7(byteList);
+			}
+
+		}
+
+		List<ArrayList<byte[]>> pieceColorBytes = new ArrayList<ArrayList<byte[]>>();
+
+		System.out.println("before color loop");
+		System.out.println(pieceColorArray.size());
+		for (int i = 0; i < pieceColorArray.size(); i++) {
+			System.out.println(i);
+			ArrayList<byte[]> byteList = new ArrayList<byte[]>();
+			byte[] cN = new byte[4];
+			boolean[] v = pieceVisArray.get(i);
+			for (int j = 0; j < pieceColorArray.get(i).length; j++) {
+				byte cLength = (byte) pieceColorArray.get(i)[j].getBytes().length;
+				cN[j] = cLength;
+				byteList.add(pieceColorArray.get(i)[j].getBytes());
+
+			}
+			if (i == 0) {
+				System.out.println(Arrays.toString(cN));
+				sendM.setColorLengths0(cN);
+				sendM.setColor0(byteList);
+				sendM.setVis0(v);
+			} else if (i == 1) {
+				sendM.setColorLengths1(cN);
+				sendM.setColor1(byteList);
+				sendM.setVis1(v);
+			} else if (i == 2) {
+				sendM.setColorLengths2(cN);
+				sendM.setColor2(byteList);
+				sendM.setVis2(v);
+			} else if (i == 3) {
+				sendM.setColorLengths3(cN);
+				sendM.setColor3(byteList);
+				sendM.setVis3(v);
+			} else if (i == 4) {
+				sendM.setColorLengths4(cN);
+				sendM.setColor4(byteList);
+				sendM.setVis4(v);
+			} else if (i == 5) {
+				sendM.setColorLengths5(cN);
+				sendM.setColor5(byteList);
+				sendM.setVis5(v);
+			} else if (i == 6) {
+				sendM.setColorLengths6(cN);
+				sendM.setColor6(byteList);
+				sendM.setVis6(v);
+			} else if (i == 7) {
+				sendM.setColorLengths7(cN);
+				sendM.setColor7(byteList);
+				sendM.setVis7(v);
+			}
+
+		}
+		connection.sendMessage(sendM.getBytes());
 	}
 
 //	public String askPassword() throws IOException {
