@@ -26,6 +26,7 @@ public class BanqiController {
 	UserNode usernode;
 	
 	BanqiGame game;
+	Board board;
 	
 	private boolean isUser = false;
 //	private boolean requestPass = false;
@@ -53,6 +54,10 @@ public class BanqiController {
 	public void setNames(List<String> names) {
 		this.userNames = names;
 		
+	}
+	
+	public void setBoard(Board board) {
+		this.board = board;
 	}
 	
 	/* Reads a file for a User  and adds the contents to the list of User Profiles.
@@ -301,13 +306,6 @@ public class BanqiController {
 			b = true;
 		}
 	}
-	
-	private void startNewGame(User user) throws IOException {
-		BanqiGame game = new BanqiGame(U, user);
-		game.setUpBoard();
-		game.printBoard();
-		game.play();
-	}
 
 
 	private void viewProfile() throws IOException {
@@ -555,6 +553,13 @@ public class BanqiController {
 				"=======   ===       ===  ===    =    =======  ==  ========\n";
 		
 		System.out.println(title);
+	}
+
+	public void startGame(String opponent) throws IOException {
+		game = new BanqiGame(U, BanqiController.getUser(opponent));
+		game.updateBoard(board);
+		game.printBoard();
+		game.makeMove(U);
 	}
 	
 //	public static void main(String args[]) throws IOException {

@@ -21,7 +21,6 @@ public class BanqiGame {
 	private int blackPieces = 16;
 	private boolean f = false;
 	private boolean won = false;
-	private Server server;
 	
 	HashMap<String, String> map = new HashMap<>();
 	Scanner scanner = new Scanner( System.in );
@@ -40,8 +39,8 @@ public class BanqiGame {
 		return board;
 	}
 	
-	public void setServer(Server serv) {
-		this.server = serv;
+	public void updateBoard(Board board) {
+		this.board = board;
 	}
 	
 	/* Calls the setPieces method to add both Red and Black pieces to the Banqi Game Board */
@@ -50,18 +49,18 @@ public class BanqiGame {
 		setPieces("Black");		
 	}
 	
-	public void play() throws IOException {
-		List<User> players = new ArrayList<User>();
-		players.add(user1);
-		players.add(user2);
-		int turns = 0;
-		while (!won) {
-			//this should work, each turn we will need to get the state of the board
-			//and call the sendBoard method in server to communicate each move that was made
-			makeMove(players.get(turns % 2));
-			turns++;
-		}
-	}
+//	public void play() throws IOException {
+//		List<User> players = new ArrayList<User>();
+//		players.add(user1);
+//		players.add(user2);
+//		int turns = 0;
+//		while (!won) {
+//			//this should work, each turn we will need to get the state of the board
+//			//and call the sendBoard method in server to communicate each move that was made
+//			makeMove(players.get(turns % 2));
+//			turns++;
+//		}
+//	}
 	
 	/* On the given User's turn, they may make a valid move.
 	If the piece is not visible, it is turned over.

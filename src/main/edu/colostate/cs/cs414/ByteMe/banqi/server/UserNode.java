@@ -8,7 +8,16 @@ import java.util.List;
 import java.util.Map;
 import java.util.Random;
 
+import main.edu.colostate.cs.cs414.ByteMe.banqi.client.Advisor;
 import main.edu.colostate.cs.cs414.ByteMe.banqi.client.BanqiController;
+import main.edu.colostate.cs.cs414.ByteMe.banqi.client.Board;
+import main.edu.colostate.cs.cs414.ByteMe.banqi.client.Cannon;
+import main.edu.colostate.cs.cs414.ByteMe.banqi.client.Chariot;
+import main.edu.colostate.cs.cs414.ByteMe.banqi.client.Elephant;
+import main.edu.colostate.cs.cs414.ByteMe.banqi.client.General;
+import main.edu.colostate.cs.cs414.ByteMe.banqi.client.Horse;
+import main.edu.colostate.cs.cs414.ByteMe.banqi.client.Piece;
+import main.edu.colostate.cs.cs414.ByteMe.banqi.client.Soldier;
 import main.edu.colostate.cs.cs414.ByteMe.banqi.client.User;
 import main.edu.colostate.cs.cs414.ByteMe.banqi.client.UserProfile;
 import main.edu.colostate.cs.cs414.ByteMe.banqi.transport.TCPCache;
@@ -198,14 +207,131 @@ public class UserNode extends Node{
 			byte[] oppoPlayer = start.getPlayerName();
 			String opponent = new String(oppoPlayer);
 			System.out.println(opponent);
-			List<ArrayList<byte[]>> pieceNames = start.getPieceNames();
-			List<ArrayList<byte[]>> pieceColors = start.getPieceColors();
-			List<boolean[]> pieceVis = start.getPieceVis();
-//			banqi.playGame(opponent, pieceNames, pieceColors, pieceVis);
+			
+			List<String[]> pieceNames = new ArrayList<String[]>();
+			List<String[]> colNames = new ArrayList<String[]>();
+			List<boolean[]> visible = new ArrayList<boolean[]>();
+			ArrayList<byte[]> pieName = new ArrayList<byte[]>();
+			ArrayList<byte[]> colName = new ArrayList<byte[]>();
+			for(int i = 0; i < 8; i++) {
+				String[] strName = new String[4];
+				String[] colNam = new String[4];
+				if(i == 0) {
+					pieName = start.getNam0();
+					colName = start.getcolC0();
+					for(int b = 0; b < pieName.size(); b++) {
+						String s = new String(pieName.get(b));
+						strName[b] = s;
+						String sC = new String(colName.get(b));
+						colNam[b] = sC;
+					}
+					visible.add(start.getVis0());
+				} else if(i == 1) {
+					pieName = start.getNam1();
+					colName = start.getcolC1();
+					for(int b = 0; b < pieName.size(); b++) {
+						String s = new String(pieName.get(b));
+						strName[b] = s;
+						String sC = new String(colName.get(b));
+						colNam[b] = sC;
+					}
+					visible.add(start.getVis1());
+				} else if(i == 2) {
+					pieName = start.getNam2();
+					colName = start.getcolC2();
+					for(int b = 0; b < pieName.size(); b++) {
+						String s = new String(pieName.get(b));
+						strName[b] = s;
+						String sC = new String(colName.get(b));
+						colNam[b] = sC;
+					}
+					visible.add(start.getVis2());
+				} else if(i == 3) {
+					pieName = start.getNam3();
+					colName = start.getcolC3();
+					for(int b = 0; b < pieName.size(); b++) {
+						String s = new String(pieName.get(b));
+						strName[b] = s;
+						String sC = new String(colName.get(b));
+						colNam[b] = sC;
+					}
+					visible.add(start.getVis3());
+				} else if(i == 4) {
+					pieName = start.getNam4();
+					colName = start.getcolC4();
+					for(int b = 0; b < pieName.size(); b++) {
+						String s = new String(pieName.get(b));
+						strName[b] = s;
+						String sC = new String(colName.get(b));
+						colNam[b] = sC;
+					}
+					visible.add(start.getVis4());
+				} else if(i == 5) {
+					pieName = start.getNam5();
+					colName = start.getcolC5();
+					for(int b = 0; b < pieName.size(); b++) {
+						String s = new String(pieName.get(b));
+						strName[b] = s;
+						String sC = new String(colName.get(b));
+						colNam[b] = sC;
+					}
+					visible.add(start.getVis5());
+				} else if(i == 6) {
+					pieName = start.getNam6();
+					colName = start.getcolC6();
+					for(int b = 0; b < pieName.size(); b++) {
+						String s = new String(pieName.get(b));
+						strName[b] = s;
+						String sC = new String(colName.get(b));
+						colNam[b] = sC;
+					}
+					visible.add(start.getVis6());
+				} else if(i == 7) {
+					pieName = start.getNam7();
+					colName = start.getcolC7();
+					for(int b = 0; b < pieName.size(); b++) {
+						String s = new String(pieName.get(b));
+						strName[b] = s;
+						String sC = new String(colName.get(b));
+						colNam[b] = sC;
+					}
+					visible.add(start.getVis7());
+				} else {}
+			}
+			makeBoard(pieceNames, colNames, visible);
+			banqi.startGame(opponent);
 			break;
 		}		
 	}
 	
+	private void makeBoard(List<String[]> pieceNames, List<String[]> colNames, List<boolean[]> visible) {
+		Board b = new Board();
+		for (int i = 0; i < 8; i++) {
+			for (int j = 0; j < 4; j++) {
+				Piece piece = null;
+				if(pieceNames.get(i)[j].equals("Soldier")){
+					piece = new Soldier(colNames.get(i)[j], i, j);
+				} else if(pieceNames.get(i)[j].equals("Advisor")) {
+					piece = new Advisor(colNames.get(i)[j], i, j);
+				} else if(pieceNames.get(i)[j].equals("Cannon")) {
+					piece = new Cannon(colNames.get(i)[j], i, j);
+				} else if(pieceNames.get(i)[j].equals("Chariot")) {
+					piece = new Chariot(colNames.get(i)[j], i, j);
+				} else if(pieceNames.get(i)[j].equals("Elephant")) {
+					piece = new Elephant(colNames.get(i)[j], i, j);
+				} else if(pieceNames.get(i)[j].equals("General")) {
+					piece = new General(colNames.get(i)[j], i, j);
+				} else if(pieceNames.get(i)[j].equals("Horse")) {
+					piece = new Horse(colNames.get(i)[j], i, j);
+				}  else {
+					//piece is null, do not add a piece
+				}
+				b.getTileInfo(j, i).setPiece(piece);
+			}
+		}
+		banqi.setBoard(b);
+	}
+
 //	public String askPassword() throws IOException {
 //		BufferedReader read = new BufferedReader(new InputStreamReader(System.in));
 //		System.out.println("Please Enter Your Password");

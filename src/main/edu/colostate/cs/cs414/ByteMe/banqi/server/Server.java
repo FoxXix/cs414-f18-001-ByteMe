@@ -287,11 +287,11 @@ public class Server extends Node {
 	}
 
 	private void startNewGame(String sender, String acceptor) throws IOException {
-		
-		//send message to both users to start the game
+
+		// send message to both users to start the game
 		TCPConnection connectSender = cache.getById(nameToNode.get(sender));
 		TCPConnection connectAcceptor = cache.getById(nameToNode.get(acceptor));
-		
+
 		System.out.println("In start new game");
 		UserProfile sendProfile = null;
 		UserProfile accepProfile = null;
@@ -308,23 +308,22 @@ public class Server extends Node {
 		User player1 = new User(sendProfile);
 		User player2 = new User(accepProfile);
 		BanqiGame game = new BanqiGame(player1, player2);
-		game.setServer(this);
 		game.setUpBoard();
-		
+
 		List<String[]> pieceNameArray = new ArrayList<String[]>(8);
 		List<String[]> pieceColorArray = new ArrayList<String[]>(8);
 		List<boolean[]> pieceVisArray = new ArrayList<boolean[]>(8);
 
-		for(int i = 0; i < 8; i++) {
+		for (int i = 0; i < 8; i++) {
 			String[] pieceNames = new String[4];
 			String[] pieceColors = new String[4];
 			boolean[] isVis = new boolean[4];
-			for(int j = 0; j < 4; j++) {
-//				System.out.println("j: " + j + "i: " + i);
+			for (int j = 0; j < 4; j++) {
+				// System.out.println("j: " + j + "i: " + i);
 				pieceNames[j] = game.getBoard().getTileInfo(j, i).getPiece().getName();
-//				System.out.println(pieceNames[j]);
+				// System.out.println(pieceNames[j]);
 				pieceColors[j] = game.getBoard().getTileInfo(j, i).getPiece().getColor();
-//				System.out.println(pieceColors[j]);
+				// System.out.println(pieceColors[j]);
 				isVis[j] = game.getBoard().getTileInfo(j, i).getPiece().isVisible();
 			}
 			pieceNameArray.add(pieceNames);
@@ -332,63 +331,120 @@ public class Server extends Node {
 			pieceVisArray.add(isVis);
 		}
 
-		for(int k = 0; k < pieceNameArray.size(); k++) {
-				System.out.println(Arrays.toString(pieceNameArray.get(k)));
-				System.out.println(Arrays.toString(pieceColorArray.get(k)));
-				System.out.println(Arrays.toString(pieceVisArray.get(k)));
-				System.out.println();
+		for (int k = 0; k < pieceNameArray.size(); k++) {
+			System.out.println(Arrays.toString(pieceNameArray.get(k)));
+			System.out.println(Arrays.toString(pieceColorArray.get(k)));
+			System.out.println(Arrays.toString(pieceVisArray.get(k)));
+			System.out.println();
 		}
-		
+
 		StartGame startG = new StartGame();
-		startG.setPlayerName((byte)acceptor.getBytes().length, acceptor.getBytes());
-		List<ArrayList<byte[]>> pieceNameBytes = new ArrayList<ArrayList<byte[]>>();
-		List<byte[]> nameLeng = new ArrayList<byte[]>();
-		List<byte[]> byteList = new ArrayList<byte[]>();
-		for(String[] n : pieceNameArray) {
-			byte[] nN  = new byte[4];
-			for(int i = 0; i < n.length; i++) {
-				byte nLength = (byte)n[i].getBytes().length;
-				nN[i] = nLength;
-				byteList.add(n[i].getBytes());
+		startG.setPlayerName((byte) acceptor.getBytes().length, acceptor.getBytes());
+
+		for (int i = 0; i < pieceNameArray.size(); i++) {
+			ArrayList<byte[]> byteList = new ArrayList<byte[]>();
+			byte[] nN = new byte[4];
+			// System.out.println(pieceNameArray.get(i).length);
+			for (int j = 0; j < pieceNameArray.get(i).length; j++) {
+				byte nLength = (byte) pieceNameArray.get(i)[j].getBytes().length;
+				nN[j] = nLength;
+				byteList.add(pieceNameArray.get(i)[j].getBytes());
 
 			}
-			pieceNameBytes.add((ArrayList<byte[]>) byteList);
-			nameLeng.add(nN);
-		}
-		startG.setNameLengths(nameLeng);
-		startG.setNames(pieceNameBytes);
-		List<ArrayList<byte[]>> pieceColorBytes = new ArrayList<ArrayList<byte[]>>();
-		List<byte[]> colorLeng = new ArrayList<byte[]>();
-		List<byte[]> byteCList = new ArrayList<byte[]>();
-		for(String[] n : pieceColorArray) {
-			byte[] cN = new byte[4];
-			for(int i = 0; i < n.length; i++) {
-				byte nLength = (byte)n[i].getBytes().length;
-				cN[i] = nLength;
-				byteCList.add(n[i].getBytes());
+			if (i == 0) {
+				startG.setNameLengths(nN);
+				startG.setNames0(byteList);
+			} else if (i == 1) {
+				startG.setNameLengths1(nN);
+				startG.setNames1(byteList);
+			} else if (i == 2) {
+				startG.setNameLengths2(nN);
+				startG.setNames2(byteList);
+			} else if (i == 3) {
+				startG.setNameLengths3(nN);
+				startG.setNames3(byteList);
+			} else if (i == 4) {
+				startG.setNameLengths4(nN);
+				startG.setNames4(byteList);
+			} else if (i == 5) {
+				startG.setNameLengths5(nN);
+				startG.setNames5(byteList);
+			} else if (i == 6) {
+				startG.setNameLengths6(nN);
+				startG.setNames6(byteList);
+			} else if (i == 7) {
+				startG.setNameLengths7(nN);
+				startG.setNames7(byteList);
 			}
-			pieceColorBytes.add((ArrayList<byte[]>) byteCList);
-			colorLeng.add(cN);
+
 		}
-		startG.setColorLengths(colorLeng);
-		startG.setColors(pieceColorBytes);
-		startG.setVis(pieceVisArray);
+
+		List<ArrayList<byte[]>> pieceColorBytes = new ArrayList<ArrayList<byte[]>>();
+
+		System.out.println("before color loop");
+		System.out.println(pieceColorArray.size());
+		for (int i = 0; i < pieceColorArray.size(); i++) {
+			System.out.println(i);
+			ArrayList<byte[]> byteList = new ArrayList<byte[]>();
+			byte[] cN = new byte[4];
+			boolean[] v = pieceVisArray.get(i);
+			for (int j = 0; j < pieceColorArray.get(i).length; j++) {
+				byte cLength = (byte) pieceColorArray.get(i)[j].getBytes().length;
+				cN[j] = cLength;
+				byteList.add(pieceColorArray.get(i)[j].getBytes());
+
+			}
+			if (i == 0) {
+				System.out.println(Arrays.toString(cN));
+				startG.setColorLengths0(cN);
+				startG.setColor0(byteList);
+				startG.setVis0(v);
+			} else if (i == 1) {
+				startG.setColorLengths1(cN);
+				startG.setColor1(byteList);
+				startG.setVis1(v);
+			} else if (i == 2) {
+				startG.setColorLengths2(cN);
+				startG.setColor2(byteList);
+				startG.setVis2(v);
+			} else if (i == 3) {
+				startG.setColorLengths3(cN);
+				startG.setColor3(byteList);
+				startG.setVis3(v);
+			} else if (i == 4) {
+				startG.setColorLengths4(cN);
+				startG.setColor4(byteList);
+				startG.setVis4(v);
+			} else if (i == 5) {
+				startG.setColorLengths5(cN);
+				startG.setColor5(byteList);
+				startG.setVis5(v);
+			} else if (i == 6) {
+				startG.setColorLengths6(cN);
+				startG.setColor6(byteList);
+				startG.setVis6(v);
+			} else if (i == 7) {
+				startG.setColorLengths7(cN);
+				startG.setColor7(byteList);
+				startG.setVis7(v);
+			}
+
+		}
 		connectSender.sendMessage(startG.getBytes());
-//		try {
-//			TimeUnit.SECONDS.sleep(2);
-//		} catch (InterruptedException e) {
-//			// TODO Auto-generated catch block
-//			e.printStackTrace();
-//		}
-//		StartGame startG2 = new StartGame();
-//		startG2.setPlayerName((byte)sender.getBytes().length, sender.getBytes());
-//		startG.setNames(pieceNameArray);
-//		startG.setColors(pieceColorArray);
-//		startG.setVis(pieceVisArray);
-//		connectAcceptor.sendMessage(startG.getBytes());
+		// try {
+		// TimeUnit.SECONDS.sleep(2);
+		// } catch (InterruptedException e) {
+		// // TODO Auto-generated catch block
+		// e.printStackTrace();
+		// }
+		// StartGame startG2 = new StartGame();
+		// startG2.setPlayerName((byte)sender.getBytes().length, sender.getBytes());
+		// startG.setNames(pieceNameArray);
+		// startG.setColors(pieceColorArray);
+		// startG.setVis(pieceVisArray);
+		// connectAcceptor.sendMessage(startG.getBytes());
 
 	}
-
 
 	// sends the state of the board to the other player, justPlayed is the name of
 	// the player has just taken a turn.
