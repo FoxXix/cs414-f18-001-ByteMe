@@ -38,8 +38,16 @@ public class BanqiGame {
 
 	}
 	
+//	public void setBoard(Board b) {
+//		this.board = b;
+//	}
+	
 	public void setReader(BufferedReader read) {
 		this.read = read;
+	}
+	
+	public User getUser2() {
+		return user2;
 	}
 	
 	public Board getBoard() {

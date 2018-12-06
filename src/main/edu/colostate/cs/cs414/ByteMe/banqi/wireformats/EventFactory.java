@@ -102,7 +102,9 @@ public class EventFactory {
 			break;
 		case Protocol.SendMove:
 			Event move = new SendMove();
+//			System.out.println("Getting here???????");
 			move.unPackBytes(message);
+//			System.out.println("about to send sendMove message");
 			mNode.OnEvent(move, connection);
 			break;
 //		case Protocol.SendDeregistration:

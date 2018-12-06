@@ -59,6 +59,11 @@ public class SendMove implements Event {
 	private byte[] playerName;
 	private byte length;
 	private boolean turn = false;
+	private int gameID;
+	
+	public void setGameID(int id) {
+		this.gameID = id;
+	}
 	
 	public void setTurn(boolean turn) {
 		this.turn = turn;
@@ -312,6 +317,10 @@ public class SendMove implements Event {
 	public boolean getTurn() {
 		return turn;
 	}
+	
+	public int getGameID() {
+		return gameID;
+	}
 
 	// public List<ArrayList<byte[]>> getPieceNames() { = new boolean[4];
 	// return pieceNames;
@@ -341,6 +350,7 @@ public class SendMove implements Event {
 		dout.writeByte(length);
 		dout.write(playerName);
 		dout.writeBoolean(turn);
+		dout.writeInt(gameID);
 
 		for (int j = 0; j < 4; j++) {
 			// byte l = (byte)g.getBytes().length;
@@ -356,6 +366,7 @@ public class SendMove implements Event {
 			boolean v = vis0[j];
 			dout.writeBoolean(v);
 			// ---------------------------------------------------------------
+//			System.out.println(nameLen1);
 			dout.writeByte(nameLen1[j]);
 			dout.write(namN1.get(j));
 
@@ -447,6 +458,7 @@ public class SendMove implements Event {
 		ByteArrayInputStream baInputStream = new ByteArrayInputStream(marshalledBytes);
 		DataInputStream din = new DataInputStream(new BufferedInputStream(baInputStream));
 
+//		System.out.println("In Unpack bytes");
 		int type = din.readByte();
 
 		byte leng = din.readByte();
@@ -454,6 +466,7 @@ public class SendMove implements Event {
 		din.readFully(playName);
 		playerName = playName;
 		turn = din.readBoolean();
+		gameID = din.readInt();
 
 		byte[] names = new byte[4];
 		byte[] colors = new byte[4];

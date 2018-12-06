@@ -9,6 +9,7 @@ import java.io.InputStreamReader;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 import java.util.concurrent.TimeUnit;
 import main.edu.colostate.cs.cs414.ByteMe.banqi.server.UserNode;
@@ -58,6 +59,9 @@ public class BanqiController {
 
 	public void setBoard(Board board) {
 		this.board = board;
+//		System.out.println(this.board);
+//		System.out.println(board);
+//		game.updateBoard(board);
 	}
 
 	/*
@@ -509,7 +513,7 @@ public class BanqiController {
 				tile.setPiece(piece);
 			}
 		}
-
+		System.out.println("null check" + board);
 		return board;
 	}
 
@@ -562,17 +566,29 @@ public class BanqiController {
 		System.out.println(title);
 	}
 
-	public void startGame(String opponent, boolean turn) throws IOException {
+	//initializes a game, and sets the board as given from the server
+	public void startGame(String opponent, boolean turn) {
 		game = new BanqiGame(U, BanqiController.getUser(opponent));
 		game.setReader(read);
 		game.updateBoard(board);
+		System.out.println("startgame board null check " + game.getBoard());
+		if(turn == false) {
+			game.printBoard();
+		}
+	}
+	
+	//makes a Move.  If it is not your turn, the program will wait
+	public void makeMove(boolean turn, String opponent, int gameID) throws IOException {
+		game.updateBoard(board);
 		game.printBoard();
+		System.out.println("Please wait for your turn");
 		while (turn != true) {
 			//wait
 		}
 		System.out.println("It is your turn, please make a move");
 		game.makeMove(U);
-
+		turn = false;
+		
 		// move has been made, get state of the game board
 		List<String[]> pieceNameArray = new ArrayList<String[]>(8);
 		List<String[]> pieceColorArray = new ArrayList<String[]>(8);
@@ -585,6 +601,7 @@ public class BanqiController {
 			for (int j = 0; j < 4; j++) {
 				// System.out.println("j: " + j + "i: " + i);
 				pieceNames[j] = game.getBoard().getTileInfo(j, i).getPiece().getName();
+//				System.out.println(pieceNames[j] = game.getBoard().getTileInfo(j, i).getPiece().getName());
 				// System.out.println(pieceNames[j]);
 				pieceColors[j] = game.getBoard().getTileInfo(j, i).getPiece().getColor();
 				// System.out.println(pieceColors[j]);
@@ -593,9 +610,13 @@ public class BanqiController {
 			pieceNameArray.add(pieceNames);
 			pieceColorArray.add(pieceColors);
 			pieceVisArray.add(isVis);
-
-			usernode.sendMove(pieceNameArray, pieceColorArray, pieceVisArray, U.getNickname());
 		}
+		
+		for(int i = 0; i < pieceVisArray.size(); i++) {
+			System.out.println(Arrays.toString(pieceVisArray.get(i)));
+		}
+//		System.out.println("User2: " + game.getUser2());
+		usernode.sendMove(pieceNameArray, pieceColorArray, pieceVisArray, game.getUser2().getNickname(), gameID);
 	}
 
 	// public static void main(String args[]) throws IOException {

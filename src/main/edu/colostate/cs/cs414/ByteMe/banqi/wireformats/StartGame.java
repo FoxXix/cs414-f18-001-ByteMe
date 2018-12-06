@@ -59,6 +59,11 @@ public class StartGame implements Event {
 	private byte[] playerName;
 	private byte length;
 	private boolean turn = false;
+	private int gameID;
+	
+	public void setGameID(int id) {
+		this.gameID = id;
+	}
 	
 	public void setTurn(boolean turn) {
 		this.turn = turn;
@@ -312,6 +317,10 @@ public class StartGame implements Event {
 	public boolean getTurn() {
 		return turn;
 	}
+	
+	public int getGameID() {
+		return gameID;
+	}
 
 	// public List<ArrayList<byte[]>> getPieceNames() { = new boolean[4];
 	// return pieceNames;
@@ -341,6 +350,7 @@ public class StartGame implements Event {
 		dout.writeByte(length);
 		dout.write(playerName);
 		dout.writeBoolean(turn);
+		dout.writeInt(gameID);
 
 		for (int j = 0; j < 4; j++) {
 			// byte l = (byte)g.getBytes().length;
@@ -454,6 +464,7 @@ public class StartGame implements Event {
 		din.readFully(playName);
 		playerName = playName;
 		turn = din.readBoolean();
+		gameID = din.readInt();
 
 		byte[] names = new byte[4];
 		byte[] colors = new byte[4];

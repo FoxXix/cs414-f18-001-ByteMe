@@ -209,6 +209,7 @@ public class UserNode extends Node{
 			String opponent = new String(oppoPlayer);
 			System.out.println(opponent);
 			boolean turn = start.getTurn();
+			int gameID = start.getGameID();
 			ArrayList<byte[]> pieName = new ArrayList<byte[]>();
 			ArrayList<byte[]> colName = new ArrayList<byte[]>();
 			List<String[]> pieceNames = new ArrayList<String[]>();
@@ -221,7 +222,7 @@ public class UserNode extends Node{
 				if(i == 0) {
 					pieName = start.getNam0();
 					colName = start.getcolC0();
-					System.out.println(pieName.size());
+//					System.out.println(pieName.size());
 					for(int b = 0; b < 4; b++) {
 						String s = new String(pieName.get(b));
 						strName[b] = s;
@@ -232,7 +233,7 @@ public class UserNode extends Node{
 				} else if(i == 1) {
 					pieName = start.getNam1();
 					colName = start.getcolC1();
-					System.out.println(pieName.size());
+//					System.out.println(pieName.size());
 					for(int b = 0; b < 4; b++) {
 						String s = new String(pieName.get(b));
 						strName[b] = s;
@@ -243,7 +244,7 @@ public class UserNode extends Node{
 				} else if(i == 2) {
 					pieName = start.getNam2();
 					colName = start.getcolC2();
-					System.out.println(pieName.size());
+//					System.out.println(pieName.size());
 					for(int b = 0; b < 4; b++) {
 						String s = new String(pieName.get(b));
 						strName[b] = s;
@@ -265,7 +266,7 @@ public class UserNode extends Node{
 				} else if(i == 4) {
 					pieName = start.getNam4();
 					colName = start.getcolC4();
-					System.out.println(pieName.size());
+//					System.out.println(pieName.size());
 					for(int b = 0; b < 4; b++) {
 						String s = new String(pieName.get(b));
 						strName[b] = s;
@@ -276,7 +277,7 @@ public class UserNode extends Node{
 				} else if(i == 5) {
 					pieName = start.getNam5();
 					colName = start.getcolC5();
-					System.out.println(pieName.size());
+//					System.out.println(pieName.size());
 					for(int b = 0; b < 4; b++) {
 						String s = new String(pieName.get(b));
 						strName[b] = s;
@@ -287,7 +288,7 @@ public class UserNode extends Node{
 				} else if(i == 6) {
 					pieName = start.getNam6();
 					colName = start.getcolC6();
-					System.out.println(pieName.size());
+//					System.out.println(pieName.size());
 					for(int b = 0; b < 4; b++) {
 						String s = new String(pieName.get(b));
 						strName[b] = s;
@@ -298,7 +299,7 @@ public class UserNode extends Node{
 				} else if(i == 7) {
 					pieName = start.getNam7();
 					colName = start.getcolC7();
-					System.out.println(pieName.size());
+//					System.out.println(pieName.size());
 					for(int b = 0; b < 4; b++) {
 						String s = new String(pieName.get(b));
 						strName[b] = s;
@@ -312,7 +313,130 @@ public class UserNode extends Node{
 			}
 			makeBoard(pieceNames, colNames, visible);
 			banqi.startGame(opponent, turn);
+			if(turn == true) {
+				banqi.makeMove(turn, opponent, gameID);
+			} else {
+				System.out.println("Please wait for your turn");
+			}
+
 			break;
+		case Protocol.SendMove:
+			SendMove sendMove = (SendMove) e;
+			byte[] oppoPlayer1 = sendMove.getPlayerName();
+			String opponent1 = new String(oppoPlayer1);
+			System.out.println(opponent1);
+			boolean turn1 = sendMove.getTurn();
+			int gameID1 = sendMove.getGameID();
+			ArrayList<byte[]> pieName1 = new ArrayList<byte[]>();
+			ArrayList<byte[]> colName1 = new ArrayList<byte[]>();
+			List<String[]> pieceNames1 = new ArrayList<String[]>();
+			List<String[]> colNames1 = new ArrayList<String[]>();
+			List<boolean[]> visible1 = new ArrayList<boolean[]>();
+			for(int i = 0; i < 8; i++) {
+//				System.out.println(i);
+				String[] strName = new String[4];
+				String[] colNam = new String[4];
+				if(i == 0) {
+					pieName1 = sendMove.getNam0();
+					colName1 = sendMove.getcolC0();
+//					System.out.println(pieName1.size());
+					for(int b = 0; b < 4; b++) {
+						String s = new String(pieName1.get(b));
+						strName[b] = s;
+						String sC = new String(colName1.get(b));
+						colNam[b] = sC;
+					}
+					visible1.add(sendMove.getVis0());
+				} else if(i == 1) {
+					pieName1 = sendMove.getNam1();
+					colName1 = sendMove.getcolC1();
+//					System.out.println(pieName1.size());
+					for(int b = 0; b < 4; b++) {
+						String s = new String(pieName1.get(b));
+						strName[b] = s;
+						String sC = new String(colName1.get(b));
+						colNam[b] = sC;
+					}
+					visible1.add(sendMove.getVis1());
+				} else if(i == 2) {
+					pieName1 = sendMove.getNam2();
+					colName1 = sendMove.getcolC2();
+//					System.out.println(pieName1.size());
+					for(int b = 0; b < 4; b++) {
+						String s = new String(pieName1.get(b));
+						strName[b] = s;
+						String sC = new String(colName1.get(b));
+						colNam[b] = sC;
+					}
+					visible1.add(sendMove.getVis2());
+				} else if(i == 3) {
+					pieName1 = sendMove.getNam3();
+					colName1 = sendMove.getcolC3();
+//					System.out.println(pieName1.size());
+					for(int b = 0; b < 4; b++) {
+						String s = new String(pieName1.get(b));
+						strName[b] = s;
+						String sC = new String(colName1.get(b));
+						colNam[b] = sC;
+					}
+					visible1.add(sendMove.getVis3());
+				} else if(i == 4) {
+					pieName1 = sendMove.getNam4();
+					colName1 = sendMove.getcolC4();
+//					System.out.println(pieName1.size());
+					for(int b = 0; b < 4; b++) {
+						String s = new String(pieName1.get(b));
+						strName[b] = s;
+						String sC = new String(colName1.get(b));
+						colNam[b] = sC;
+					}
+					visible1.add(sendMove.getVis4());
+				} else if(i == 5) {
+					pieName1 = sendMove.getNam5();
+					colName1 = sendMove.getcolC5();
+//					System.out.println(pieName1.size());
+					for(int b = 0; b < 4; b++) {
+						String s = new String(pieName1.get(b));
+						strName[b] = s;
+						String sC = new String(colName1.get(b));
+						colNam[b] = sC;
+					}
+					visible1.add(sendMove.getVis5());
+				} else if(i == 6) {
+					pieName1 = sendMove.getNam6();
+					colName1 = sendMove.getcolC6();
+//					System.out.println(pieName1.size());
+					for(int b = 0; b < 4; b++) {
+						String s = new String(pieName1.get(b));
+						strName[b] = s;
+						String sC = new String(colName1.get(b));
+						colNam[b] = sC;
+					}
+					visible1.add(sendMove.getVis6());
+				} else if(i == 7) {
+					pieName1 = sendMove.getNam7();
+					colName1 = sendMove.getcolC7();
+//					System.out.println(pieName1.size());
+					for(int b = 0; b < 4; b++) {
+						String s = new String(pieName1.get(b));
+						strName[b] = s;
+						String sC = new String(colName1.get(b));
+						colNam[b] = sC;
+					}
+					visible1.add(sendMove.getVis7());
+				} else {}
+				pieceNames1.add(strName);
+				colNames1.add(colNam);
+			}
+			
+			for(int i = 0; i < visible1.size(); i++) {
+//			System.out.println(Arrays.toString(pieceNameArray.get(i)));
+//			System.out.println(Arrays.toString(pieceColorArray.get(i)));
+			System.out.println(Arrays.toString(visible1.get(i)));
+		}
+			
+			makeBoard(pieceNames1, colNames1, visible1);
+			banqi.makeMove(turn1, opponent1, gameID1);
 		}		
 	}
 	
@@ -323,33 +447,79 @@ public class UserNode extends Node{
 				Piece piece = null;
 				if(pieceNames.get(i)[j].equals("Soldier")){
 					piece = new Soldier(colNames.get(i)[j], i, j);
+					System.out.println(visible.get(i)[j]);
+					if(visible.get(i)[j] == true) {
+						piece.makeVisible();
+						System.out.println(piece.isVisible());
+					}
 				} else if(pieceNames.get(i)[j].equals("Advisor")) {
 					piece = new Advisor(colNames.get(i)[j], i, j);
+					System.out.println(visible.get(i)[j]);
+					if(visible.get(i)[j] == true) {
+						piece.makeVisible();
+						System.out.println(piece.isVisible());
+					}
 				} else if(pieceNames.get(i)[j].equals("Cannon")) {
 					piece = new Cannon(colNames.get(i)[j], i, j);
+					System.out.println(visible.get(i)[j]);
+					if(visible.get(i)[j] == true) {
+						piece.makeVisible();
+						System.out.println(piece.isVisible());
+					}
 				} else if(pieceNames.get(i)[j].equals("Chariot")) {
 					piece = new Chariot(colNames.get(i)[j], i, j);
+					System.out.println(visible.get(i)[j]);
+					if(visible.get(i)[j] == true) {
+						piece.makeVisible();
+						System.out.println(piece.isVisible());
+					}
 				} else if(pieceNames.get(i)[j].equals("Elephant")) {
 					piece = new Elephant(colNames.get(i)[j], i, j);
+					System.out.println(visible.get(i)[j]);
+					if(visible.get(i)[j] == true) {
+						piece.makeVisible();
+						System.out.println(piece.isVisible());
+					}
 				} else if(pieceNames.get(i)[j].equals("General")) {
 					piece = new General(colNames.get(i)[j], i, j);
+					System.out.println(visible.get(i)[j]);
+					if(visible.get(i)[j] == true) {
+						piece.makeVisible();
+						System.out.println(piece.isVisible());
+					}
 				} else if(pieceNames.get(i)[j].equals("Horse")) {
 					piece = new Horse(colNames.get(i)[j], i, j);
+					System.out.println(visible.get(i)[j]);
+					if(visible.get(i)[j] == true) {
+						piece.makeVisible();
+						System.out.println(piece.isVisible());
+					}
 				}  else {
 					//piece is null, do not add a piece
 				}
 				b.getTileInfo(j, i).setPiece(piece);
+				System.out.println(piece.isVisible());
 			}
 		}
+		System.out.println("usernode make board null check: " + b);
 		banqi.setBoard(b);
 	}
 	
 	public void sendMove(List<String[]> pieceNameArray, List<String[]> pieceColorArray,
-		List<boolean[]> pieceVisArray, String opponent) throws IOException {
-		System.out.println(opponent);
+		List<boolean[]> pieceVisArray, String opponent, int gameID) throws IOException {
+		
+//		System.out.println();
+//		for(int i = 0; i < pieceNameArray.size(); i++) {
+//			System.out.println(Arrays.toString(pieceNameArray.get(i)));
+//			System.out.println(Arrays.toString(pieceColorArray.get(i)));
+//			System.out.println(Arrays.toString(pieceVisArray.get(i)));
+//		}
+		
+//		System.out.println(opponent);
 		SendMove sendM = new SendMove();
 		sendM.setPlayerName((byte)opponent.getBytes().length, opponent.getBytes());
 		sendM.setTurn(false);
+		sendM.setGameID(gameID);
 		for (int i = 0; i < pieceNameArray.size(); i++) {
 			ArrayList<byte[]> byteList = new ArrayList<byte[]>();
 			byte[] nN = new byte[4];
@@ -364,6 +534,7 @@ public class UserNode extends Node{
 				sendM.setNameLengths(nN);
 				sendM.setNames0(byteList);
 			} else if (i == 1) {
+//				System.out.println(nN);
 				sendM.setNameLengths1(nN);
 				sendM.setNames1(byteList);
 			} else if (i == 2) {
@@ -390,10 +561,10 @@ public class UserNode extends Node{
 
 		List<ArrayList<byte[]>> pieceColorBytes = new ArrayList<ArrayList<byte[]>>();
 
-		System.out.println("before color loop");
-		System.out.println(pieceColorArray.size());
+//		System.out.println("before color loop");
+//		System.out.println(pieceColorArray.size());
 		for (int i = 0; i < pieceColorArray.size(); i++) {
-			System.out.println(i);
+//			System.out.println(i);
 			ArrayList<byte[]> byteList = new ArrayList<byte[]>();
 			byte[] cN = new byte[4];
 			boolean[] v = pieceVisArray.get(i);
@@ -404,7 +575,7 @@ public class UserNode extends Node{
 
 			}
 			if (i == 0) {
-				System.out.println(Arrays.toString(cN));
+//				System.out.println(Arrays.toString(cN));
 				sendM.setColorLengths0(cN);
 				sendM.setColor0(byteList);
 				sendM.setVis0(v);

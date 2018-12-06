@@ -55,7 +55,7 @@ public class Server extends Node {
 	private BanqiController banqiController;
 	private List<UserProfile> listOfProfiles = new ArrayList<UserProfile>();
 	private List<String> listOfUsersByNickname = new ArrayList<String>();
-	private Map<BanqiGame, Map<String, String>> listCurrentGames = new HashMap<BanqiGame, Map<String, String>>();
+	private Map<Integer, Map<String, String>> listCurrentGames = new HashMap<Integer, Map<String, String>>();
 	private Map<String, String> listOfInvites = new HashMap<String, String>();
 	private Map<String, Integer> nameToNode = new HashMap<String, Integer>();
 	// private List<User> listOfUsers = new ArrayList<User>();
@@ -203,7 +203,7 @@ public class Server extends Node {
 			byte[] oppoPlayer = sendMove.getPlayerName();
 			String opponent = new String(oppoPlayer);
 			System.out.println(opponent);
-			boolean turn = sendMove.getTurn();
+//			boolean turn = sendMove.getTurn();
 			ArrayList<byte[]> pieName = new ArrayList<byte[]>();
 			ArrayList<byte[]> colName = new ArrayList<byte[]>();
 			List<String[]> pieceNames = new ArrayList<String[]>();
@@ -308,9 +308,13 @@ public class Server extends Node {
 			//*******************************************************************************
 			//should write game state to file here
 			//*******************************************************************************
-			
+			int gameID = sendMove.getGameID();
+			Map<String, String> names = listCurrentGames.get(gameID);
+//			if(opponent.equals(names.))
+			System.out.println(cache.getById(nameToNode.get(opponent)));
 			TCPConnection connectOpp = cache.getById(nameToNode.get(opponent));
 			//now send the Move to the opposing user
+			System.out.println("About to send board to opponent");
 			sendMove(pieceNames, colNames, visible, opponent, connectOpp);
 			
 			break;
@@ -427,6 +431,12 @@ public class Server extends Node {
 		BanqiGame game = new BanqiGame(player1, player2);
 		game.setUpBoard();
 
+		//add to active games map
+		int gameID = listCurrentGames.size() + 1;
+		Map<String, String> gameNames = new HashMap<String, String>();
+		gameNames.put(sender, acceptor);
+		listCurrentGames.put(gameID, gameNames);
+
 		List<String[]> pieceNameArray = new ArrayList<String[]>(8);
 		List<String[]> pieceColorArray = new ArrayList<String[]>(8);
 		List<boolean[]> pieceVisArray = new ArrayList<boolean[]>(8);
@@ -448,16 +458,17 @@ public class Server extends Node {
 			pieceVisArray.add(isVis);
 		}
 
-		for (int k = 0; k < pieceNameArray.size(); k++) {
-			System.out.println(Arrays.toString(pieceNameArray.get(k)));
-			System.out.println(Arrays.toString(pieceColorArray.get(k)));
-			System.out.println(Arrays.toString(pieceVisArray.get(k)));
-			System.out.println();
-		}
+//		for (int k = 0; k < pieceNameArray.size(); k++) {
+//			System.out.println(Arrays.toString(pieceNameArray.get(k)));
+//			System.out.println(Arrays.toString(pieceColorArray.get(k)));
+//			System.out.println(Arrays.toString(pieceVisArray.get(k)));
+//			System.out.println();
+//		}
 
 		StartGame startG = new StartGame();
 		startG.setPlayerName((byte) acceptor.getBytes().length, acceptor.getBytes());
 		startG.setTurn(true);
+		startG.setGameID(gameID);
 
 		for (int i = 0; i < pieceNameArray.size(); i++) {
 			ArrayList<byte[]> byteList = new ArrayList<byte[]>();
@@ -497,12 +508,10 @@ public class Server extends Node {
 
 		}
 
-		List<ArrayList<byte[]>> pieceColorBytes = new ArrayList<ArrayList<byte[]>>();
-
-		System.out.println("before color loop");
-		System.out.println(pieceColorArray.size());
+//		System.out.println("before color loop");
+//		System.out.println(pieceColorArray.size());
 		for (int i = 0; i < pieceColorArray.size(); i++) {
-			System.out.println(i);
+//			System.out.println(i);
 			ArrayList<byte[]> byteList = new ArrayList<byte[]>();
 			byte[] cN = new byte[4];
 			boolean[] v = pieceVisArray.get(i);
@@ -513,7 +522,7 @@ public class Server extends Node {
 
 			}
 			if (i == 0) {
-				System.out.println(Arrays.toString(cN));
+//				System.out.println(Arrays.toString(cN));
 				startG.setColorLengths0(cN);
 				startG.setColor0(byteList);
 				startG.setVis0(v);
@@ -552,8 +561,9 @@ public class Server extends Node {
 
 
 		StartGame startG2 = new StartGame();
-		startG2.setPlayerName((byte) acceptor.getBytes().length, acceptor.getBytes());
+		startG2.setPlayerName((byte) sender.getBytes().length, sender.getBytes());
 		startG2.setTurn(false);
+		startG2.setGameID(gameID);
 
 		for (int i = 0; i < pieceNameArray.size(); i++) {
 			ArrayList<byte[]> byteList = new ArrayList<byte[]>();
@@ -593,10 +603,8 @@ public class Server extends Node {
 
 		}
 
-		//List<ArrayList<byte[]>> pieceColorBytes = new ArrayList<ArrayList<byte[]>>();
-
-		System.out.println("before color loop");
-		System.out.println(pieceColorArray.size());
+//		System.out.println("before color loop");
+//		System.out.println(pieceColorArray.size());
 		for (int i = 0; i < pieceColorArray.size(); i++) {
 			System.out.println(i);
 			ArrayList<byte[]> byteList = new ArrayList<byte[]>();
@@ -609,7 +617,7 @@ public class Server extends Node {
 
 			}
 			if (i == 0) {
-				System.out.println(Arrays.toString(cN));
+//				System.out.println(Arrays.toString(cN));
 				startG2.setColorLengths0(cN);
 				startG2.setColor0(byteList);
 				startG2.setVis0(v);
