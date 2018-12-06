@@ -299,8 +299,7 @@ public class BanqiController {
 		game.printBoard();
 		game.play();
 	}
-
-
+	
 	private void viewProfile() throws IOException {
 		boolean exitStatus = false;
 		String choice;
@@ -312,7 +311,51 @@ public class BanqiController {
 			
 			choice = read.readLine();
 			if (choice.equals("1")) {
-				searchForUser();
+				boolean exitStatus2 = false;
+				while (!exitStatus2) {
+					System.out.println("Enter the number of the user to view or type 'exit'");
+					
+					int count = 1;
+					int myIndex = -1;
+					for (String s : userNames) {
+						if (!s.equals(U.getNickname())) {
+							System.out.println(count +") " + s);
+							count++;
+						} else {
+							myIndex = count-1;
+						}
+					}
+					choice = read.readLine();
+					
+					int number = 0;
+				    if (choice.equals("exit")) {
+				    	exitStatus2 = true;
+					} else {
+						do {
+							try {
+								number = Integer.parseInt(choice);
+								if (number >= userNames.size() || number <= 0) {
+									number = 0;
+									throw new NumberFormatException();
+								}
+							} catch (NumberFormatException e) {
+								System.out.println("Input not recognized, try again");
+								choice = read.readLine();
+							}
+						} while (number == 0);
+						
+						String user;
+					    if (number <= myIndex) {
+					    	user = userNames.get(number - 1);
+					    	users.get(number-1).seeProfile(user);
+					    } else {
+					    	user = userNames.get(number);
+					    	users.get(number).seeProfile(user);
+					    }
+					}
+					    
+					exitStatus2 = true;
+				}
 			} else if (choice.equals("exit")) {
 				exitStatus = true;
 			} else {
