@@ -18,7 +18,7 @@ public class UserProfile {
 		this.wins = wins;
 		this.losses = losses;
 		this.draws = draws;
-		this.forfeits = 0;
+		this.forfeits = forfeits;
 	}
 	
 	public String getUserName() {
