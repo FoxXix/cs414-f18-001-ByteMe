@@ -308,17 +308,11 @@ public class BanqiController {
 				} while (number == 0);
 
 				String inviter = openInvites.get(number-1);
-				startNewGame(BanqiController.getUser(inviter)); // user to play with
+				usernode.sendAccept(U.getNickname(), inviter);
+				//startNewGame(BanqiController.getUser(inviter)); // user to play with
 				exitStatus = true;
 			}
 		}
-	}
-  
-	private void startNewGame(User user) throws IOException {
-		BanqiGame game = new BanqiGame(U, user);
-		game.setUpBoard();
-		game.printBoard();
-		game.play();
 	}
 	
 	private void viewProfile() throws IOException {

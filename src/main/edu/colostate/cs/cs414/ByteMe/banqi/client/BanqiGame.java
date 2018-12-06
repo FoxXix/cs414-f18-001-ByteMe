@@ -99,7 +99,7 @@ public class BanqiGame {
 		}
 	}
 
-	private void continueGame(User user) {
+	private void continueGame(User user) throws IOException {
 		int[] atPosition = getPosition(choice);
 		atTile = board.getTileInfo(atPosition);
 
@@ -114,9 +114,7 @@ public class BanqiGame {
 			int[] toPosition =  null;
 			do {
 				toPosition = chooseMove(atPosition, toPosition);
-			} while (toPosition != null);//while ("udlrUDLR".indexOf(choice.charAt(0)) == -1);
-			
-			scanner.close();				
+			} while (toPosition != null);//while ("udlrUDLR".indexOf(choice.charAt(0)) == -1);				
 			
 			// can this piece take the other piece?
 			checkAbilityToCapture(atPosition, toPosition);
@@ -137,10 +135,10 @@ public class BanqiGame {
 		}
 	}
 
-	private int[] chooseMove(int[] atPosition, int[] toPosition) {
+	private int[] chooseMove(int[] atPosition, int[] toPosition) throws IOException {
 		System.out.println("What direction do you want to move " + atTile.getPiece().getName() + "? (Up/Down/Left/Right)");
 
-		choice = scanner.nextLine();
+		choice = read.readLine();
 
 		if ("udlrUDLR".indexOf(choice.charAt(0)) == -1) {
 			System.out.println("Move unknown");
@@ -212,7 +210,7 @@ public class BanqiGame {
 	private boolean startMove(User user) throws IOException {
 		System.out.println("Enter a coordinate to select a piece.");
 		System.out.println("To forfeit, type 'forfeit' and press Enter");
-		choice = scanner.nextLine();
+		choice = read.readLine();
 		choice = choice.toUpperCase();
 		String validXInputs = "1234";
 		String validYInputs = "ABCDEFGH";
