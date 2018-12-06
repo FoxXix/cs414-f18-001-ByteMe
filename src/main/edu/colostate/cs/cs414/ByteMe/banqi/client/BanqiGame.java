@@ -8,8 +8,6 @@ import java.util.List;
 import java.util.Random;
 import java.util.Scanner;
 
-import main.edu.colostate.cs.cs414.ByteMe.banqi.server.Server;
-
 public class BanqiGame {
 
 	private Board board;
@@ -20,10 +18,10 @@ public class BanqiGame {
 	private int emptyTiles 	= 32;
 	private int redPieces 	= 16;
 	private int blackPieces = 16;
-	private boolean f = false;
+	private boolean forfeit = false;
 	private boolean won = false;
-	
-	private static BufferedReader read;
+
+	private BufferedReader read;
 	
 	HashMap<String, String> map = new HashMap<>();
 //	Scanner scanner = new Scanner( System.in );
@@ -93,83 +91,117 @@ public class BanqiGame {
 		
 		while (!startMove(user));
 		
-		if (!f) {
-			int[] atPosition = getPosition(choice);
-			
-			atTile = board.getTileInfo(atPosition);
-			
-			if (!atTile.getPiece().isVisible()) {
-				atTile.getPiece().makeVisible();
-				if (!map.containsKey(user.getNickname())) {
-					setColor(user.getNickname(), atTile.getPiece().getColor());
-					String oppositeColor = "Red";
-					if (atTile.getPiece().getColor().equals("Red")) {
-						oppositeColor = "Black";
-					}
-					if (user.getNickname().equals(user1.getNickname())) {
-						setColor(user2.getNickname(), oppositeColor);
-					} else {
-						setColor(user1.getNickname(), oppositeColor);
-					}
-				}			
-				printBoard();
-			} 
-			else {
-				do {
-					System.out.println("What direction do you want to move " + atTile.getPiece().getName() + "? (Up/Down/Left/Right)");
-					
-					choice = read.readLine();
-					
-					if ("udlrUDLR".indexOf(choice.charAt(0)) == -1) {
-						System.out.println("Move unknown");
-					}
-				} while ("udlrUDLR".indexOf(choice.charAt(0)) == -1);
-				
-//				scanner.close();
-				
-				int[] toPosition = null;
-				switch (choice.charAt(0)) {
-					case 'u':
-					case 'U': 
-						toPosition = new int[]{atPosition[0], atPosition[1] - 1};
-						break;
-					case 'd':
-					case 'D': 
-						toPosition = new int[]{atPosition[0], atPosition[1] + 1};
-						break;
-					case 'l':
-					case 'L': 
-						toPosition = new int[]{atPosition[0] - 1, atPosition[1]};
-						break;
-					case 'r':
-					case 'R': 
-						toPosition = new int[]{atPosition[0] + 1, atPosition[1]};
-						break;
-				}
-				// can this piece take the other piece?
-				if (board.getTileInfo(atPosition).getPiece().getRank() >= board.getTileInfo(toPosition).getPiece().getRank()) {
-					if (board.getTileInfo(toPosition).getPiece().getColor() == "Red") { // keep track of # of player pieces
-						redPieces--;
-					} else {
-						blackPieces--;
-					}
-					board.getTileInfo(toPosition).setPiece(board.getTileInfo(atPosition).getPiece());
-					board.getTileInfo(atPosition).clearPiece();
-					
-					// check if winning state
-					if (redPieces == 0) { // black wins
-						System.out.println("BLACK WINS!!!");
-						won = true;
-					} else if (blackPieces == 0) { // red wins
-						System.out.println("RED WINS!!!");
-						won = true;
-					}
-				}	
-				printBoard();			
-			}	
+
+		if (!forfeit && !won) {
+			continueGame(user);
 		} else { //forfeit
 			System.out.println("You forfeited, loser");
 		}
+	}
+
+	private void continueGame(User user) {
+		int[] atPosition = getPosition(choice);
+		atTile = board.getTileInfo(atPosition);
+
+		if (!atTile.getPiece().isVisible()) {
+			atTile.getPiece().makeVisible();
+			if (!map.containsKey(user.getNickname())) {
+				manageColorAssignments(user);
+			}			
+			printBoard();
+		} 
+		else {
+			int[] toPosition =  null;
+			do {
+				toPosition = chooseMove(atPosition, toPosition);
+			} while (toPosition != null);//while ("udlrUDLR".indexOf(choice.charAt(0)) == -1);
+			
+			scanner.close();				
+			
+			// can this piece take the other piece?
+			checkAbilityToCapture(atPosition, toPosition);
+			printBoard();			
+		}
+	}
+	
+	private void manageColorAssignments(User user) {
+		setColor(user.getNickname(), atTile.getPiece().getColor());
+		String oppositeColor = "Red";
+		if (atTile.getPiece().getColor().equals("Red")) {
+			oppositeColor = "Black";
+		}
+		if (user.getNickname().equals(user1.getNickname())) {
+			setColor(user2.getNickname(), oppositeColor);
+		} else {
+			setColor(user1.getNickname(), oppositeColor);
+		}
+	}
+
+	private int[] chooseMove(int[] atPosition, int[] toPosition) {
+		System.out.println("What direction do you want to move " + atTile.getPiece().getName() + "? (Up/Down/Left/Right)");
+
+		choice = scanner.nextLine();
+
+		if ("udlrUDLR".indexOf(choice.charAt(0)) == -1) {
+			System.out.println("Move unknown");
+		} else {
+			toPosition = validateBounds(atPosition, choice.charAt(0));
+		}
+		return toPosition;
+	}
+
+	private void checkAbilityToCapture(int[] atPosition, int[] toPosition) {
+		if (board.getTileInfo(atPosition).getPiece().getRank() >= board.getTileInfo(toPosition).getPiece().getRank()) {
+			if (board.getTileInfo(toPosition).getPiece().getColor() == "Red") { // keep track of # of player pieces
+				redPieces--;
+			} else {
+				blackPieces--;
+			}
+			board.getTileInfo(toPosition).setPiece(board.getTileInfo(atPosition).getPiece());
+			board.getTileInfo(atPosition).clearPiece();
+
+			// check if winning state
+			if (redPieces == 0) { // black wins
+				System.out.println("BLACK WINS!!!");
+				won = true;
+			} else if (blackPieces == 0) { // red wins
+				System.out.println("RED WINS!!!");
+				won = true;
+			}
+		}
+	}
+	
+	
+	/* This method takes in the position of the piece that is to be
+	 * moved and the direction it wants to be moved to. It validates
+	 * that the move would be valid and within the bounds of the 
+	 * board.
+	*/
+	private int[] validateBounds(int[] at, char direction) {
+		int[] toPosition = null;
+		switch (choice.charAt(0)) {
+			case 'u':
+			case 'U':
+				if (at[1] == 0) return null;
+				toPosition = new int[]{at[0], at[1] - 1};
+				break;
+			case 'd':
+			case 'D': 
+				if (at[1] == 7) return null;
+				toPosition = new int[]{at[0], at[1] + 1};
+				break;
+			case 'l':
+			case 'L': 
+				if (at[0] == 0) return null;
+				toPosition = new int[]{at[0] - 1, at[1]};
+				break;
+			case 'r':
+			case 'R': 
+				if (at[0] == 3) return null;
+				toPosition = new int[]{at[0] + 1, at[1]};
+				break;
+		}
+		return toPosition;
 	}
 	
 	/*This method ensures that a User is selecting a valid move,
@@ -180,19 +212,26 @@ public class BanqiGame {
 	private boolean startMove(User user) throws IOException {
 		System.out.println("Enter a coordinate to select a piece.");
 		System.out.println("To forfeit, type 'forfeit' and press Enter");
-		choice = read.readLine();
-		System.out.println(choice);
-		 if (choice.equals("forfeit")) { // forfeit
-				f = true;
-				return true; 
+		choice = scanner.nextLine();
+		choice = choice.toUpperCase();
+		String validXInputs = "1234";
+		String validYInputs = "ABCDEFGH";
+		
+		 if (choice.equals("FORFEIT")) { // forfeit
+			forfeit = true;
+			won = true;
+			return true; 
 		} else if (choice.length() != 2) {   // not the right length
 			System.out.println("Input not recognized");
-		} else if ("1234ABCDEFGH".indexOf(choice.charAt(0)) == -1 || "1234ABCDEFGH".indexOf(choice.charAt(1)) == -1) { // not valid character
-				System.out.println("Invalid coordinate");
+		} else if ((validXInputs+validYInputs).indexOf(choice.charAt(0)) == -1 || (validXInputs+validYInputs).indexOf(choice.charAt(1)) == -1) { // not valid character
+			System.out.println("Invalid coordinate");
+		} else if ((validXInputs.indexOf(choice.charAt(0)) != -1 && validXInputs.indexOf(choice.charAt(1)) != -1) ||
+				   (validYInputs.indexOf(choice.charAt(0)) != -1 && validYInputs.indexOf(choice.charAt(1)) != -1)) { // gave "valid input", but invalid coordinate eg: ff or 23
+			System.out.println("Invalid coordinate, double axis");
 		} else if (board.getTileInfo(getPosition(choice)).getPiece().isVisible() &&
-				board.getTileInfo(getPosition(choice)).getPiece().getColor() != getColor(user.getNickname())) { // picked opposite color AND it's visisble
+			board.getTileInfo(getPosition(choice)).getPiece().getColor() != getColor(user.getNickname())) { // picked opposite color AND it's visible
 			System.out.println("That's not your piece! Try again!");
-		} else {
+		} else {			
 			return true; // all looks good, go!
 		}
 		
@@ -227,60 +266,29 @@ public class BanqiGame {
 	The number of each type of piece is based on the Banqi Game structure. 
 	*/
 	private void setPieces(String color) {
+
 		List<Piece> pieces = new ArrayList<Piece>();
+
+		setGeneralPiece(color, pieces);
+		setAdvisorPiece(color, pieces, 2);
+		setCannonPiece(color, pieces, 2);
+		setChariotPiece(color, pieces, 2);
+		setElephantPiece(color, pieces, 2);
+		setHorsePiece(color, pieces, 2);
+		setSoldierPiece(color, pieces, 5);
+
+	}
+
+	private void setGeneralPiece(String color, List<Piece> pieces) {
 		int[] position;
-		int count = 2;
-		
 		position = getRandomEmptyTilePosition();
 		General general = getGeneral(color, position);
 		pieces.add(general);
 		board.getTileInfo(position).setPiece(general);
-		
-		while(count > 0) {
-			position = getRandomEmptyTilePosition();
-			Advisor advisor = getAdvisor(color, position);
-			pieces.add(advisor);
-			board.getTileInfo(position).setPiece(advisor);
-			count--;
-		}
-		
-		count = 2;
-		while(count > 0) {
-			position = getRandomEmptyTilePosition();
-			Cannon cannon = getCannon(color, position);
-			pieces.add(cannon);
-			board.getTileInfo(position).setPiece(cannon);
-			count--;
-		}
-		
-		count = 2;
-		while(count > 0) {
-			position = getRandomEmptyTilePosition();
-			Chariot chariot = getChariot(color, position);
-			pieces.add(chariot);
-			board.getTileInfo(position).setPiece(chariot);
-			count--;
-		}
-		
-		count = 2;
-		while(count > 0) {
-			position = getRandomEmptyTilePosition();
-			Elephant elephant = getElephant(color, position);
-			pieces.add(elephant);
-			board.getTileInfo(position).setPiece(elephant);
-			count--;
-		}
-		
-		count = 2;
-		while(count > 0) {
-			position = getRandomEmptyTilePosition();
-			Horse horse = getHorse(color, position);
-			pieces.add(horse);
-			board.getTileInfo(position).setPiece(horse);
-			count--;
-		}
-		
-		count = 5;
+	}
+
+	private void setSoldierPiece(String color, List<Piece> pieces, int count) {
+		int[] position;
 		while(count > 0) {
 			position = getRandomEmptyTilePosition();
 			Soldier soldier = getSoldier(color, position);
@@ -288,7 +296,61 @@ public class BanqiGame {
 			board.getTileInfo(position).setPiece(soldier);
 			count--;
 		}
-		
+	}
+
+	private void setHorsePiece(String color, List<Piece> pieces, int count) {
+		int[] position;
+		while(count > 0) {
+			position = getRandomEmptyTilePosition();
+			Horse horse = getHorse(color, position);
+			pieces.add(horse);
+			board.getTileInfo(position).setPiece(horse);
+			count--;
+		}
+	}
+
+	private void setElephantPiece(String color, List<Piece> pieces, int count) {
+		int[] position;
+		while(count > 0) {
+			position = getRandomEmptyTilePosition();
+			Elephant elephant = getElephant(color, position);
+			pieces.add(elephant);
+			board.getTileInfo(position).setPiece(elephant);
+			count--;
+		}
+	}
+
+	private void setChariotPiece(String color, List<Piece> pieces, int count) {
+		int[] position;
+		while(count > 0) {
+			position = getRandomEmptyTilePosition();
+			Chariot chariot = getChariot(color, position);
+			pieces.add(chariot);
+			board.getTileInfo(position).setPiece(chariot);
+			count--;
+		}
+	}
+
+	private void setCannonPiece(String color, List<Piece> pieces, int count) {
+		int[] position;
+		while(count > 0) {
+			position = getRandomEmptyTilePosition();
+			Cannon cannon = getCannon(color, position);
+			pieces.add(cannon);
+			board.getTileInfo(position).setPiece(cannon);
+			count--;
+		}
+	}
+
+	private void setAdvisorPiece(String color, List<Piece> pieces, int count) {
+		int[] position;
+		while(count > 0) {
+			position = getRandomEmptyTilePosition();
+			Advisor advisor = getAdvisor(color, position);
+			pieces.add(advisor);
+			board.getTileInfo(position).setPiece(advisor);
+			count--;
+		}
 	}
 	
 	/*This is used to ensure that the pieces are assigned randomly to tiles on the Board.
@@ -374,6 +436,7 @@ public class BanqiGame {
 	private String getColor(String nickname) {
 		return map.get(nickname);
 	}
+
 //	
 //	public static void main(String[] args) throws IOException { 
 //		UserProfile up1 = new UserProfile("User1", "email", "pass", "date", 0,0,0,0);
@@ -388,6 +451,5 @@ public class BanqiGame {
 //		b.makeMove(user2);
 //		b.makeMove(user1);
 //    } 
-	
 
 }

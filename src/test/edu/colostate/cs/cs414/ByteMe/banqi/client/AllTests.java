@@ -6,6 +6,7 @@ import org.junit.runners.Suite.SuiteClasses;
 
 @RunWith(Suite.class)
 @SuiteClasses({
+	AdvisorTest.class,
 	BanqiControllerTest.class,
 	BanqiGameTest.class,
 	BoardTest.class,
@@ -15,7 +16,6 @@ import org.junit.runners.Suite.SuiteClasses;
 	GeneralTest.class,
 	HorseTest.class,
 	InviteTest.class,
-	PieceTest.class,
 	SoldierTest.class,
 	TileTest.class,
 	UserProfileTest.class,

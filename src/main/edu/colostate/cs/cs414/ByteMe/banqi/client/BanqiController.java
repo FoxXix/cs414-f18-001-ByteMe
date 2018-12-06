@@ -1,13 +1,9 @@
 package main.edu.colostate.cs.cs414.ByteMe.banqi.client;
 
 import java.io.BufferedReader;
-import java.io.BufferedWriter;
 import java.io.FileReader;
-import java.io.FileWriter;
 import java.io.IOException;
 import java.io.InputStreamReader;
-import java.time.LocalDateTime;
-import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
@@ -15,9 +11,8 @@ import java.util.concurrent.TimeUnit;
 import main.edu.colostate.cs.cs414.ByteMe.banqi.server.UserNode;
 
 public class BanqiController {
-
-	private String profilesFile = "/s/bach/l/under/sporsche/cs414/Banqi/UserProfiles.txt";
-	// stores all created UserProfiles
+  //stores all created UserProfiles
+	public String profilesFile = "/home/brian/Documents/CS414/Banqi/UserProfiles.txt";	
 	protected List<UserProfile> listOfProfiles = new ArrayList<UserProfile>();
 	protected static List<User> users = new ArrayList<User>();
 	private List<String> userNames = new ArrayList<String>();
@@ -36,11 +31,13 @@ public class BanqiController {
 		this.U = u;
 	}
 
-	// public void setRequestPassword() {
-	// requestPass = true;
-	// }
-
-	// read user inputs
+	private boolean validProfile = false;
+	
+	public void setValidProfile(boolean bool) {
+		validProfile = bool;
+	}
+	
+	//read user inputs
 	private static BufferedReader read;
 
 	// constructor
@@ -79,7 +76,10 @@ public class BanqiController {
 		return users;
 	}
 
-	// reads the Users file and adds them to the list of Profiles
+	/* Reads a file for a User  and adds the contents to the list of User Profiles.
+	The file contains the unique account details as well as the user's game performance.
+	With all of the data from this file, a new User Profile gets created.
+	*/	
 	public void readUsers() throws IOException {
 
 		FileReader file = new FileReader(profilesFile);
@@ -170,6 +170,7 @@ public class BanqiController {
 				makeNewUser();
 			} else if (choice.equals("exit")) {
 				exitSystem = true;
+				existingUser = true;
 			} else {
 				System.out.println("Input not recognized");
 			}
@@ -202,56 +203,135 @@ public class BanqiController {
 	}
 
 	private void manageInvites() throws IOException {
-		boolean b = false;
+		boolean exitStatus = false;
 		String choice;
 
-		U.getInviteStatus();
-
-		while (!b) {
+		while (!exitStatus) {
 			System.out.println("\n1) Accept invite");
 			System.out.println("2) Send Invite");
 			System.out.println("To exit, type 'exit' and press Enter");
 
 			choice = read.readLine();
 			if (choice.equals("1")) {
-				boolean exitStatus = false;
-				System.out.println("Select an invite from this list to accept:");
-				while (!exitStatus) {
-					int count = 1;
-					for (String inviter : usernode.getGamesInvitedTo()) {
-						openInvites.add(inviter);
-						System.out.println(count + ") " + inviter);
-						count++;
-					}
-					System.out.println("To exit, type 'exit' and press Enter");
-
-					choice = read.readLine();
-					int number = 0;
-					if (choice.equals("exit")) {
-						exitStatus = true;
-					} else {
-						do {
-							try {
-								number = Integer.parseInt(choice);
-							} catch (NumberFormatException e) {
-								System.out.println("Input not recognized, try again");
-								choice = read.readLine();
-							}
-						} while (number == 0);
-
-						String inviter = openInvites.get(number - 1);
-						System.out.println(inviter);
-						usernode.sendAccept(U.getNickname(), inviter);
-						// startNewGame(BanqiController.getUser(inviter));
-						// user to play with
-						exitStatus = true;
-					}
-				}
+				acceptInvite();
 			} else if (choice.equals("2")) {
-				boolean exitSystem2 = false;
-				while (!exitSystem2) {
-					System.out.println("Select a user from this list to send invite to:");
+				sendNewInvite();
+			} else if (choice.equals("exit")) {
+				exitStatus = true;
+			} else {
+				System.out.println("Input not recognized");
+			}
+			exitStatus = true;
+		}
+	}
+  
+	private void sendNewInvite() throws IOException {
+		String choice;
+		boolean exitSystem2 = false;
+		while (!exitSystem2) {
+			System.out.println("Select a user from this list to send invite to:");
 
+			int count = 1;
+			int myIndex = -1;
+			for (String s : userNames) {
+				if (!s.equals(U.getNickname())) {
+					System.out.println(count +") " + s);
+					count++;
+				} else {
+					myIndex = count-1;
+				}
+
+			}
+			System.out.println("\nTo exit, type 'exit' and press Enter");
+			
+			choice = read.readLine();
+			int number = 0;
+		    if (choice.equals("exit")) {
+		    	exitSystem2 = true;
+			} else {
+				do {
+					try {
+						number = Integer.parseInt(choice);
+					} catch (NumberFormatException e) {
+						System.out.println("Input not recognized, try again");
+						choice = read.readLine();
+					}
+				} while (number == 0);
+				
+				String invitee;
+			    if (number <= myIndex) {
+			    	invitee = userNames.get(number - 1);
+//					    	invitee = users.get(number - 1);
+			    } else {
+			    	invitee = userNames.get(number);
+//					    	invitee = users.get(number);
+			    }
+//				new Invite(U, invitee);
+			    System.out.println("Sent invite to " + invitee);
+			    usernode.sendInvite(invitee);
+			    U.sendInvite(invitee);
+			    U.gamesInvitedTo.add(invitee);
+			    System.out.println(U.gamesInvitedTo);
+			}				    
+		}
+	}
+
+	private void acceptInvite() throws IOException {
+		String choice;
+		boolean exitStatus = false;
+		System.out.println("Select an invite from this list to accept:");
+		while (!exitStatus) {
+			int count = 1;
+			for (String inviter : usernode.getGamesInvitedTo()) {
+				openInvites.add(inviter);
+				System.out.println(count + ") " + inviter);
+				count++;					
+			}
+			System.out.println("To exit, type 'exit' and press Enter");
+			
+			choice = read.readLine();
+			int number = 0;
+			if (choice.equals("exit")) {
+				exitStatus = true;
+			}
+			else {
+				do {
+					try {
+						number = Integer.parseInt(choice);
+					} catch (NumberFormatException e) {
+						System.out.println("Input not recognized, try again");
+						choice = read.readLine();
+					}
+				} while (number == 0);
+
+				String inviter = openInvites.get(number-1);
+				startNewGame(BanqiController.getUser(inviter)); // user to play with
+				exitStatus = true;
+			}
+		}
+	}
+  
+	private void startNewGame(User user) throws IOException {
+		BanqiGame game = new BanqiGame(U, user);
+		game.setUpBoard();
+		game.printBoard();
+		game.play();
+	}
+	
+	private void viewProfile() throws IOException {
+		boolean exitStatus = false;
+		String choice;
+		System.out.println(U.getNickname());
+		U.seeProfile(U.getNickname());
+		while (!exitStatus) {			
+			System.out.println("\n1) Search for player");
+			System.out.println("To exit, type 'exit' and press Enter");
+			
+			choice = read.readLine();
+			if (choice.equals("1")) {
+				boolean exitStatus2 = false;
+				while (!exitStatus2) {
+					System.out.println("Enter the number of the user to view or type 'exit'");
 					int count = 1;
 					int myIndex = -1;
 					for (String s : userNames) {
@@ -261,91 +341,63 @@ public class BanqiController {
 						} else {
 							myIndex = count - 1;
 						}
-
 					}
-					System.out.println("\nTo exit, type 'exit' and press Enter");
-					// for (User user : users) {
-					// if (!user.getNickname().equals(U.getNickname())) {
-					// System.out.println(count +") " + user.getNickname());
-					// count++;
-					// } else
-					// myIndex = count-1;
-					// }
-
 					choice = read.readLine();
-					// System.out.println(choice);
+					
 					int number = 0;
-					if (choice.equals("exit")) {
-						exitSystem2 = true;
+				    if (choice.equals("exit")) {
+				    	exitStatus2 = true;
 					} else {
 						do {
 							try {
 								number = Integer.parseInt(choice);
-								// System.out.println(number);
+								if (number >= userNames.size() || number <= 0) {
+									number = 0;
+									throw new NumberFormatException();
+								}
 							} catch (NumberFormatException e) {
 								System.out.println("Input not recognized, try again");
 								choice = read.readLine();
 							}
 						} while (number == 0);
-
-						String invitee;
-						if (number <= myIndex) {
-							invitee = userNames.get(number - 1);
-							// invitee = users.get(number - 1);
-						} else {
-							invitee = userNames.get(number);
-							// invitee = users.get(number);
-						}
-						// send invite message
-						// new Invite(U, invitee);
-						System.out.println("Sent invite to " + invitee);
-						usernode.sendInvite(invitee);
-						U.sendInvite(invitee);
-						U.gamesInvitedTo.add(invitee);
-						System.out.println(U.gamesInvitedTo);
+						
+						String user;
+					    if (number <= myIndex) {
+					    	user = userNames.get(number - 1);
+					    	users.get(number-1).seeProfile(user);
+					    } else {
+					    	user = userNames.get(number);
+					    	users.get(number).seeProfile(user);
+					    }
 					}
+					    
+					exitStatus2 = true;
 				}
 			} else if (choice.equals("exit")) {
-				b = true;
+				exitStatus = true;
 			} else {
 				System.out.println("Input not recognized");
 			}
-			b = true;
 		}
 	}
-
-	private void viewProfile() throws IOException {
-		boolean b = false;
+	
+	private void searchForUser() throws IOException {
 		String choice;
-		System.out.println(U.getNickname());
-		U.seeProfile(U.getNickname());
-		while (!b) {
-			System.out.println("\n1) Search for player");
-			System.out.println("To exit, type 'exit' and press Enter");
-
+		boolean exitStatus = false;
+		while (!exitStatus) {
+			System.out.println("Type the nickname of the user to view or type 'exit'");
 			choice = read.readLine();
-			if (choice.equals("1")) {
-				boolean c = false;
-				while (!c) {
-					System.out.println("Type the nickname of the user to view or type 'exit'");
-					choice = read.readLine();
-					if (!choice.equals("exit")) {
-						for (User user : users) {
-							if (user.getNickname().equals(choice)) {
-								user.seeProfile(user.getNickname());
-								c = true;
-								break;
-							}
-						}
-						System.out.println("User not found");
+			if (!choice.equals("exit")) {						
+				for (User user : users) {
+					if (user.getNickname().equals(choice)) {
+						user.seeProfile(user.getNickname());
+						exitStatus = true;
+						break;
 					}
-					c = true;
 				}
-			} else if (choice.equals("exit")) {
-				b = true;
-			} else {
-				System.out.println("Input not recognized");
+				System.out.println("User not found");
 			}
+			exitStatus = true;
 		}
 	}
 
@@ -357,135 +409,16 @@ public class BanqiController {
 	 * logging in ends
 	 */
 	private void getUserName() throws IOException {
-		// System.out.println(listOfProfiles.size());
-		// for(UserProfile t : listOfProfiles) {
-		// System.out.println(t.getUserName());
-		// }
+		java.io.Console console = System.console();
 		String name = "";
 		System.out.println("Please Enter your nickname");
 		name = read.readLine();
-		System.out.println("Please enter your password");
-		String password = read.readLine();
-		System.out.println(password);
+		String password = new String(console.readPassword("Please enter your password: "));
+		//System.out.println(password);
 		usernode.logIn(name, password);
-		// boolean found = false;
-		// do {
-		// name = "";
-		// System.out.println("Please Enter your nickname");
-		// name = read.readLine();
-		// System.out.println("name entered is: " + name);
-		// UserProfile profile = getOwnUser(name);
-		// // System.out.println("new Profile: " + profile);
-		// if (profile != null) {
-		// U = new User(profile);
-		// found = true;
-		// } else {
-		// System.out.println("We could not find a profile with name of: " + name);
-		// }
-		// } while (!found);
 	}
 
-	/*
-	 * This method permits a User to view their own Profile, so they can see their
-	 * game stats. With the entrance of nickname that exists in the system, the User
-	 * Profile associated with that nickname is presented to the User.
-	 */
-	private UserProfile getOwnUser(String nickname) throws IOException {
-		for (UserProfile prof : listOfProfiles) {
-			// System.out.println("UserName is: " + prof.getUserName());
-			if (prof.getUserName().equals(nickname)) {
-				// log in, by entering password
-				// boolean success = enterCredentials(prof);
-				// if (success) {
-				// System.out.println("Welcome User " + prof.getUserName() + "!");
-				// return prof;
-				// }
-			}
-		}
-		return null;
-	}
-
-	/*
-	 * This method verifies the credentials of a User, to ensure they are registered
-	 * in the system. In addition it implements a security measure, by giving the
-	 * User no more than three attempts to enter a valid password. The verification
-	 * process is cancelled if the User does not input a password associated with
-	 * the given nickname.
-	 */
-	public void enterCredentials() throws IOException {
-		// int count = 0;
-		// while (count < 3) {
-		System.out.println("Please enter your password");
-		String password = read.readLine();
-		System.out.println(password);
-		usernode.sendPassword(password);
-		// System.out.println(prof.getPassword());
-		// if(!(password.equals(prof.getPassword()))) {
-		// count++;
-		// System.out.println("Password was incorrect, you have " + (3 - count) + "
-		//// attempts remaining");
-		// }
-		// else {
-		// return true;
-		// }
-		// }
-
-	}
-
-	/*
-	 * This implements the functionality needed to register a new User. The User
-	 * enters: - a unique nickname (not in the system) - an email - a valid
-	 * password, entered twice for verification The system takes care: - date/time
-	 * of the account creation - creating the new User Profile
-	 */
-	private void makeNewUser() throws IOException {
-		boolean passMatch = false;
-		String nickname = "";
-		String email = "";
-		String password = "";
-
-		// Enter data using BufferReader
-		System.out.println("Please Enter a Nickname:");
-		nickname = read.readLine();
-
-		System.out.println("Please Enter an Email Address:");
-		email = read.readLine();
-
-		while (!passMatch) {
-			System.out.println("Please Enter a Password:");
-			password = read.readLine();
-
-			System.out.println("Please Re-enter Your Password:");
-			String reEntered = read.readLine();
-
-			if (password.equals(reEntered)) {
-				passMatch = true;
-			} else {
-				System.out.println("Passwords Do Not Match!");
-			}
-		}
-
-		DateTimeFormatter dtf = DateTimeFormatter.ofPattern("yyyy/MM/dd HH:mm:ss");
-		LocalDateTime now = LocalDateTime.now();
-
-		UserProfile newUser = new UserProfile(nickname, email, password, dtf.format(now), 0, 0, 0, 0);
-		listOfProfiles.add(newUser);
-		users.add(new User(newUser));
-		// System.out.println(listOfProfiles.size());
-		writeToFile(newUser);
-
-	}
-
-//	public void playGame(String opponent, List<String[]> pieceNames, List<String[]> pieceColors,
-//			List<boolean[]> pieceVis) {
-//		System.out.println("In Play Game method");
-//		User opponen = this.getUser(opponent);
-//		game = new BanqiGame(U, opponen);
-//		Board board = updateBoard(pieceNames, pieceColors, pieceVis);
-//
-//	}
-
-	public Board updateBoard(List<String[]> pieceNames, List<String[]> pieceColors, List<boolean[]> pieceVis) {
+  public Board updateBoard(List<String[]> pieceNames, List<String[]> pieceColors, List<boolean[]> pieceVis) {
 		System.out.println("in updateboard");
 		Board board = new Board();
 
@@ -517,24 +450,43 @@ public class BanqiController {
 		return board;
 	}
 
-	/*
-	 * This writes a new file to the storage system, in order to record the current
-	 * details of a User Profile. The file will contain everything on the User
-	 * Profile: - nickname, email, password, registration date - wins, losses,
-	 * draws, forfeits This file will be stored with the records of the Banqi Game
-	 * system.
-	 */
-	private void writeToFile(UserProfile u) {
-		String s = u.getUserName() + " " + u.getEmail() + " " + u.getPassword() + " " + u.getJoinedDate() + " "
-				+ u.getWins() + " " + u.getLosses() + " " + u.getDraws() + " " + u.getForfeits();
-		try {
-			BufferedWriter out = new BufferedWriter(new FileWriter(profilesFile, true));
-			out.write(s);
-			out.close();
-		} catch (IOException e) {
-
-		}
-
+  	/* This implements the functionality needed to register a new User.
+	The User enters:
+	  - a unique nickname (not in the system)
+	  - an email
+	  - a valid password, entered twice for verification
+	The system takes care:
+	  - date/time of the account creation
+	  - creating the new User Profile */
+	private void makeNewUser() throws IOException, InterruptedException {
+		java.io.Console console = System.console();
+		String nickname = "";
+		String email = "";
+		String password = "";
+		String password2 = "";
+		do {
+			System.out.println("Please Enter a Nickname:");
+			nickname = read.readLine();
+	
+			System.out.println("Please Enter an Email Address:");
+			email = read.readLine();
+			Boolean match = false;
+			do {
+				password = new String(console.readPassword("Please enter a password: "));
+				
+				password2 = new String(console.readPassword("Please re-enter password: "));
+				
+				if (password.equals(password2)) {
+					match = true;
+				} else {
+					System.out.print("Passwords do not match, try again\n");
+				}
+			} while (!match);
+					
+			usernode.createProfile(nickname, email, password);
+			TimeUnit.SECONDS.sleep(1);
+			
+		} while (!validProfile);
 	}
 
 	/*

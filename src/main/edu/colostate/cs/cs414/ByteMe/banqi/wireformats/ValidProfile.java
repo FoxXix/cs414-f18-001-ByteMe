@@ -8,11 +8,22 @@ import java.io.DataInputStream;
 import java.io.DataOutputStream;
 import java.io.IOException;
 
-public class SendLogOff implements Event{
+public class ValidProfile implements Event{
+	
+	private boolean validProfile;
+
+	public boolean isValidProfile() {
+		return validProfile;
+	}
+
+	public void setValidProfile(boolean validProfile) {
+		System.out.println("set validProfile");
+		this.validProfile = validProfile;
+	}
 
 	@Override
 	public byte getType() {
-		return 34;
+		return 14;
 	}
 
 	@Override
@@ -23,7 +34,7 @@ public class SendLogOff implements Event{
 		DataOutputStream dout = new DataOutputStream(new BufferedOutputStream(baOutputStream));
 		
 		dout.writeByte(getType());
-		
+		dout.writeBoolean(validProfile);
 		dout.flush();
 		marshalledBytes = baOutputStream.toByteArray();
 		
@@ -31,18 +42,20 @@ public class SendLogOff implements Event{
 		dout.close();
 		return marshalledBytes;
 	}
-	
-	//unpack the marshalled bytes
+
+	@Override
 	public void unPackBytes(byte[] marshalledBytes) throws IOException {
-		
 		ByteArrayInputStream baInputStream = new ByteArrayInputStream(marshalledBytes);
 		DataInputStream din = new DataInputStream(new BufferedInputStream(baInputStream));
 		
 		int type = din.readByte();
 		
+		validProfile = din.readBoolean();
+
 		baInputStream.close();
 		din.close();
 		
 	}
-}
 
+
+}
