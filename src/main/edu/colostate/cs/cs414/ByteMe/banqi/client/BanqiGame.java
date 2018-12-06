@@ -1,5 +1,6 @@
 package main.edu.colostate.cs.cs414.ByteMe.banqi.client;
 
+import java.io.BufferedReader;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -19,9 +20,11 @@ public class BanqiGame {
 	private int blackPieces = 16;
 	private boolean forfeit = false;
 	private boolean won = false;
+
+	private BufferedReader read;
 	
 	HashMap<String, String> map = new HashMap<>();
-	Scanner scanner = new Scanner( System.in );
+//	Scanner scanner = new Scanner( System.in );
 	Tile atTile;
 	String choice;
 	
@@ -33,8 +36,24 @@ public class BanqiGame {
 
 	}
 	
+//	public void setBoard(Board b) {
+//		this.board = b;
+//	}
+	
+	public void setReader(BufferedReader read) {
+		this.read = read;
+	}
+	
+	public User getUser2() {
+		return user2;
+	}
+	
 	public Board getBoard() {
 		return board;
+	}
+	
+	public void updateBoard(Board board) {
+		this.board = board;
 	}
 	
 	/* Calls the setPieces method to add both Red and Black pieces to the Banqi Game Board */
@@ -43,18 +62,18 @@ public class BanqiGame {
 		setPieces("Black");		
 	}
 	
-	public void play() throws IOException {
-		List<User> players = new ArrayList<User>();
-		players.add(user1);
-		players.add(user2);
-		int turns = 0;
-		while (!won) {
-			//this should work, each turn we will need to get the state of the board
-			//and call the sendBoard method in server to communicate each move that was made
-			makeMove(players.get(turns % 2));
-			turns++;
-		}
-	}
+//	public void play() throws IOException {
+//		List<User> players = new ArrayList<User>();
+//		players.add(user1);
+//		players.add(user2);
+//		int turns = 0;
+//		while (!won) {
+//			//this should work, each turn we will need to get the state of the board
+//			//and call the sendBoard method in server to communicate each move that was made
+//			makeMove(players.get(turns % 2));
+//			turns++;
+//		}
+//	}
 	
 	/* On the given User's turn, they may make a valid move.
 	If the piece is not visible, it is turned over.
@@ -72,6 +91,7 @@ public class BanqiGame {
 		
 		while (!startMove(user));
 		
+
 		if (!forfeit && !won) {
 			continueGame(user);
 		} else { //forfeit
@@ -189,7 +209,7 @@ public class BanqiGame {
 	This way, a User knows if the move can be made prior to entering
 	the makeMove method.
 	*/
-	private boolean startMove(User user) {
+	private boolean startMove(User user) throws IOException {
 		System.out.println("Enter a coordinate to select a piece.");
 		System.out.println("To forfeit, type 'forfeit' and press Enter");
 		choice = scanner.nextLine();

@@ -23,7 +23,7 @@ public class NicknameDoesNotExist implements Event{
 		DataOutputStream dout = new DataOutputStream(new BufferedOutputStream(baOutputStream));
 		
 		dout.writeByte(getType());
-		
+	
 		dout.flush();
 		marshalledBytes = baOutputStream.toByteArray();
 		

@@ -16,6 +16,7 @@ public interface Piece {
 	public String getColor();
 	public void makeVisible();
 	public boolean isVisible();
+	public void isCaptured();
 	public int getRank();
 
 }

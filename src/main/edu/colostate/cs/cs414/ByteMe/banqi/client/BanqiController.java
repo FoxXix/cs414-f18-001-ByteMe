@@ -5,31 +5,32 @@ import java.io.FileReader;
 import java.io.IOException;
 import java.io.InputStreamReader;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 import java.util.concurrent.TimeUnit;
 import main.edu.colostate.cs.cs414.ByteMe.banqi.server.UserNode;
 
 public class BanqiController {
-
-
-	public String profilesFile = "/home/brian/Documents/CS414/Banqi/UserProfiles.txt";
-	//stores all created UserProfiles
+  //stores all created UserProfiles
+	public String profilesFile = "/home/brian/Documents/CS414/Banqi/UserProfiles.txt";	
 	protected List<UserProfile> listOfProfiles = new ArrayList<UserProfile>();
 	protected static List<User> users = new ArrayList<User>();
 	private List<String> userNames = new ArrayList<String>();
 	private List<String> openInvites = new ArrayList<String>();
-	
-	
+
 	User U;
 	UserNode usernode;
-	
+
+	BanqiGame game;
+	Board board;
+
 	private boolean isUser = false;
-//	private boolean requestPass = false;
-	
+	// private boolean requestPass = false;
+
 	public void setUser(User u) {
 		this.U = u;
 	}
-	
+
 	private boolean validProfile = false;
 	
 	public void setValidProfile(boolean bool) {
@@ -39,29 +40,42 @@ public class BanqiController {
 	//read user inputs
 	private static BufferedReader read;
 
-	//constructor
+	// constructor
 	public BanqiController(String file) {
 		this.profilesFile = file;
 	}
-	
+
 	public BanqiController(UserNode usernode) {
 		this.usernode = usernode;
 	}
-	
+
 	public void setNames(List<String> names) {
 		this.userNames = names;
-		
+
 	}
 
-	public List<UserProfile> getListProfiles(){
+	public void setBoard(Board board) {
+		this.board = board;
+//		System.out.println(this.board);
+//		System.out.println(board);
+//		game.updateBoard(board);
+	}
+
+	/*
+	 * Reads a file for a User and adds the contents to the list of User Profiles.
+	 * The file contains the unique account details as well as the user's game
+	 * performance. With all of the data from this file, a new User Profile gets
+	 * created.
+	 */
+
+	public List<UserProfile> getListProfiles() {
 		return listOfProfiles;
 	}
-	
-	public List<User> getListUsers()
-	{
+
+	public List<User> getListUsers() {
 		return users;
 	}
-	
+
 	/* Reads a file for a User  and adds the contents to the list of User Profiles.
 	The file contains the unique account details as well as the user's game performance.
 	With all of the data from this file, a new User Profile gets created.
@@ -111,17 +125,18 @@ public class BanqiController {
 			users.add(user);
 		}
 		buff.close();
-	
+
 	}
 
-	/* The method controls the entrance into and exit from the game system as well as registration.
-	While controlling the running of the system, this calls upon other methods to do these tasks.
-	It allows for and connects to the following tasks:
-	  - Log in (for existing users) [enter '1']
-	  - Create an account/profile (for new users) [enter '2']
-	  - Log out [enter 'exit']
-	If the input is not one of the previous options, the user is prompted that the input is not recognized.
-	*/
+	/*
+	 * The method controls the entrance into and exit from the game system as well
+	 * as registration. While controlling the running of the system, this calls upon
+	 * other methods to do these tasks. It allows for and connects to the following
+	 * tasks: - Log in (for existing users) [enter '1'] - Create an account/profile
+	 * (for new users) [enter '2'] - Log out [enter 'exit'] If the input is not one
+	 * of the previous options, the user is prompted that the input is not
+	 * recognized.
+	 */
 	public void runProgram() throws IOException, InterruptedException {
 		readUsers();
 		String choice;
@@ -132,7 +147,8 @@ public class BanqiController {
 		int loginAttempts = 0;
 		while (existingUser == false) {
 			if (loginAttempts > 0) {
-				System.out.println("\nThe nickname and/or password entered is not associated with a registered User.  Please reenter your credentials.");
+				System.out.println(
+						"\nThe nickname and/or password entered is not associated with a registered User.  Please reenter your credentials.");
 			}
 			System.out.println("1) Login");
 			System.out.println("2) Create profile");
@@ -170,11 +186,11 @@ public class BanqiController {
 			System.out.println("2) Manage invites");
 			System.out.println("3) View profile");
 			System.out.println("To exit, type 'exit' and press Enter");
-			
+
 			choice = read.readLine();
 			printSpacer();
 			if (choice.equals("1")) {
-				
+
 			} else if (choice.equals("2")) {
 				manageInvites();
 			} else if (choice.equals("3")) {
@@ -187,16 +203,16 @@ public class BanqiController {
 		}
 		read.close();
 	}
-	
+
 	private void manageInvites() throws IOException {
 		boolean exitStatus = false;
 		String choice;
-				
+
 		while (!exitStatus) {
 			System.out.println("\n1) Accept invite");
 			System.out.println("2) Send Invite");
 			System.out.println("To exit, type 'exit' and press Enter");
-			
+
 			choice = read.readLine();
 			printSpacer();
 			if (choice.equals("1")) {
@@ -211,6 +227,7 @@ public class BanqiController {
 			exitStatus = true;
 		}
 	}
+  
 	private void sendNewInvite() throws IOException {
 		String choice;
 		boolean exitSystem2 = false;
@@ -296,6 +313,7 @@ public class BanqiController {
 			}
 		}
 	}
+  
 	private void startNewGame(User user) throws IOException {
 		BanqiGame game = new BanqiGame(U, user);
 		game.setUpBoard();
@@ -318,15 +336,14 @@ public class BanqiController {
 				boolean exitStatus2 = false;
 				while (!exitStatus2) {
 					System.out.println("Enter the number of the user to view or type 'exit'");
-					
 					int count = 1;
 					int myIndex = -1;
 					for (String s : userNames) {
 						if (!s.equals(U.getNickname())) {
-							System.out.println(count +") " + s);
+							System.out.println(count + ") " + s);
 							count++;
 						} else {
-							myIndex = count-1;
+							myIndex = count - 1;
 						}
 					}
 					choice = read.readLine();
@@ -388,11 +405,13 @@ public class BanqiController {
 		}
 	}
 
-	/* This method is called from the runProgram method, for when a User enters '1' for login,
-	the runProgram method calls this, asking the User to enter their nickname.
-	The following checks are done:
-	  - If a profile exists with that nickname, log-in
-	  - Else, the User is prompted that they have no profile and logging in ends*/
+	/*
+	 * This method is called from the runProgram method, for when a User enters '1'
+	 * for login, the runProgram method calls this, asking the User to enter their
+	 * nickname. The following checks are done: - If a profile exists with that
+	 * nickname, log-in - Else, the User is prompted that they have no profile and
+	 * logging in ends
+	 */
 	private void getUserName() throws IOException {
 		java.io.Console console = System.console();
 		String name = "";
@@ -403,7 +422,39 @@ public class BanqiController {
 		usernode.logIn(name, password);
 	}
 
-	/* This implements the functionality needed to register a new User.
+  public Board updateBoard(List<String[]> pieceNames, List<String[]> pieceColors, List<boolean[]> pieceVis) {
+		System.out.println("in updateboard");
+		Board board = new Board();
+
+		for (int i = 0; i < 8; i++) {
+			for (int j = 0; j < 4; j++) {
+				Tile tile = board.getTileInfo(j, i);
+				Piece piece = null;
+				if (pieceNames.get(i)[j].equals("Soldier")) {
+					piece = new Soldier(pieceColors.get(i)[j], j, i);
+				} else if (pieceNames.get(i)[j].equals("Advisor")) {
+					piece = new Advisor(pieceColors.get(i)[j], j, i);
+				} else if (pieceNames.get(i)[j].equals("Cannon")) {
+					piece = new Cannon(pieceColors.get(i)[j], j, i);
+				} else if (pieceNames.get(i)[j].equals("Chariot")) {
+					piece = new Chariot(pieceColors.get(i)[j], j, i);
+				} else if (pieceNames.get(i)[j].equals("Elephant")) {
+					piece = new Elephant(pieceColors.get(i)[j], j, i);
+				} else if (pieceNames.get(i)[j].equals("General")) {
+					piece = new General(pieceColors.get(i)[j], j, i);
+				} else if (pieceNames.get(i)[j].equals("Horse")) {
+					piece = new Horse(pieceColors.get(i)[j], j, i);
+				} else {
+					// the piece is null
+				}
+				tile.setPiece(piece);
+			}
+		}
+		System.out.println("null check" + board);
+		return board;
+	}
+
+  	/* This implements the functionality needed to register a new User.
 	The User enters:
 	  - a unique nickname (not in the system)
 	  - an email
@@ -417,7 +468,6 @@ public class BanqiController {
 		String email = "";
 		String password = "";
 		String password2 = "";
-
 		do {
 			System.out.println("Please Enter a Nickname:");
 			nickname = read.readLine();
@@ -442,9 +492,11 @@ public class BanqiController {
 			
 		} while (!validProfile);
 	}
-	
-	/*This function returns a user object given the users nickname. Null is returned if not found.
-	*/
+
+	/*
+	 * This function returns a user object given the users nickname. Null is
+	 * returned if not found.
+	 */
 	public static User getUser(String nickname) {
 		for (User user : users) {
 			if (user.getNickname().equals(nickname)) {
@@ -453,22 +505,32 @@ public class BanqiController {
 		}
 		return null;
 	}
-	
+
 	public void setUserStatus(boolean userStatus) {
 		this.isUser = userStatus;
 	}
-	
+
 	private void printTitle() {
-		String title = 
-				"=======         =        ==    ==     ======      ========\n" + 
-				"===  ===       ===       ===   ==   =========     ========\n" + 
-				"===  ===      == ==      ====  ==  ====   ====       ==    \n" + 
-				"======       ==   ==     === = ==  ====   ====       ==     \n" + 
-				"===  ===    =========    ===  ===  ====   ====       ==    \n" + 
-				"===  ===   ===     ===   ===   ==   ===========   ========\n" + 
-				"=======   ===       ===  ===    =    =======  ==  ========\n";
-		
+		String title = "=======         =        ==    ==     ======      ========\n"
+				+ "===  ===       ===       ===   ==   =========     ========\n"
+				+ "===  ===      == ==      ====  ==  ====   ====       ==    \n"
+				+ "======       ==   ==     === = ==  ====   ====       ==     \n"
+				+ "===  ===    =========    ===  ===  ====   ====       ==    \n"
+				+ "===  ===   ===     ===   ===   ==   ===========   ========\n"
+				+ "=======   ===       ===  ===    =    =======  ==  ========\n";
+
 		System.out.println(title);
+	}
+
+	//initializes a game, and sets the board as given from the server
+	public void startGame(String opponent, boolean turn) {
+		game = new BanqiGame(U, BanqiController.getUser(opponent));
+		game.setReader(read);
+		game.updateBoard(board);
+		System.out.println("startgame board null check " + game.getBoard());
+		if(turn == false) {
+			game.printBoard();
+		}
 	}
 	
 	public void printSpacer() {
@@ -481,5 +543,52 @@ public class BanqiController {
 //		BanqiController banqi = new BanqiController(args[0]);
 //		banqi.runProgram();
 //	}
+
+	//makes a Move.  If it is not your turn, the program will wait
+	public void makeMove(boolean turn, String opponent, int gameID) throws IOException {
+		game.updateBoard(board);
+		game.printBoard();
+		System.out.println("Please wait for your turn");
+		while (turn != true) {
+			//wait
+		}
+		System.out.println("It is your turn, please make a move");
+		game.makeMove(U);
+		turn = false;
+		
+		// move has been made, get state of the game board
+		List<String[]> pieceNameArray = new ArrayList<String[]>(8);
+		List<String[]> pieceColorArray = new ArrayList<String[]>(8);
+		List<boolean[]> pieceVisArray = new ArrayList<boolean[]>(8);
+
+		for (int i = 0; i < 8; i++) {
+			String[] pieceNames = new String[4];
+			String[] pieceColors = new String[4];
+			boolean[] isVis = new boolean[4];
+			for (int j = 0; j < 4; j++) {
+				// System.out.println("j: " + j + "i: " + i);
+				pieceNames[j] = game.getBoard().getTileInfo(j, i).getPiece().getName();
+//				System.out.println(pieceNames[j] = game.getBoard().getTileInfo(j, i).getPiece().getName());
+				// System.out.println(pieceNames[j]);
+				pieceColors[j] = game.getBoard().getTileInfo(j, i).getPiece().getColor();
+				// System.out.println(pieceColors[j]);
+				isVis[j] = game.getBoard().getTileInfo(j, i).getPiece().isVisible();
+			}
+			pieceNameArray.add(pieceNames);
+			pieceColorArray.add(pieceColors);
+			pieceVisArray.add(isVis);
+		}
+		
+		for(int i = 0; i < pieceVisArray.size(); i++) {
+			System.out.println(Arrays.toString(pieceVisArray.get(i)));
+		}
+//		System.out.println("User2: " + game.getUser2());
+		usernode.sendMove(pieceNameArray, pieceColorArray, pieceVisArray, game.getUser2().getNickname(), gameID);
+	}
+
+	// public static void main(String args[]) throws IOException {
+	// BanqiController banqi = new BanqiController(args[0]);
+	// banqi.runProgram();
+	// }
 
 }
