@@ -347,11 +347,11 @@ public class BanqiController {
 	  - If a profile exists with that nickname, log-in
 	  - Else, the User is prompted that they have no profile and logging in ends*/
 	private void getUserName() throws IOException {
+		java.io.Console console = System.console();
 		String name = "";
 		System.out.println("Please Enter your nickname");
 		name = read.readLine();
-		System.out.println("Please enter your password");
-		String password = read.readLine();
+		String password = new String(console.readPassword("Please enter your password: "));
 		//System.out.println(password);
 		usernode.logIn(name, password);
 	}
@@ -365,9 +365,11 @@ public class BanqiController {
 	  - date/time of the account creation
 	  - creating the new User Profile */
 	private void makeNewUser() throws IOException, InterruptedException {
+		java.io.Console console = System.console();
 		String nickname = "";
 		String email = "";
 		String password = "";
+		String password2 = "";
 
 		do {
 			System.out.println("Please Enter a Nickname:");
@@ -375,12 +377,22 @@ public class BanqiController {
 	
 			System.out.println("Please Enter an Email Address:");
 			email = read.readLine();
-			
-			System.out.println("Please Enter a Password:");
-			password = read.readLine();
-			
+			Boolean match = false;
+			do {
+				password = new String(console.readPassword("Please enter a password: "));
+				
+				password2 = new String(console.readPassword("Please re-enter password: "));
+				
+				if (password.equals(password2)) {
+					match = true;
+				} else {
+					System.out.print("Passwords do not match, try again\n");
+				}
+			} while (!match);
+					
 			usernode.createProfile(nickname, email, password);
 			TimeUnit.SECONDS.sleep(1);
+			
 		} while (!validProfile);
 	}
 	
