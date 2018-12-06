@@ -155,7 +155,7 @@ public class BanqiController {
 			System.out.println("To exit, type 'exit' and press Enter");
 
 			choice = read.readLine();
-
+			printSpacer();
 			// attempt log-in
 			if (choice.equals("1")) {
 				getUserName();
@@ -180,6 +180,7 @@ public class BanqiController {
 		}
 		// user has logged in
 		while (!exitSystem) {
+			printSpacer();
 			System.out.println("\nWelcome to Banqi!  Please enter the number of what you'd like to do.");
 			System.out.println("\n1) Play existing game");
 			System.out.println("2) Manage invites");
@@ -187,6 +188,7 @@ public class BanqiController {
 			System.out.println("To exit, type 'exit' and press Enter");
 
 			choice = read.readLine();
+			printSpacer();
 			if (choice.equals("1")) {
 
 			} else if (choice.equals("2")) {
@@ -212,6 +214,7 @@ public class BanqiController {
 			System.out.println("To exit, type 'exit' and press Enter");
 
 			choice = read.readLine();
+			printSpacer();
 			if (choice.equals("1")) {
 				acceptInvite();
 			} else if (choice.equals("2")) {
@@ -328,6 +331,7 @@ public class BanqiController {
 			System.out.println("To exit, type 'exit' and press Enter");
 			
 			choice = read.readLine();
+			printSpacer();
 			if (choice.equals("1")) {
 				boolean exitStatus2 = false;
 				while (!exitStatus2) {
@@ -529,6 +533,17 @@ public class BanqiController {
 		}
 	}
 	
+	public void printSpacer() {
+		for (int i = 0; i < 30; i++) {
+			System.out.println();
+		}
+	}
+	
+//	public static void main(String args[]) throws IOException {
+//		BanqiController banqi = new BanqiController(args[0]);
+//		banqi.runProgram();
+//	}
+
 	//makes a Move.  If it is not your turn, the program will wait
 	public void makeMove(boolean turn, String opponent, int gameID) throws IOException {
 		game.updateBoard(board);
