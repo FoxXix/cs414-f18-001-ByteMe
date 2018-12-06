@@ -100,6 +100,23 @@ public class EventFactory {
 			sendInv.unPackBytes(message);
 			mNode.OnEvent(sendInv, connection);
 			break;
+		case Protocol.SendAccept:
+			Event sendAcc = new SendAccept();
+			sendAcc.unPackBytes(message);
+			mNode.OnEvent(sendAcc, connection);
+			break;
+		case Protocol.StartGame:
+			Event start = new StartGame();
+			start.unPackBytes(message);
+			mNode.OnEvent(start, connection);
+			break;
+		case Protocol.SendMove:
+			Event move = new SendMove();
+//			System.out.println("Getting here???????");
+			move.unPackBytes(message);
+//			System.out.println("about to send sendMove message");
+			mNode.OnEvent(move, connection);
+			break;
 //		case Protocol.SendDeregistration:
 //			//SendDeregistration
 //			Event sendDereg = new SendDeregistration();

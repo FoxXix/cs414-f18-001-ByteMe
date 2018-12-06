@@ -53,4 +53,9 @@ public class Elephant implements Piece{
 	public int getRank() {
 		return rank;
 	}
+
+	@Override
+	public void isCaptured() {
+		isCaptured = true;
+	}
 }
