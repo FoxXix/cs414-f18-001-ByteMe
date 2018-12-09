@@ -1,7 +1,7 @@
 /**
  * This abstract class, entitled Node, is a very basic idea for any type of Node to handle in a system.
- * In the case of this project, this abstract class will be extended as UserNode.java, to fully implement
- * the OnEvent method.
+ * In the case of this project, this abstract class will be extended as UserNode.java, Server.java or another class
+ * which needs to handle events through the OnEvent method.
  */
 
 package main.edu.colostate.cs.cs414.ByteMe.banqi.server;
