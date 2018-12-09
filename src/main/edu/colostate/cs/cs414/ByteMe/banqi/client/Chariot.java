@@ -13,6 +13,9 @@ public class Chariot implements Piece{
 	/**
 	* The color is either red of black and there is one Chariot per color.
 	* The position has an x coordinate and a y coordinate to indicate it's current position on the Banqi Game Board.
+ 	* @param String color, red or black based on team
+	* @param int x, the x coordinate in the board
+	* @param int y, the y coordinate on the board
 	*/
 	public Chariot(String color, int x, int y) {
 		this.color =  color;
@@ -24,18 +27,27 @@ public class Chariot implements Piece{
 	* To be implemented.  
 	* This method determines whether the move intended for the Chariot is a valid move in the system.  
 	* If the system finds this to be a valid move, returns true, to indicate that a given move can legally be made. 
+	* @param boolean false
 	*/
 	@Override
 	public boolean movePiece() {
 		// TODO Auto-generated method stub
 		return false;
 	}
-
+	
+	/**
+	* 
+	* @return String name, Chariot for this Piece
+	*/
 	@Override
 	public String getName() {
 		return name;
 	}
-
+	
+	/**
+	* 
+	* @return String color of the peice, either red or black
+	*/
 	@Override
 	public String getColor() {
 		return color;
@@ -52,15 +64,18 @@ public class Chariot implements Piece{
 	}
 	
 	/**
-	* Returns the visibility of the Chariot Piece, giving whether it is still face-down or face-up.
-	* - true for pieces that are face-down
-	* - false for pieces that are face-down
+	* Gives the visibility of the Chariot Piece, giving whether it is still face-down or face-up.
+	* @return boolean visible (true if visible, false if not visible)
 	*/		
 	@Override
 	public boolean isVisible() {
 		return visible;
 	}
 	
+	/**
+	* 
+	* @return int rank, the rank/power of this Elephant
+	*/
 	@Override
 	public int getRank() {
 		return rank;
