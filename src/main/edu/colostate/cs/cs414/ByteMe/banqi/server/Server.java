@@ -63,7 +63,18 @@ public class Server extends Node {
 	int[] allMessNodes = null;
 	TCPCache cache = null;
 
-	// is it fixed?
+	/**
+	 * Initialize a new server, which facilitates the function of the system, which permits two devices/users
+	 * to connect to the system and play Banqi as a two-player game.  Each initialization of the server reads
+	 * in a file that contains all registered Users.  This file must be local to the device hosting the server.
+	 *
+	 * @see this file path in this method ("/home/brian/Documents/CS414/Banqi/UserProfiles.txt") and adjust the
+	 * path to a UserProfiles.txt file saved on the device running the server.  This file must exist and not be
+	 * blank for the server to run.
+	 *
+	 * @param port, the port number of the Server
+	 * @throws IOException if an event or command cannot be handled
+	 */
 	private void Initialize(int port) throws IOException {
 
 		new Thread(() -> new CommandParser().registryCommands(this)).start();
@@ -99,7 +110,16 @@ public class Server extends Node {
 			e.printStackTrace();
 		}
 	}
-
+	
+	/**
+	 * Overrides and defines the OnEvent method of the abstract class Node.java.
+	 * Based on the type of event, this method calls upon other functions specialized to handle that specific event.
+	 * Any actions like registering an account, logging in, logging out, making a move,
+	 * and sending/accepting invites go through here.
+	 * @param e, an Event to be handled (such as SendInvite)
+	 * @param connect, the connection that exists between the server and devices connected to it
+	 * @throws IOException for any errors with input/output
+	 */
 	@Override
 	public void OnEvent(Event e, TCPConnection connect) throws IOException {
 		// System.out.println("In OnEvent for RegistryServer");
@@ -373,6 +393,16 @@ public class Server extends Node {
 		
 	}
   
+	/**
+	 * When a new Server instance is created, this method registers it, so that devices can connect to it.
+	 * Registering a node requires both an IP address and a port number.  The Node is each individual instance
+	 * of the system that is running.  Likely there will be three registered nodes at once:  a Server Node
+	 * and two UserNodes (the two Users)
+	 * @param type, the type of Node
+	 * @param address, the address of the Node
+	 * @param port, the port number of the Node
+	 * @return int rand, a random number between 0 and 127
+	 */
 	public static int registerNode(byte type, byte[] address, int port) {
 		byte sentType = type;
 		byte[] sentAddress = address;
@@ -711,9 +741,19 @@ public class Server extends Node {
 
 		}
 		connectAcceptor.sendMessage(startG2.getBytes());
-
 	}
 	
+	/**
+	 * This method sends a move from one device to the other through a TCPConnection.  When a User makes a move,
+	 * the server sends that move over through the connection so that the game is updating on the screens of
+	 * both Users.
+	 * @param pieceNameArray, an ArrayList containing the names of the game pieces on the board
+	 * @param pieceColorArray, an ArrayList containing the colors of the game pieces on the board
+	 * @param pieceVisArray, an ArrayList which states which pieces on board are visible(face-up_ and which aren't
+	 * @param opponent, a string containing the nickname of the User who did not just make the move
+	 * @param connect, a connection that permits two devices to play Banqi and send move back and forth
+	 * @throws IOException for any input/output errors
+	 */
 	public void sendMove(List<String[]> pieceNameArray, List<String[]> pieceColorArray,
 			List<boolean[]> pieceVisArray, String opponent, TCPConnection connect) throws IOException {
 		
@@ -812,18 +852,30 @@ public class Server extends Node {
 		connect.sendMessage(sendM.getBytes());
 	}
 
-	// sends the state of the board to the other player, justPlayed is the name of
-	// the player has just taken a turn.
-	// toPlay is the name of the player who plays next
-	// parameters definitely subject to change
+	/**
+	 * Sends the state of the board to the other player after one has just played.
+	 * @param justPlayed, the nickname of the player who just took a turn
+	 * @param toPlay, the nickname of the player who's turn it is now
+	 */
 	public void sendBoardState(String justPlayed, String toPlay) {
 
 	}
-
+	
+	/**
+	 * To be implemented; deregister a node that has been registered by removing the entry in the hashmap
+	 * for the nodeIDRec
+	 * @param typeRec
+	 * @param ipAddrRec
+	 * @param portNumRec
+	 * @param nodeIDRec
+	 */
 	public static void deregisterNode(byte typeRec, byte[] ipAddrRec, int portNumRec, int nodeIDRec) {
 		// remove the entry in the hashmap that corresponds to nodeIDRec
 	}
 
+	/**
+	 * Print a list of all of the nodes that have been registered in the form of it's IP and then Port.
+	 */
 	public void printListOfNodes() {
 		for (Entry<Integer, Tuple<byte[], Integer>> key : nodesRegistered.entrySet()) {
 			Integer k = key.getKey();
