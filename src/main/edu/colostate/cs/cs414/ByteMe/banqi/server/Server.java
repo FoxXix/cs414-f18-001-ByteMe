@@ -63,7 +63,18 @@ public class Server extends Node {
 	int[] allMessNodes = null;
 	TCPCache cache = null;
 
-	// is it fixed?
+	/**
+	 * Initialize a new server, which facilitates the function of the system, which permits two devices/users
+	 * to connect to the system and play Banqi as a two-player game.  Each initialization of the server reads
+	 * in a file that contains all registered Users.  This file must be local to the device hosting the server.
+	 *
+	 * @see this file path in this method ("/home/brian/Documents/CS414/Banqi/UserProfiles.txt") and adjust the
+	 * path to a UserProfiles.txt file saved on the device running the server.  This file must exist and not be
+	 * blank for the server to run.
+	 *
+	 * @param port, the port number of the Server
+	 * @throws IOException if an event or command cannot be handled
+	 */
 	private void Initialize(int port) throws IOException {
 
 		new Thread(() -> new CommandParser().registryCommands(this)).start();
@@ -99,8 +110,16 @@ public class Server extends Node {
 			e.printStackTrace();
 		}
 	}
-
-
+	
+	/**
+	 * Overrides and defines the OnEvent method of the abstract class Node.java.
+	 * Based on the type of event, this method calls upon other functions specialized to handle that specific event.
+	 * Any actions like registering an account, logging in, logging out, making a move,
+	 * and sending/accepting invites go through here.
+	 * @param e, an Event to be handled (such as SendInvite)
+	 * @param connect, the connection that exists between the server and devices connected to it
+	 * @throws IOException for any errors with input/output
+	 */
 	@Override
 	public void OnEvent(Event e, TCPConnection connect) throws IOException {
 		// System.out.println("In OnEvent for RegistryServer");
@@ -439,11 +458,12 @@ public class Server extends Node {
 		return false;
 	}
 	
-	/*This writes a new file to the storage system, in order to record the current details
-	of a User Profile.  The file will contain everything on the User Profile:
-	  - nickname, email, password, registration date
-	  - wins, losses, draws, forfeits
-	This file will be stored with the records of the Banqi Game system.
+	/**
+  * This writes a new file to the storage system, in order to record the current details
+	* of a User Profile.  The file will contain everything on the User Profile:
+	*  - nickname, email, password, registration date
+	*  - wins, losses, draws, forfeits
+	* This file will be stored with the records of the Banqi Game system.
 	*/
 	private void writeToFile(UserProfile u) {
 		String s = u.getUserName() + " " + u.getEmail() + " " + u.getPassword() + " " + u.getJoinedDate()
@@ -458,6 +478,16 @@ public class Server extends Node {
 		
 	}
   
+	/**
+	 * When a new Server instance is created, this method registers it, so that devices can connect to it.
+	 * Registering a node requires both an IP address and a port number.  The Node is each individual instance
+	 * of the system that is running.  Likely there will be three registered nodes at once:  a Server Node
+	 * and two UserNodes (the two Users)
+	 * @param type, the type of Node
+	 * @param address, the address of the Node
+	 * @param port, the port number of the Node
+	 * @return int rand, a random number between 0 and 127
+	 */
 	public static int registerNode(byte type, byte[] address, int port) {
 		byte sentType = type;
 		byte[] sentAddress = address;
@@ -727,20 +757,33 @@ public class Server extends Node {
 			}
 
 		}
+
 	}
 
-	// sends the state of the board to the other player, justPlayed is the name of
-	// the player has just taken a turn.
-	// toPlay is the name of the player who plays next
-	// parameters definitely subject to change
+	/**
+	 * Sends the state of the board to the other player after one has just played.
+	 * @param justPlayed, the nickname of the player who just took a turn
+	 * @param toPlay, the nickname of the player who's turn it is now
+	 */
 	public void sendBoardState(String justPlayed, String toPlay) {
 
 	}
-
+	
+	/**
+	 * To be implemented; deregister a node that has been registered by removing the entry in the hashmap
+	 * for the nodeIDRec
+	 * @param typeRec
+	 * @param ipAddrRec
+	 * @param portNumRec
+	 * @param nodeIDRec
+	 */
 	public static void deregisterNode(byte typeRec, byte[] ipAddrRec, int portNumRec, int nodeIDRec) {
 		// remove the entry in the hashmap that corresponds to nodeIDRec
 	}
 
+	/**
+	 * Print a list of all of the nodes that have been registered in the form of it's IP and then Port.
+	 */
 	public void printListOfNodes() {
 		for (Entry<Integer, Tuple<byte[], Integer>> key : nodesRegistered.entrySet()) {
 			Integer k = key.getKey();

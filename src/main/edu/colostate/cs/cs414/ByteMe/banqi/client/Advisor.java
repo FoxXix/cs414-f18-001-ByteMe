@@ -16,9 +16,11 @@ public class Advisor implements Piece{
 		Y_position = y;
 	}
 	
-	/*To be implemented.  This method determines whether the move intended for the Advisor
-	is a valid move in the system.  If the system finds this to be a valid move, true is returned,
-	to indicate that a given move can legally be made. */
+	/**
+	* To be implemented.  
+	* This method determines whether the move intended for the Advisor is a valid move in the system.  
+	* If the system finds this to be a valid move, returns true, to indicate that a given move can legally be made. 
+	*/
 	@Override
 	public boolean movePiece() {
 		// TODO Auto-generated method stub
@@ -35,15 +37,21 @@ public class Advisor implements Piece{
 		return color;
 	}
 	
-	/*If an Advisor Piece is currently face down, this method changes it's visibility,
-	changing it to being face up from the perspective of the system.
-	The boolean variable 'visible' associated with the Advisor is set to true.*/
+	/** 
+	* If an Advisor Piece is currently face down, this method changes it's visibility,
+	* changing it to being face up from the perspective of the system.
+	* The boolean variable 'visible' associated with the Advisor is set to true.
+	*/
 	@Override
 	public void makeVisible() {
 		visible = true;
 	}
 
-	/*Returns the status of the Advisor Piece, giving whether it is still face-down or face-up.*/
+	/**
+	* Returns the visibility of the Advisor Piece, giving whether it is still face-down or face-up.
+	* - true for pieces that are face-down
+	* - false for pieces that are face-down
+	*/
 	@Override
 	public boolean isVisible() {
 		return visible;
