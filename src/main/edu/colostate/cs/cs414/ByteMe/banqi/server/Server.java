@@ -100,6 +100,7 @@ public class Server extends Node {
 		}
 	}
 
+
 	@Override
 	public void OnEvent(Event e, TCPConnection connect) throws IOException {
 		// System.out.println("In OnEvent for RegistryServer");
@@ -108,243 +109,23 @@ public class Server extends Node {
 
 		switch (type) {
 		case Protocol.SendRegistration:
-			SendRegistration sr = (SendRegistration) e;
-			int iD = registerNode(sr.getType(), sr.getIpAddr(), sr.getPortNumber());
-			// System.out.println("adding id and connection to cache" + connect);
-			cache.addMap(iD, connect);
-			RegistryReportsRegistrationStatus regStatus = new RegistryReportsRegistrationStatus();
-			String message = "Registration request successful. The number of Users currently registered" + "is ("
-					+ nodesRegistered.size() + ")";
-			regStatus.setStatus(iD, (byte) message.getBytes().length, message.getBytes());
-			connect.sendMessage(regStatus.getBytes());
+			handleSendRegistration((SendRegistration) e, connect);
 			break;
 		case Protocol.LogIn:
-			LogIn lIn = (LogIn) e;
-			byte[] name = lIn.getNickname();
-			String nickname = new String(name);
-			byte[] pass = lIn.getPassword();
-			String password = new String(pass);
-			System.out.println("Nickname is:::::::" + nickname);
-			if (checkNickNameExists(nickname)) {
-				// System.out.println("nickname exists");
-				if (checkPassword(nickname, password)) {
-					// System.out.println("Password is correct");
-					// store the nickname with the nodeID in map
-					nameToNode.put(nickname, lIn.getNodeId());
-					for (Map.Entry<String, Integer> g : nameToNode.entrySet()) {
-						System.out.println(g);
-						System.out.println(nameToNode.get(nickname));
-						System.out.println(cache.getById(nameToNode.get(nickname)));
-						System.out.println("\n");
-					}
-					// return the User
-					for (UserProfile prof : listOfProfiles) {
-						if (prof.getUserName().equals(nickname)) {
-							System.out.println("creating user to send to UserNode");
-							SendUser sendU = new SendUser();
-							sendU.setInfo(prof.getUserName().getBytes(), (byte) prof.getUserName().getBytes().length,
-									prof.getEmail().getBytes(), (byte) prof.getEmail().getBytes().length,
-									prof.getPassword().getBytes(), (byte) prof.getPassword().getBytes().length,
-									prof.getJoinedDate().getBytes(), (byte) prof.getJoinedDate().getBytes().length,
-									prof.getWins(), prof.getLosses(), prof.getDraws(), prof.getForfeits());
-							Byte[] namesLengths = new Byte[listOfUsersByNickname.size()];
-							List<byte[]> names = new ArrayList<byte[]>();
-							for (int i = 0; i < namesLengths.length; i++) {
-								namesLengths[i] = (byte) listOfUsersByNickname.get(i).getBytes().length;
-								byte[] toByte = listOfUsersByNickname.get(i).getBytes();
-								names.add(toByte);
-							}
-							sendU.setListUsers(namesLengths, names);
-							connect.sendMessage(sendU.getBytes());
-						}
-					}
-				}
-			} else {
-			}
+			handleLogIn((LogIn) e, connect);
 			break;
 		case Protocol.SendInvite:
-			SendInvite invite = (SendInvite) e;
-			// get inviter
-			byte[] invF = invite.getInviteFrom();
-			String inviteFrom = new String(invF);
-			// get invitee
-			byte[] invi = invite.getInvitee();
-			String invitee = new String(invi);
-			// add to hash map Invitee is key, invite from is value
-			System.out.println("invitee: " + invitee);
-			System.out.println("invite from: : " + inviteFrom);
-			listOfInvites.put(invitee, inviteFrom);
-			// send invite if invitee is logged on
-			if (nameToNode.containsKey(invitee)) {
-				sendInvite(invitee);
-			}
-
-			// ****************************************************************
-			// write invite to file so that we can access them later!!
+			handleSendInvite((SendInvite) e);
 			// ****************************************************************
 			break;
 		case Protocol.CreateProfile:
-			CreateProfile cp = (CreateProfile) e;
-			System.out.println("Inside createProfile");
-			byte[] n = cp.getNickname();
-			String pname = new String(n);
-			byte[] em = cp.getEmail();
-			String email = new String(em);
-			byte[] p = cp.getPassword();
-			String passw = new String(p);
-			ValidProfile vp = new ValidProfile();
-			
-			if(checkNickNameExists(pname)) {
-				System.out.println("Nickname already exists");
-				vp.setValidProfile(false);
-				connect.sendMessage(vp.getBytes());
-				break;
-			}
-			if(checkEmailExists(email)) {
-				System.out.println("Email already exists");
-				vp.setValidProfile(false);
-				connect.sendMessage(vp.getBytes());
-				break;
-			}
-			DateTimeFormatter dtf = DateTimeFormatter.ofPattern("yyyy/MM/dd HH:mm:ss");
-			LocalDateTime now = LocalDateTime.now();
-
-			UserProfile newUser = new UserProfile(pname, email, passw, dtf.format(now), 0, 0, 0, 0);
-			listOfProfiles.add(newUser);
-			//users.add(new User(newUser));
-			writeToFile(newUser);		
-			vp.setValidProfile(true);
-			System.out.println("About to send back to usernode");
-			connect.sendMessage(vp.getBytes());			
+			handleCreateProfile((CreateProfile) e, connect);
 			break;
 		case Protocol.SendAccept:
-			SendAccept acc = (SendAccept) e;
-			byte[] accep = acc.getInvitee();
-			String acceptor = new String(accep);
-			byte[] sen = acc.getInviteFrom();
-			String sender = new String(sen);
-			// start a new game
-			startNewGame(sender, acceptor);
+			handleSendAccept((SendAccept) e);
 			break;
 		case Protocol.SendMove:
-			SendMove sendMove = (SendMove) e;
-			byte[] oppoPlayer = sendMove.getPlayerName();
-			String opponent = new String(oppoPlayer);
-			System.out.println(opponent);
-//			boolean turn = sendMove.getTurn();
-			ArrayList<byte[]> pieName = new ArrayList<byte[]>();
-			ArrayList<byte[]> colName = new ArrayList<byte[]>();
-			List<String[]> pieceNames = new ArrayList<String[]>();
-			List<String[]> colNames = new ArrayList<String[]>();
-			List<boolean[]> visible = new ArrayList<boolean[]>();
-			for(int i = 0; i < 8; i++) {
-//				System.out.println(i);
-				String[] strName = new String[4];
-				String[] colNam = new String[4];
-				if(i == 0) {
-					pieName = sendMove.getNam0();
-					colName = sendMove.getcolC0();
-					System.out.println(pieName.size());
-					for(int b = 0; b < 4; b++) {
-						String s = new String(pieName.get(b));
-						strName[b] = s;
-						String sC = new String(colName.get(b));
-						colNam[b] = sC;
-					}
-					visible.add(sendMove.getVis0());
-				} else if(i == 1) {
-					pieName = sendMove.getNam1();
-					colName = sendMove.getcolC1();
-					System.out.println(pieName.size());
-					for(int b = 0; b < 4; b++) {
-						String s = new String(pieName.get(b));
-						strName[b] = s;
-						String sC = new String(colName.get(b));
-						colNam[b] = sC;
-					}
-					visible.add(sendMove.getVis1());
-				} else if(i == 2) {
-					pieName = sendMove.getNam2();
-					colName = sendMove.getcolC2();
-					System.out.println(pieName.size());
-					for(int b = 0; b < 4; b++) {
-						String s = new String(pieName.get(b));
-						strName[b] = s;
-						String sC = new String(colName.get(b));
-						colNam[b] = sC;
-					}
-					visible.add(sendMove.getVis2());
-				} else if(i == 3) {
-					pieName = sendMove.getNam3();
-					colName = sendMove.getcolC3();
-					System.out.println(pieName.size());
-					for(int b = 0; b < 4; b++) {
-						String s = new String(pieName.get(b));
-						strName[b] = s;
-						String sC = new String(colName.get(b));
-						colNam[b] = sC;
-					}
-					visible.add(sendMove.getVis3());
-				} else if(i == 4) {
-					pieName = sendMove.getNam4();
-					colName = sendMove.getcolC4();
-					System.out.println(pieName.size());
-					for(int b = 0; b < 4; b++) {
-						String s = new String(pieName.get(b));
-						strName[b] = s;
-						String sC = new String(colName.get(b));
-						colNam[b] = sC;
-					}
-					visible.add(sendMove.getVis4());
-				} else if(i == 5) {
-					pieName = sendMove.getNam5();
-					colName = sendMove.getcolC5();
-					System.out.println(pieName.size());
-					for(int b = 0; b < 4; b++) {
-						String s = new String(pieName.get(b));
-						strName[b] = s;
-						String sC = new String(colName.get(b));
-						colNam[b] = sC;
-					}
-					visible.add(sendMove.getVis5());
-				} else if(i == 6) {
-					pieName = sendMove.getNam6();
-					colName = sendMove.getcolC6();
-					System.out.println(pieName.size());
-					for(int b = 0; b < 4; b++) {
-						String s = new String(pieName.get(b));
-						strName[b] = s;
-						String sC = new String(colName.get(b));
-						colNam[b] = sC;
-					}
-					visible.add(sendMove.getVis6());
-				} else if(i == 7) {
-					pieName = sendMove.getNam7();
-					colName = sendMove.getcolC7();
-					System.out.println(pieName.size());
-					for(int b = 0; b < 4; b++) {
-						String s = new String(pieName.get(b));
-						strName[b] = s;
-						String sC = new String(colName.get(b));
-						colNam[b] = sC;
-					}
-					visible.add(sendMove.getVis7());
-				} else {}
-				pieceNames.add(strName);
-				colNames.add(colNam);
-			}
-			//*******************************************************************************
-			//should write game state to file here
-			//*******************************************************************************
-			int gameID = sendMove.getGameID();
-			Map<String, String> names = listCurrentGames.get(gameID);
-//			if(opponent.equals(names.))
-			System.out.println(cache.getById(nameToNode.get(opponent)));
-			TCPConnection connectOpp = cache.getById(nameToNode.get(opponent));
-			//now send the Move to the opposing user
-			System.out.println("About to send board to opponent");
-			sendMove(pieceNames, colNames, visible, opponent, connectOpp);
-			
+			handleSendMove((SendMove) e);
 			break;
 		case Protocol.SendLogOff:
 			SendLogOff lOut = (SendLogOff) e;
@@ -352,6 +133,310 @@ public class Server extends Node {
 			connect.sendMessage(deregStatus.getBytes());
       break;
 		}
+	}
+
+	private void handleSendRegistration(SendRegistration e, TCPConnection connect) throws IOException {
+		SendRegistration sr = e;
+		int iD = registerNode(sr.getType(), sr.getIpAddr(), sr.getPortNumber());
+		// System.out.println("adding id and connection to cache" + connect);
+		cache.addMap(iD, connect);
+		RegistryReportsRegistrationStatus regStatus = new RegistryReportsRegistrationStatus();
+		String message = "Registration request successful. The number of Users currently registered" + "is ("
+				+ nodesRegistered.size() + ")";
+		regStatus.setStatus(iD, (byte) message.getBytes().length, message.getBytes());
+		connect.sendMessage(regStatus.getBytes());
+	}
+
+	private void handleLogIn(LogIn e, TCPConnection connect) throws IOException {
+		LogIn lIn = e;
+		byte[] name = lIn.getNickname();
+		String nickname = new String(name);
+		byte[] pass = lIn.getPassword();
+		String password = new String(pass);
+		System.out.println("Nickname is:::::::" + nickname);
+		if (checkNickNameExists(nickname)) {
+			// System.out.println("nickname exists");
+			if (checkPassword(nickname, password)) {
+				// System.out.println("Password is correct");
+				// store the nickname with the nodeID in map
+				nameToNode.put(nickname, lIn.getNodeId());
+				for (Entry<String, Integer> g : nameToNode.entrySet()) {
+					System.out.println(g);
+					System.out.println(nameToNode.get(nickname));
+					System.out.println(cache.getById(nameToNode.get(nickname)));
+					System.out.println("\n");
+				}
+				// return the User
+				findUser(connect, nickname);
+			}
+		} else {
+		}
+	}
+
+	private void findUser(TCPConnection connect, String nickname) throws IOException {
+		for (UserProfile prof : listOfProfiles) {
+			if (prof.getUserName().equals(nickname)) {
+				System.out.println("creating user to send to UserNode");
+				SendUser sendU = new SendUser();
+				sendU.setInfo(prof.getUserName().getBytes(), (byte) prof.getUserName().getBytes().length,
+						prof.getEmail().getBytes(), (byte) prof.getEmail().getBytes().length,
+						prof.getPassword().getBytes(), (byte) prof.getPassword().getBytes().length,
+						prof.getJoinedDate().getBytes(), (byte) prof.getJoinedDate().getBytes().length,
+						prof.getWins(), prof.getLosses(), prof.getDraws(), prof.getForfeits());
+				Byte[] namesLengths = new Byte[listOfUsersByNickname.size()];
+				List<byte[]> names = new ArrayList<byte[]>();
+				for (int i = 0; i < namesLengths.length; i++) {
+					namesLengths[i] = (byte) listOfUsersByNickname.get(i).getBytes().length;
+					byte[] toByte = listOfUsersByNickname.get(i).getBytes();
+					names.add(toByte);
+				}
+				sendU.setListUsers(namesLengths, names);
+				connect.sendMessage(sendU.getBytes());
+			}
+		}
+	}
+
+	private void handleSendInvite(SendInvite e) throws IOException {
+		SendInvite invite = e;
+		// get inviter
+		byte[] invF = invite.getInviteFrom();
+		String inviteFrom = new String(invF);
+		// get invitee
+		byte[] invi = invite.getInvitee();
+		String invitee = new String(invi);
+		// add to hash map Invitee is key, invite from is value
+		System.out.println("invitee: " + invitee);
+		System.out.println("invite from: : " + inviteFrom);
+		listOfInvites.put(invitee, inviteFrom);
+		// send invite if invitee is logged on
+		if (nameToNode.containsKey(invitee)) {
+			sendInvite(invitee);
+		}
+
+		// ****************************************************************
+		// write invite to file so that we can access them later!!
+	}
+
+	private void handleSendMove(SendMove e) throws IOException {
+		SendMove sendMove = e;
+		byte[] oppoPlayer = sendMove.getPlayerName();
+		String opponent = new String(oppoPlayer);
+		System.out.println(opponent);
+//			boolean turn = sendMove.getTurn();
+		ArrayList<byte[]> pieName = new ArrayList<byte[]>();
+		ArrayList<byte[]> colName = new ArrayList<byte[]>();
+		List<String[]> pieceNames = new ArrayList<String[]>();
+		List<String[]> colNames = new ArrayList<String[]>();
+		List<boolean[]> visible = new ArrayList<boolean[]>();
+		for(int i = 0; i < 8; i++) {
+//				System.out.println(i);
+			String[] strName = new String[4];
+			String[] colNam = new String[4];
+			if(i == 0) {
+				sendMoveIteration(visible, strName, colNam, sendMove.getNam0(), sendMove.getcolC0(), sendMove.getVis0());
+			} else if(i == 1) {
+				sendMoveIteration(visible, strName, colNam, sendMove.getNam1(), sendMove.getcolC1(), sendMove.getVis1());
+			} else if(i == 2) {
+				sendMoveIteration(visible, strName, colNam, sendMove.getNam2(), sendMove.getcolC2(), sendMove.getVis2());
+			} else if(i == 3) {
+				sendMoveIteration(visible, strName, colNam, sendMove.getNam3(), sendMove.getcolC3(), sendMove.getVis3());
+			} else if(i == 4) {
+				sendMoveIteration(visible, strName, colNam, sendMove.getNam4(), sendMove.getcolC4(), sendMove.getVis4());
+			} else if(i == 5) {
+				sendMoveIteration(visible, strName, colNam, sendMove.getNam5(), sendMove.getcolC5(), sendMove.getVis5());
+			} else if(i == 6) {
+				sendMoveIteration(visible, strName, colNam, sendMove.getNam6(), sendMove.getcolC6(), sendMove.getVis6());
+			} else if(i == 7) {
+				sendMoveIteration(visible, strName, colNam, sendMove.getNam7(), sendMove.getcolC7(), sendMove.getVis7());
+			} else {}
+			pieceNames.add(strName);
+			colNames.add(colNam);
+		}
+		//*******************************************************************************
+		//should write game state to file here
+		//*******************************************************************************
+		int gameID = sendMove.getGameID();
+		Map<String, String> names = listCurrentGames.get(gameID);
+//			if(opponent.equals(names.))
+		System.out.println(cache.getById(nameToNode.get(opponent)));
+		TCPConnection connectOpp = cache.getById(nameToNode.get(opponent));
+		//now send the Move to the opposing user
+		System.out.println("About to send board to opponent");
+		sendMove(pieceNames, colNames, visible, opponent, connectOpp);
+	}
+
+	private void sendMoveIteration(List<boolean[]> visible, String[] strName, String[] colNam, ArrayList<byte[]> nam0, ArrayList<byte[]> bytes, boolean[] vis0) {
+		ArrayList<byte[]> pieName;
+		ArrayList<byte[]> colName;
+		pieName = nam0;
+		colName = bytes;
+		System.out.println(pieName.size());
+		for (int b = 0; b < 4; b++) {
+			String s = new String(pieName.get(b));
+			strName[b] = s;
+			String sC = new String(colName.get(b));
+			colNam[b] = sC;
+		}
+		visible.add(vis0);
+	}
+
+	public void sendMove(List<String[]> pieceNameArray, List<String[]> pieceColorArray,
+						 List<boolean[]> pieceVisArray, String opponent, TCPConnection connect) throws IOException {
+
+		SendMove sendM = new SendMove();
+		sendM.setPlayerName((byte)opponent.getBytes().length, opponent.getBytes());
+		sendM.setTurn(true);
+		sendMoveSetNameInfo(pieceNameArray, sendM);
+
+		List<ArrayList<byte[]>> pieceColorBytes = new ArrayList<ArrayList<byte[]>>();
+
+		System.out.println("before color loop");
+		System.out.println(pieceColorArray.size());
+		sendMoveSetColorInfo(pieceColorArray, pieceVisArray, sendM);
+		connect.sendMessage(sendM.getBytes());
+	}
+
+	private void sendMoveSetNameInfo(List<String[]> pieceNameArray, SendMove sendM) {
+		for (int i = 0; i < pieceNameArray.size(); i++) {
+			ArrayList<byte[]> byteList = new ArrayList<byte[]>();
+			byte[] nN = new byte[4];
+			// System.out.println(pieceNameArray.get(i).length);
+			for (int j = 0; j < pieceNameArray.get(i).length; j++) {
+				byte nLength = (byte) pieceNameArray.get(i)[j].getBytes().length;
+				nN[j] = nLength;
+				byteList.add(pieceNameArray.get(i)[j].getBytes());
+
+			}
+			if (i == 0) {
+				sendM.setNameLengths(nN);
+				sendM.setNames0(byteList);
+			} else if (i == 1) {
+				sendM.setNameLengths1(nN);
+				sendM.setNames1(byteList);
+			} else if (i == 2) {
+				sendM.setNameLengths2(nN);
+				sendM.setNames2(byteList);
+			} else if (i == 3) {
+				sendM.setNameLengths3(nN);
+				sendM.setNames3(byteList);
+			} else if (i == 4) {
+				sendM.setNameLengths4(nN);
+				sendM.setNames4(byteList);
+			} else if (i == 5) {
+				sendM.setNameLengths5(nN);
+				sendM.setNames5(byteList);
+			} else if (i == 6) {
+				sendM.setNameLengths6(nN);
+				sendM.setNames6(byteList);
+			} else if (i == 7) {
+				sendM.setNameLengths7(nN);
+				sendM.setNames7(byteList);
+			}
+
+		}
+	}
+
+	private void sendMoveSetColorInfo(List<String[]> pieceColorArray, List<boolean[]> pieceVisArray, SendMove sendM) {
+		for (int i = 0; i < pieceColorArray.size(); i++) {
+			System.out.println(i);
+			ArrayList<byte[]> byteList = new ArrayList<byte[]>();
+			byte[] cN = new byte[4];
+			boolean[] v = pieceVisArray.get(i);
+			for (int j = 0; j < pieceColorArray.get(i).length; j++) {
+				byte cLength = (byte) pieceColorArray.get(i)[j].getBytes().length;
+				cN[j] = cLength;
+				byteList.add(pieceColorArray.get(i)[j].getBytes());
+
+			}
+			if (i == 0) {
+				System.out.println(Arrays.toString(cN));
+				sendM.setColorLengths0(cN);
+				sendM.setColor0(byteList);
+				sendM.setVis0(v);
+			} else if (i == 1) {
+				sendM.setColorLengths1(cN);
+				sendM.setColor1(byteList);
+				sendM.setVis1(v);
+			} else if (i == 2) {
+				sendM.setColorLengths2(cN);
+				sendM.setColor2(byteList);
+				sendM.setVis2(v);
+			} else if (i == 3) {
+				sendM.setColorLengths3(cN);
+				sendM.setColor3(byteList);
+				sendM.setVis3(v);
+			} else if (i == 4) {
+				sendM.setColorLengths4(cN);
+				sendM.setColor4(byteList);
+				sendM.setVis4(v);
+			} else if (i == 5) {
+				sendM.setColorLengths5(cN);
+				sendM.setColor5(byteList);
+				sendM.setVis5(v);
+			} else if (i == 6) {
+				sendM.setColorLengths6(cN);
+				sendM.setColor6(byteList);
+				sendM.setVis6(v);
+			} else if (i == 7) {
+				sendM.setColorLengths7(cN);
+				sendM.setColor7(byteList);
+				sendM.setVis7(v);
+			}
+
+		}
+	}
+	
+	private void handleSendAccept(SendAccept e) throws IOException {
+		SendAccept acc = e;
+		byte[] accep = acc.getInvitee();
+		String acceptor = new String(accep);
+		byte[] sen = acc.getInviteFrom();
+		String sender = new String(sen);
+		// start a new game
+		startNewGame(sender, acceptor);
+	}
+
+	private void handleCreateProfile(CreateProfile e, TCPConnection connect) throws IOException {
+		CreateProfile cp = e;
+		System.out.println("Inside createProfile");
+		byte[] n = cp.getNickname();
+		String pname = new String(n);
+		byte[] em = cp.getEmail();
+		String email = new String(em);
+		byte[] p = cp.getPassword();
+		String passw = new String(p);
+		ValidProfile vp = new ValidProfile();
+
+		if (checkExistingCredentials(connect, pname, email, vp)) {
+			return;
+		}
+
+		DateTimeFormatter dtf = DateTimeFormatter.ofPattern("yyyy/MM/dd HH:mm:ss");
+		LocalDateTime now = LocalDateTime.now();
+
+		UserProfile newUser = new UserProfile(pname, email, passw, dtf.format(now), 0, 0, 0, 0);
+		listOfProfiles.add(newUser);
+		//users.add(new User(newUser));
+		writeToFile(newUser);
+		vp.setValidProfile(true);
+		System.out.println("About to send back to usernode");
+		connect.sendMessage(vp.getBytes());
+	}
+
+	private boolean checkExistingCredentials(TCPConnection connect, String pname, String email, ValidProfile vp) throws IOException {
+		if(checkNickNameExists(pname)) {
+			System.out.println("Nickname already exists");
+			vp.setValidProfile(false);
+			connect.sendMessage(vp.getBytes());
+			return true;
+		}
+		if(checkEmailExists(email)) {
+			System.out.println("Email already exists");
+			vp.setValidProfile(false);
+			connect.sendMessage(vp.getBytes());
+			return true;
+		}
+		return false;
 	}
 	
 	/*This writes a new file to the storage system, in order to record the current details
@@ -499,6 +584,43 @@ public class Server extends Node {
 		List<String[]> pieceColorArray = new ArrayList<String[]>(8);
 		List<boolean[]> pieceVisArray = new ArrayList<boolean[]>(8);
 
+		generateNewGame(game, pieceNameArray, pieceColorArray, pieceVisArray);
+
+//		for (int k = 0; k < pieceNameArray.size(); k++) {
+//			System.out.println(Arrays.toString(pieceNameArray.get(k)));
+//			System.out.println(Arrays.toString(pieceColorArray.get(k)));
+//			System.out.println(Arrays.toString(pieceVisArray.get(k)));
+//			System.out.println();
+//		}
+
+		startBothGames(sender, acceptor, connectSender, connectAcceptor, gameID, pieceNameArray, pieceColorArray, pieceVisArray);
+
+	}
+
+	private void startBothGames(String sender, String acceptor, TCPConnection connectSender,
+								TCPConnection connectAcceptor, int gameID, List<String[]> pieceNameArray,
+								List<String[]> pieceColorArray, List<boolean[]> pieceVisArray)
+			throws IOException {
+		StartGame startG = new StartGame();
+		startG.setPlayerName((byte) acceptor.getBytes().length, acceptor.getBytes());
+		startG.setTurn(true);
+		startG.setGameID(gameID);
+		setGameColorInfo(pieceColorArray, pieceVisArray, startG);
+		setGameNameInfo(pieceNameArray, startG);
+
+		connectSender.sendMessage(startG.getBytes());
+
+		StartGame startG2 = new StartGame();
+		startG2.setPlayerName((byte) sender.getBytes().length, sender.getBytes());
+		startG2.setTurn(false);
+		startG2.setGameID(gameID);
+		setGameColorInfo(pieceColorArray, pieceVisArray, startG2);
+		setGameNameInfo(pieceNameArray, startG2);
+
+		connectAcceptor.sendMessage(startG2.getBytes());
+	}
+
+	private void generateNewGame(BanqiGame game, List<String[]> pieceNameArray, List<String[]> pieceColorArray, List<boolean[]> pieceVisArray) {
 		for (int i = 0; i < 8; i++) {
 			String[] pieceNames = new String[4];
 			String[] pieceColors = new String[4];
@@ -515,23 +637,13 @@ public class Server extends Node {
 			pieceColorArray.add(pieceColors);
 			pieceVisArray.add(isVis);
 		}
+	}
 
-//		for (int k = 0; k < pieceNameArray.size(); k++) {
-//			System.out.println(Arrays.toString(pieceNameArray.get(k)));
-//			System.out.println(Arrays.toString(pieceColorArray.get(k)));
-//			System.out.println(Arrays.toString(pieceVisArray.get(k)));
-//			System.out.println();
-//		}
-
-		StartGame startG = new StartGame();
-		startG.setPlayerName((byte) acceptor.getBytes().length, acceptor.getBytes());
-		startG.setTurn(true);
-		startG.setGameID(gameID);
-
+	private void setGameNameInfo(List<String[]> pieceNameArray, StartGame startG2) {
 		for (int i = 0; i < pieceNameArray.size(); i++) {
 			ArrayList<byte[]> byteList = new ArrayList<byte[]>();
 			byte[] nN = new byte[4];
-			// System.out.println(pieceNameArray.get(i).length);
+
 			for (int j = 0; j < pieceNameArray.get(i).length; j++) {
 				byte nLength = (byte) pieceNameArray.get(i)[j].getBytes().length;
 				nN[j] = nLength;
@@ -539,35 +651,35 @@ public class Server extends Node {
 
 			}
 			if (i == 0) {
-				startG.setNameLengths(nN);
-				startG.setNames0(byteList);
+				startG2.setNameLengths(nN);
+				startG2.setNames0(byteList);
 			} else if (i == 1) {
-				startG.setNameLengths1(nN);
-				startG.setNames1(byteList);
+				startG2.setNameLengths1(nN);
+				startG2.setNames1(byteList);
 			} else if (i == 2) {
-				startG.setNameLengths2(nN);
-				startG.setNames2(byteList);
+				startG2.setNameLengths2(nN);
+				startG2.setNames2(byteList);
 			} else if (i == 3) {
-				startG.setNameLengths3(nN);
-				startG.setNames3(byteList);
+				startG2.setNameLengths3(nN);
+				startG2.setNames3(byteList);
 			} else if (i == 4) {
-				startG.setNameLengths4(nN);
-				startG.setNames4(byteList);
+				startG2.setNameLengths4(nN);
+				startG2.setNames4(byteList);
 			} else if (i == 5) {
-				startG.setNameLengths5(nN);
-				startG.setNames5(byteList);
+				startG2.setNameLengths5(nN);
+				startG2.setNames5(byteList);
 			} else if (i == 6) {
-				startG.setNameLengths6(nN);
-				startG.setNames6(byteList);
+				startG2.setNameLengths6(nN);
+				startG2.setNames6(byteList);
 			} else if (i == 7) {
-				startG.setNameLengths7(nN);
-				startG.setNames7(byteList);
+				startG2.setNameLengths7(nN);
+				startG2.setNames7(byteList);
 			}
 
 		}
+	}
 
-//		System.out.println("before color loop");
-//		System.out.println(pieceColorArray.size());
+	private void setGameColorInfo(List<String[]> pieceColorArray, List<boolean[]> pieceVisArray, StartGame startG) {
 		for (int i = 0; i < pieceColorArray.size(); i++) {
 //			System.out.println(i);
 			ArrayList<byte[]> byteList = new ArrayList<byte[]>();
@@ -615,201 +727,6 @@ public class Server extends Node {
 			}
 
 		}
-		connectSender.sendMessage(startG.getBytes());
-
-
-		StartGame startG2 = new StartGame();
-		startG2.setPlayerName((byte) sender.getBytes().length, sender.getBytes());
-		startG2.setTurn(false);
-		startG2.setGameID(gameID);
-
-		for (int i = 0; i < pieceNameArray.size(); i++) {
-			ArrayList<byte[]> byteList = new ArrayList<byte[]>();
-			byte[] nN = new byte[4];
-			// System.out.println(pieceNameArray.get(i).length);
-			for (int j = 0; j < pieceNameArray.get(i).length; j++) {
-				byte nLength = (byte) pieceNameArray.get(i)[j].getBytes().length;
-				nN[j] = nLength;
-				byteList.add(pieceNameArray.get(i)[j].getBytes());
-
-			}
-			if (i == 0) {
-				startG2.setNameLengths(nN);
-				startG2.setNames0(byteList);
-			} else if (i == 1) {
-				startG2.setNameLengths1(nN);
-				startG2.setNames1(byteList);
-			} else if (i == 2) {
-				startG2.setNameLengths2(nN);
-				startG2.setNames2(byteList);
-			} else if (i == 3) {
-				startG2.setNameLengths3(nN);
-				startG2.setNames3(byteList);
-			} else if (i == 4) {
-				startG2.setNameLengths4(nN);
-				startG2.setNames4(byteList);
-			} else if (i == 5) {
-				startG2.setNameLengths5(nN);
-				startG2.setNames5(byteList);
-			} else if (i == 6) {
-				startG2.setNameLengths6(nN);
-				startG2.setNames6(byteList);
-			} else if (i == 7) {
-				startG2.setNameLengths7(nN);
-				startG2.setNames7(byteList);
-			}
-
-		}
-
-//		System.out.println("before color loop");
-//		System.out.println(pieceColorArray.size());
-		for (int i = 0; i < pieceColorArray.size(); i++) {
-			System.out.println(i);
-			ArrayList<byte[]> byteList = new ArrayList<byte[]>();
-			byte[] cN = new byte[4];
-			boolean[] v = pieceVisArray.get(i);
-			for (int j = 0; j < pieceColorArray.get(i).length; j++) {
-				byte cLength = (byte) pieceColorArray.get(i)[j].getBytes().length;
-				cN[j] = cLength;
-				byteList.add(pieceColorArray.get(i)[j].getBytes());
-
-			}
-			if (i == 0) {
-//				System.out.println(Arrays.toString(cN));
-				startG2.setColorLengths0(cN);
-				startG2.setColor0(byteList);
-				startG2.setVis0(v);
-			} else if (i == 1) {
-				startG2.setColorLengths1(cN);
-				startG2.setColor1(byteList);
-				startG2.setVis1(v);
-			} else if (i == 2) {
-				startG2.setColorLengths2(cN);
-				startG2.setColor2(byteList);
-				startG2.setVis2(v);
-			} else if (i == 3) {
-				startG2.setColorLengths3(cN);
-				startG2.setColor3(byteList);
-				startG2.setVis3(v);
-			} else if (i == 4) {
-				startG2.setColorLengths4(cN);
-				startG2.setColor4(byteList);
-				startG2.setVis4(v);
-			} else if (i == 5) {
-				startG2.setColorLengths5(cN);
-				startG2.setColor5(byteList);
-				startG2.setVis5(v);
-			} else if (i == 6) {
-				startG2.setColorLengths6(cN);
-				startG2.setColor6(byteList);
-				startG2.setVis6(v);
-			} else if (i == 7) {
-				startG2.setColorLengths7(cN);
-				startG2.setColor7(byteList);
-				startG2.setVis7(v);
-			}
-
-		}
-		connectAcceptor.sendMessage(startG2.getBytes());
-
-	}
-	
-	public void sendMove(List<String[]> pieceNameArray, List<String[]> pieceColorArray,
-			List<boolean[]> pieceVisArray, String opponent, TCPConnection connect) throws IOException {
-		
-		SendMove sendM = new SendMove();
-		sendM.setPlayerName((byte)opponent.getBytes().length, opponent.getBytes());
-		sendM.setTurn(true);
-		for (int i = 0; i < pieceNameArray.size(); i++) {
-			ArrayList<byte[]> byteList = new ArrayList<byte[]>();
-			byte[] nN = new byte[4];
-			// System.out.println(pieceNameArray.get(i).length);
-			for (int j = 0; j < pieceNameArray.get(i).length; j++) {
-				byte nLength = (byte) pieceNameArray.get(i)[j].getBytes().length;
-				nN[j] = nLength;
-				byteList.add(pieceNameArray.get(i)[j].getBytes());
-
-			}
-			if (i == 0) {
-				sendM.setNameLengths(nN);
-				sendM.setNames0(byteList);
-			} else if (i == 1) {
-				sendM.setNameLengths1(nN);
-				sendM.setNames1(byteList);
-			} else if (i == 2) {
-				sendM.setNameLengths2(nN);
-				sendM.setNames2(byteList);
-			} else if (i == 3) {
-				sendM.setNameLengths3(nN);
-				sendM.setNames3(byteList);
-			} else if (i == 4) {
-				sendM.setNameLengths4(nN);
-				sendM.setNames4(byteList);
-			} else if (i == 5) {
-				sendM.setNameLengths5(nN);
-				sendM.setNames5(byteList);
-			} else if (i == 6) {
-				sendM.setNameLengths6(nN);
-				sendM.setNames6(byteList);
-			} else if (i == 7) {
-				sendM.setNameLengths7(nN);
-				sendM.setNames7(byteList);
-			}
-
-		}
-
-		List<ArrayList<byte[]>> pieceColorBytes = new ArrayList<ArrayList<byte[]>>();
-
-		System.out.println("before color loop");
-		System.out.println(pieceColorArray.size());
-		for (int i = 0; i < pieceColorArray.size(); i++) {
-			System.out.println(i);
-			ArrayList<byte[]> byteList = new ArrayList<byte[]>();
-			byte[] cN = new byte[4];
-			boolean[] v = pieceVisArray.get(i);
-			for (int j = 0; j < pieceColorArray.get(i).length; j++) {
-				byte cLength = (byte) pieceColorArray.get(i)[j].getBytes().length;
-				cN[j] = cLength;
-				byteList.add(pieceColorArray.get(i)[j].getBytes());
-
-			}
-			if (i == 0) {
-				System.out.println(Arrays.toString(cN));
-				sendM.setColorLengths0(cN);
-				sendM.setColor0(byteList);
-				sendM.setVis0(v);
-			} else if (i == 1) {
-				sendM.setColorLengths1(cN);
-				sendM.setColor1(byteList);
-				sendM.setVis1(v);
-			} else if (i == 2) {
-				sendM.setColorLengths2(cN);
-				sendM.setColor2(byteList);
-				sendM.setVis2(v);
-			} else if (i == 3) {
-				sendM.setColorLengths3(cN);
-				sendM.setColor3(byteList);
-				sendM.setVis3(v);
-			} else if (i == 4) {
-				sendM.setColorLengths4(cN);
-				sendM.setColor4(byteList);
-				sendM.setVis4(v);
-			} else if (i == 5) {
-				sendM.setColorLengths5(cN);
-				sendM.setColor5(byteList);
-				sendM.setVis5(v);
-			} else if (i == 6) {
-				sendM.setColorLengths6(cN);
-				sendM.setColor6(byteList);
-				sendM.setVis6(v);
-			} else if (i == 7) {
-				sendM.setColorLengths7(cN);
-				sendM.setColor7(byteList);
-				sendM.setVis7(v);
-			}
-
-		}
-		connect.sendMessage(sendM.getBytes());
 	}
 
 	// sends the state of the board to the other player, justPlayed is the name of
