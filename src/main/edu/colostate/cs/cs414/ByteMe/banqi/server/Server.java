@@ -639,7 +639,7 @@ public class Server extends Node {
 		}
 	}
 
-	private void setGameNameInfo(List<String[]> pieceNameArray, StartGame startG2) {
+	private void setGameNameInfo(List<String[]> pieceNameArray, StartGame startG) {
 		for (int i = 0; i < pieceNameArray.size(); i++) {
 			ArrayList<byte[]> byteList = new ArrayList<byte[]>();
 			byte[] nN = new byte[4];
@@ -651,29 +651,29 @@ public class Server extends Node {
 
 			}
 			if (i == 0) {
-				startG2.setNameLengths(nN);
-				startG2.setNames0(byteList);
+				startG.setNameLengths(nN);
+				startG.setNames0(byteList);
 			} else if (i == 1) {
-				startG2.setNameLengths1(nN);
-				startG2.setNames1(byteList);
+				startG.setNameLengths1(nN);
+				startG.setNames1(byteList);
 			} else if (i == 2) {
-				startG2.setNameLengths2(nN);
-				startG2.setNames2(byteList);
+				startG.setNameLengths2(nN);
+				startG.setNames2(byteList);
 			} else if (i == 3) {
-				startG2.setNameLengths3(nN);
-				startG2.setNames3(byteList);
+				startG.setNameLengths3(nN);
+				startG.setNames3(byteList);
 			} else if (i == 4) {
-				startG2.setNameLengths4(nN);
-				startG2.setNames4(byteList);
+				startG.setNameLengths4(nN);
+				startG.setNames4(byteList);
 			} else if (i == 5) {
-				startG2.setNameLengths5(nN);
-				startG2.setNames5(byteList);
+				startG.setNameLengths5(nN);
+				startG.setNames5(byteList);
 			} else if (i == 6) {
-				startG2.setNameLengths6(nN);
-				startG2.setNames6(byteList);
+				startG.setNameLengths6(nN);
+				startG.setNames6(byteList);
 			} else if (i == 7) {
-				startG2.setNameLengths7(nN);
-				startG2.setNames7(byteList);
+				startG.setNameLengths7(nN);
+				startG.setNames7(byteList);
 			}
 
 		}
