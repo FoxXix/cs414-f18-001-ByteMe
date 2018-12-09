@@ -6,10 +6,14 @@ public class Chariot implements Piece{
 	int Y_position;
 	boolean isCaptured = false;
 	boolean visible = false;
-	String color;;
+	String color;
 	String name = "Chariot";
 	int rank = 4;
 
+	/**
+	* The color is either red of black and there is one Chariot per color.
+	* The position has an x coordinate and a y coordinate to indicate it's current position on the Banqi Game Board.
+	*/
 	public Chariot(String color, int x, int y) {
 		this.color =  color;
 		X_position = x;
