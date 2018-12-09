@@ -11,7 +11,7 @@
  * 		- Cannon
  * 		- Soldier
  *
- * Each piece has a position on the Bangi Game Board also has the following attributes:
+ * Each piece has a position on the Banqi Game Board also has the following attributes:
  * 		- x position (the position of the piece horizontally)
  * 		- y position (the position of the piece vertically)
  * 		- color: indicates whether the piece is on the black or red team
@@ -44,7 +44,7 @@ public interface Piece {
 	 * Make an actual, valid move with a given Piece.
 	 * @return boolean false
 	 */
-	public boolean makeMove();
+	public boolean movePiece();
 	
 	/**
 	 * Every type of Piece has a name to distinguish it in the system against other Pieces.
