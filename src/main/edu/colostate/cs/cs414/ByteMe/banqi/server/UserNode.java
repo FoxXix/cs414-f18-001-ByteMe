@@ -63,7 +63,15 @@ public class UserNode extends Node{
 	private User user;
 	private List<String> gamesInvitedTo = new ArrayList<String>();
 
-	
+		
+    	/**
+     	* Initalize a UserNode and connect it to a running Server.
+     	* In order to make a connection to the Server, both the Server's name and the Port of it are needed.
+     	* @param serverName, the name of the active Server that this UserNode can connect to
+     	* @param port, the Port number that is hosting the Server
+     	* @throws IOException in the case of input/output error
+     	* @throws InterruptedException if the connection to the Server from the UserNode is interrupted
+     	*/
 	private void Initialize(String serverName, int port) throws IOException, InterruptedException
 	{
 		this.eventFactory = new EventFactory(this);
@@ -111,7 +119,12 @@ public class UserNode extends Node{
 	
 	}
 	
-	//send a message to the server requesting to LogIn to an existing account
+    /**
+     * Send a message to the server requesting that a UserNode wants to LogIn to an existing account
+     * @param nickname, the nickname of the User (from login on UserNode instance)
+     * @param password, the password of the User (from login on UserNode instance)
+     * @throws IOException in the case of input/output error
+     */
 	public void logIn(String nickname, String password) throws IOException {
 		LogIn lIn = new LogIn();
 		lIn.setNickname((byte)nickname.getBytes().length, nickname.getBytes());
@@ -121,7 +134,11 @@ public class UserNode extends Node{
 		connection.sendMessage(lIn.getBytes());
 	}
 	
-	//send invite (to be routed through server)
+    /**
+     * Send a message to the server saying a UserNode wants to send an invite to another User(node)
+     * @param invitee, the nickname of the User for the server to send an invite message to.
+     * @throws IOException int he case of input/output error
+     */
 	public void sendInvite(String invitee) throws IOException {
 		SendInvite sendInvite = new SendInvite();
 		sendInvite.setInvitee((byte)invitee.getBytes().length, invitee.getBytes());
@@ -129,7 +146,13 @@ public class UserNode extends Node{
 		connection.sendMessage(sendInvite.getBytes());
 	}
 	
-	//message from UserNode to router declaring that 2 users have accepted a game invite
+    /**
+     * Send a message to the Inviter that the Invitee accepted the invitation and will play Banqi.
+     * The message from UserNode to router declares that 2 users have accepted a game invite.
+     * @param invitee, the nickname of the User who the server invited
+     * @param inviteFrom, the nickname of the User who request the invite be sent
+     * @throws IOException in the case of input/output error
+     */
 	public void sendAccept(String invitee, String inviteFrom) throws IOException {
 		SendAccept sendAcc = new SendAccept();
 		sendAcc.setInvitee((byte)invitee.getBytes().length,  invitee.getBytes());
@@ -137,9 +160,15 @@ public class UserNode extends Node{
 		connection.sendMessage(sendAcc.getBytes());
 	}
 
-	//Receives Event messages, and acts according to the type of Event that has arrived
+    /**
+     * Overrides the OnEvent abstract method from the Node.java class to handle the occurrence of
+     * events on a UserNode instance.  Such events are account registration, login, checking for valid profiles,
+     * logging out, unregistering, sending/accepting invites, sending moves and startingAGame (all send messages).
+     * @param e, an event to be handled (such as a sendAccept message from a UserNode to another)
+     * @param connect, the connection that connects a device to the Server
+     * @throws IOException in the case of input/output error
+     */
 	public void OnEvent(Event e, TCPConnection connect) throws IOException {
-//		System.out.println("In OnEvent Messaging");
 		byte type = e.getType();
 		
 		switch(type) {
@@ -437,7 +466,18 @@ public class UserNode extends Node{
 		}
 		return piece;
 	}
-
+	
+    /**
+     * This method sends a move from one device to the other through the Server.  When a User makes a move,
+     * the server sends and shows that move to the other USer, so that the game is updating on the screens of
+     * both Users.
+     * @param pieceNameArray, an ArrayList containing the names of the game pieces on the board
+     * @param pieceColorArray, an ArrayList containing the colors of the game pieces on the board
+     * @param pieceVisArray, an ArrayList which states which pieces on board are visible(face-up_ and which aren't
+     * @param opponent, a string containing the nickname of the User who did not just make the move
+     * @param gameID, the unique integer value assigned to the game, which just saw the move
+     * @throws IOException
+     */
 	public void sendMove(List<String[]> pieceNameArray, List<String[]> pieceColorArray,
 		List<boolean[]> pieceVisArray, String opponent, int gameID) throws IOException {
 
@@ -547,14 +587,29 @@ public class UserNode extends Node{
 //		read.close();
 //		return password;
 //	}
-
+	
+    /**
+     * Send a password, entered on the UserNode through command line, to the Server
+     * to be checked for it's connection to a registered User in the system.
+     * @param password, the password to be sent from the UserNode to the Server
+     * @throws IOException if the password cannot be read
+     */
 	public void sendPassword(String password) throws IOException {
 		//System.out.println("sending password to server");
 		SendPassword sendPass = new SendPassword();
 		sendPass.setPassword((byte)password.getBytes().length, password.getBytes());
 		connection.sendMessage(sendPass.getBytes());
 	}
-	
+
+    /**
+     * Creates a UserProfile for a User by taking in information from command line that the UserNode takes,
+     * and sends it over the existing connection.
+     * This comes in when a UserNode selects to 'Create Profile' through the terminal and inputs credentials.
+     * @param nickname, the nickname of the User who is to have a UserProfile made
+     * @param email, the email associated with the User and soon to be UserProfile
+     * @param password, the password associated with the User and soon to be UserProfile
+     * @throws IOException, in the case of input/output errors
+     */
 	public void createProfile(String nickname, String email, String password) throws IOException {
 		//System.out.println("sending profile to server");
 		CreateProfile profile = new CreateProfile();
@@ -563,12 +618,21 @@ public class UserNode extends Node{
 		profile.setPassword((byte)password.getBytes().length, password.getBytes());
 		connection.sendMessage(profile.getBytes());
 	}
-
+	
+    /**
+     * Send a message to the Server that the UserNode wants to disconnect from the Server (log off).
+     * This takes place when a UserNode gets 'exit' entered via command line.
+     * @throws IOException in the case of an input/output error
+     */
 	public void logOff() throws IOException {
 		SendLogOff sendOff = new SendLogOff();
 		connection.sendMessage(sendOff.getBytes());
 	}
 	
+    /**
+     * 
+     * @return gamesInvitedTo, an ArrayList of all the games that have invites sent out for them
+     */
 	public List<String> getGamesInvitedTo(){
 		return gamesInvitedTo;
 	}
