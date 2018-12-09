@@ -40,7 +40,12 @@ public interface Piece {
 	String name = "Piece";
 	int rank = 0;
 	
-
+	/**
+	 * Make an actual, valid move with a given Piece.
+	 * @return boolean false
+	 */
+	public boolean makeMove();
+	
 	/**
 	 * Every type of Piece has a name to distinguish it in the system against other Pieces.
 	 * @return String name, the name of the Piece
