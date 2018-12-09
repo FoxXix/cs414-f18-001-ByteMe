@@ -28,7 +28,11 @@ public class BanqiGame {
 	Tile atTile;
 	String choice;
 	
-	//start new game
+	 /**
+	 * Sets up a new BanqiGame between two Users, on a Board, who agreed to play together.
+	 * @param User u1, the first player of the game (inviter)
+	 * @param User u2, the second player in the game (invitee)
+	 */
 	public BanqiGame(User u1, User u2) {
 		board = new Board();
 		user1 = u1;
@@ -36,27 +40,41 @@ public class BanqiGame {
 
 	}
 	
-//	public void setBoard(Board b) {
-//		this.board = b;
-//	}
-	
+	/**
+	* 
+	* @param BufferedReader read, the tool used to read what pertains to this Banqi Game
+	*/
 	public void setReader(BufferedReader read) {
 		this.read = read;
 	}
 	
+	/**
+	* 
+	* @return User user2, the second User in the game (invitee)
+	*/
 	public User getUser2() {
 		return user2;
 	}
 	
+	/**
+	* 
+	* @return Board board, the board which this BanqiGame is on
+	*/
 	public Board getBoard() {
 		return board;
 	}
 	
+	/**
+	* 
+	* @param Board board, set the board to it's current state for this Banqi Game
+	*/
 	public void updateBoard(Board board) {
 		this.board = board;
 	}
 	
-	/* Calls the setPieces method to add both Red and Black pieces to the Banqi Game Board */
+	/**
+	* Calls the setPieces method to add both Red and Black pieces to the Banqi Game Board
+	*/
 	public void setUpBoard() {
 		setPieces("Red");
 		setPieces("Black");		
@@ -75,11 +93,14 @@ public class BanqiGame {
 //		}
 //	}
 	
-	/* On the given User's turn, they may make a valid move.
-	If the piece is not visible, it is turned over.
-	If the piece is visible, the User can move up, down, left or right on the board.
-	If the move captures a piece (and meets capturing criteria) the captured piece is removed from the board.
-	By the end, a move has been made with a Piece.*/
+	/**
+	* On the given User's turn, they may make a valid move.
+	* If the piece is not visible, it is turned over.
+	* If the piece is visible, the User can move up, down, left or right on the board.
+	* If the move captures a piece (and meets capturing criteria) the captured piece is removed from the board.
+	* By the end, a move has been made with a Piece.
+	* @param User user, the User who's turn it is in the Banqi Game
+	*/
 	public void makeMove(User user) throws IOException{
 		
 		System.out.println(user.getNickname() + ", your turn!");
@@ -98,7 +119,7 @@ public class BanqiGame {
 			System.out.println("You forfeited, loser");
 		}
 	}
-
+	
 	private void continueGame(User user) throws IOException {
 		int[] atPosition = getPosition(choice);
 		atTile = board.getTileInfo(atPosition);
@@ -170,10 +191,14 @@ public class BanqiGame {
 	}
 	
 	
-	/* This method takes in the position of the piece that is to be
-	 * moved and the direction it wants to be moved to. It validates
-	 * that the move would be valid and within the bounds of the 
-	 * board.
+	/** 
+	* This method takes in the position of the piece that is to be
+	* moved and the direction it wants to be moved to. It validates
+	* that the move would be valid and within the bounds of the 
+	* board.
+	* @param int[] at, the position of the Piece.
+	* @param char direction, the way (up,down,left,right) that the Piece is trying to go
+	* @return int[] toPosition, the validated bounds of the location moving to
 	*/
 	private int[] validateBounds(int[] at, char direction) {
 		int[] toPosition = null;
@@ -202,10 +227,11 @@ public class BanqiGame {
 		return toPosition;
 	}
 	
-	/*This method ensures that a User is selecting a valid move,
-	and that they Piece they are trying to move is of their own color.
-	This way, a User knows if the move can be made prior to entering
-	the makeMove method.
+	/**
+	* This method ensures that a User is selecting a valid move, and that the Piece they're trying to move is their own.
+	* This way, a User knows if the move can be made prior to entering the makeMove method.
+	* @param User user, the User who is now making a move
+	* @return boolean validMove, a true/false value indicating whether the move can/can't happen
 	*/
 	private boolean startMove(User user) throws IOException {
 		System.out.println("Enter a coordinate to select a piece.");
@@ -250,18 +276,26 @@ public class BanqiGame {
 		return position;
 	}
 	
-	/*To be implemented: Will record the stats of the game to the game's respective Users.*/
+	/**
+	* To be implemented: Will record the stats of the game to the game's respective Users.
+	*/
 	public void recordStats() {
 		
 	}
-
+	
+	/**
+	* 
+	* @return boolean false, for the state of the board
+	*/
 	public boolean getStateOfBoard() {
 		return false;		
 	}
 	
-	/* Assigns and places 16 Pieces for the given color on the Board (red or black pieces).
-	Each of the individual pieces are set up on the board in starting positions.
-	The number of each type of piece is based on the Banqi Game structure. 
+	/**
+	* Assigns and places 16 Pieces for the given color on the Board (red or black pieces).
+	* Each of the individual pieces are set up on the board in starting positions.
+	* The number of each type of piece is based on the Banqi Game structure. 
+	* @param String color, the color which the pieces should be set to
 	*/
 	private void setPieces(String color) {
 
@@ -351,9 +385,11 @@ public class BanqiGame {
 		}
 	}
 	
-	/*This is used to ensure that the pieces are assigned randomly to tiles on the Board.
-	When setting the pieces for the game, this is used to find a place to put a given piece.
-	A random, empty tile (without a piece assigned to it) is returned at the end.
+	/**
+	* This is used to ensure that the pieces are assigned randomly to tiles on the Board.
+	* When setting the pieces for the game, this is used to find a place to put a given piece.
+	* A random, empty tile (without a piece assigned to it) is returned at the end.
+	* @return int [] position, the position of a random empty tile on the board
 	*/
 	private int[] getRandomEmptyTilePosition() {
 		if (emptyTiles == 0)
@@ -399,9 +435,11 @@ public class BanqiGame {
 		return new Soldier(color, position[0], position[1]);
 	}
 	
-	/*This prints a visual representation of the current board out.  Tiles on the board
-	that have a piece assigned to them have an 'X' and those that are empty have a `-`.
-	The board is printed with this after every move to show the current game board to the Users.*/
+	/**
+	* This prints a visual representation of the current board out.  
+	* Tiles on the board that have a piece assigned to them have an 'X' and those that are empty have a `-`.
+	* The board is printed with this after every move to show the current game board to the Users.
+	*/
 	public void printBoard() {
 		Tile t;
 		System.out.flush();
@@ -425,7 +463,7 @@ public class BanqiGame {
 			System.out.print("\n");
 		}
 		System.out.println("---------------------------------------------------------------------------------");
-    }
+    	}
 	
 	private void setColor(String nickname, String color) {
 		map.put(nickname, color);
