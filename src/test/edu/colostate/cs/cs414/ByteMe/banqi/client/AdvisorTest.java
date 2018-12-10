@@ -2,28 +2,27 @@ package test.edu.colostate.cs.cs414.ByteMe.banqi.client;
 
 import static org.junit.jupiter.api.Assertions.*;
 
-import org.junit.BeforeClass;
+import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
 
 import main.edu.colostate.cs.cs414.ByteMe.banqi.client.Advisor;
 
-class AdvisorTest {
+public class AdvisorTest {
 
-static Advisor advisor;
+	private static Advisor advisor, advisorNull;
 	
-	@BeforeClass
-	public static void initialize(){
+	@BeforeAll
+	public static void initialize() {
 		advisor = new Advisor("Red", 1, 1);
-    }
-
-	@Test
-	void initializeTest() {
-		assertNotNull(advisor);
+    	}
+	
+	@Test 
+	public void testNullAdvisor() throws NullPointerException {
+		assertNull(advisorNull, "Test null Advisor");
 	}
 	
 	@Test
-	void moveTest() {
-		assertTrue(advisor.movePiece());
+	public void testNotNullAdvisor() throws NullPointerException {
+		assertNotNull(advisor, "Test not null Advisor");
 	}
-
 }
