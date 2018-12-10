@@ -18,10 +18,11 @@ public class Cannon implements Piece{
 
 	/**
 	* To be implemented.  
-	* This method determines whether the move intended for the Advisor is a valid move in the system.  
+	* This method determines whether the move intended for the Cannon is a valid move in the system.  
 	* If the system finds this to be a valid move, returns true, to indicate that a given move can legally be made. 
+	* The cannon has a special mode of capturing, but it is a feature that is not implemented at this time, so it captures
+	* the same as other pieces.
 	*/
-	@Override
 	public boolean movePiece() {
 		// TODO Auto-generated method stub
 		return false;
