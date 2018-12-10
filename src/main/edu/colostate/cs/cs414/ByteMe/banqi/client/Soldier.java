@@ -22,21 +22,8 @@ public class Soldier implements Piece{
 		X_position = x;
 		Y_position = y;
 	}
-	
-	/**
-	* To be implemented.  
-	* This method determines whether the move intended for the Horse is a valid move in the system.  
-	* If the system finds this to be a valid move, returns true, to indicate that a given move can legally be made. 
-	* @param boolean false
-	*/
-	@Override
-	public boolean movePiece() {
-		// TODO Auto-generated method stub
-		return false;
-	}
 
 	/**
-	* 
 	* @return String name, Soldier for this Piece
 	*/
 	@Override
@@ -45,7 +32,6 @@ public class Soldier implements Piece{
 	}
 	
 	/**
-	* 
 	* @return String color of the peice, either red or black
 	*/
 	@Override
@@ -73,7 +59,6 @@ public class Soldier implements Piece{
 	}
 	
 	/**
-	* 
 	* @return int rank, the rank/power of this Soldier
 	*/
 	@Override
