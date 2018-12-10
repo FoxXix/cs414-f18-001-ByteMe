@@ -14,29 +14,16 @@ public class Elephant implements Piece{
 	 * The color is either red of black and there are two Elephants per color.
 	 * The position has an x coordinate and a y coordinate to indicate the Piece's position on the Banqi Game Board.
 	 * @param String color
-	 * @param int x
-	 * @param int y
+	 * @param int x, the x-coordinate in the (x,y) position of the Elephant
+	 * @param int y, the y-coordinate in the (x,y) position of the Elephant
 	 */
 	public Elephant(String color, int x, int y) {
 		this.color =  color;
 		X_position = x;
 		Y_position = y;
 	}
-	
-	/**
-	* To be implemented.  
-	* This method determines whether the move intended for the Chariot is a valid move in the system.  
-	* If the system finds this to be a valid move, returns true, to indicate that a given move can legally be made. 
-	* @param boolean false
-	*/
-	@Override
-	public boolean movePiece() {
-		// TODO Auto-generated method stub
-		return false;
-	}
 
 	/**
-	* 
 	* @return String name, Elephant for this Piece
 	*/
 	@Override
@@ -45,7 +32,6 @@ public class Elephant implements Piece{
 	}
 	
 	/**
-	* 
 	* @return String color of the peice, either red or black
 	*/
 	@Override
@@ -73,7 +59,6 @@ public class Elephant implements Piece{
 	}
 	
 	/**
-	* 
 	* @return int rank, the rank/power of this Elephant
 	*/
 	@Override
