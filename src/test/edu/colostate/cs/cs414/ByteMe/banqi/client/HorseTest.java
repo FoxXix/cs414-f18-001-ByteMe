@@ -2,28 +2,28 @@ package test.edu.colostate.cs.cs414.ByteMe.banqi.client;
 
 import static org.junit.jupiter.api.Assertions.*;
 
-import org.junit.BeforeClass;
+import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
 
 import main.edu.colostate.cs.cs414.ByteMe.banqi.client.Horse;
 
-class HorseTest {
+public class HorseTest {
 
-	static Horse horse;
+	private static Horse horse, horseNull;
 
-	@BeforeClass
+	@BeforeAll
 	public static void initialize(){
 		horse = new Horse("Red", 1, 1);
-    }
-
-	@Test
-	void initializeTest() {
-		assertNotNull(horse);
+    	}
+	
+	@Test 
+	public void testNullHorse() throws NullPointerException {
+		assertNull(horseNull, "Test null Horse");
 	}
 	
 	@Test
-	void moveTest() {
-		assertTrue(horse.movePiece());
+	public void testNotNullHorse() throws NullPointerException {
+		assertNotNull(horse, "Test not null Horse");
 	}
 
 }

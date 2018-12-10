@@ -63,7 +63,15 @@ public class UserNode extends Node{
 	private User user;
 	private List<String> gamesInvitedTo = new ArrayList<String>();
 
-	
+		
+    	/**
+     	* Initalize a UserNode and connect it to a running Server.
+     	* In order to make a connection to the Server, both the Server's name and the Port of it are needed.
+     	* @param serverName, the name of the active Server that this UserNode can connect to
+     	* @param port, the Port number that is hosting the Server
+     	* @throws IOException in the case of input/output error
+     	* @throws InterruptedException if the connection to the Server from the UserNode is interrupted
+     	*/
 	private void Initialize(String serverName, int port) throws IOException, InterruptedException
 	{
 		this.eventFactory = new EventFactory(this);
@@ -111,7 +119,12 @@ public class UserNode extends Node{
 	
 	}
 	
-	//send a message to the server requesting to LogIn to an existing account
+    /**
+     * Send a message to the server requesting that a UserNode wants to LogIn to an existing account
+     * @param nickname, the nickname of the User (from login on UserNode instance)
+     * @param password, the password of the User (from login on UserNode instance)
+     * @throws IOException in the case of input/output error
+     */
 	public void logIn(String nickname, String password) throws IOException {
 		LogIn lIn = new LogIn();
 		lIn.setNickname((byte)nickname.getBytes().length, nickname.getBytes());
@@ -121,7 +134,11 @@ public class UserNode extends Node{
 		connection.sendMessage(lIn.getBytes());
 	}
 	
-	//send invite (to be routed through server)
+    /**
+     * Send a message to the server saying a UserNode wants to send an invite to another User(node)
+     * @param invitee, the nickname of the User for the server to send an invite message to.
+     * @throws IOException int he case of input/output error
+     */
 	public void sendInvite(String invitee) throws IOException {
 		SendInvite sendInvite = new SendInvite();
 		sendInvite.setInvitee((byte)invitee.getBytes().length, invitee.getBytes());
@@ -129,7 +146,13 @@ public class UserNode extends Node{
 		connection.sendMessage(sendInvite.getBytes());
 	}
 	
-	//message from UserNode to router declaring that 2 users have accepted a game invite
+    /**
+     * Send a message to the Inviter that the Invitee accepted the invitation and will play Banqi.
+     * The message from UserNode to router declares that 2 users have accepted a game invite.
+     * @param invitee, the nickname of the User who the server invited
+     * @param inviteFrom, the nickname of the User who request the invite be sent
+     * @throws IOException in the case of input/output error
+     */
 	public void sendAccept(String invitee, String inviteFrom) throws IOException {
 		SendAccept sendAcc = new SendAccept();
 		sendAcc.setInvitee((byte)invitee.getBytes().length,  invitee.getBytes());
@@ -137,9 +160,15 @@ public class UserNode extends Node{
 		connection.sendMessage(sendAcc.getBytes());
 	}
 
-	//Receives Event messages, and acts according to the type of Event that has arrived
+    /**
+     * Overrides the OnEvent abstract method from the Node.java class to handle the occurrence of
+     * events on a UserNode instance.  Such events are account registration, login, checking for valid profiles,
+     * logging out, unregistering, sending/accepting invites, sending moves and startingAGame (all send messages).
+     * @param e, an event to be handled (such as a sendAccept message from a UserNode to another)
+     * @param connect, the connection that connects a device to the Server
+     * @throws IOException in the case of input/output error
+     */
 	public void OnEvent(Event e, TCPConnection connect) throws IOException {
-//		System.out.println("In OnEvent Messaging");
 		byte type = e.getType();
 		
 		switch(type) {
@@ -150,45 +179,10 @@ public class UserNode extends Node{
 //			System.out.println(Arrays.toString(regStatus.getInfoString()));
 			break;
 		case Protocol.SendUser:
-			SendUser sendU = (SendUser) e;
-			
-			//get userprofile info and create User instance
-			byte[] name = sendU.getNickname();
-			String nickname = new String(name);
-			byte[] em = sendU.getEmail();
-			String email = new String(em);
-			byte[] pas = sendU.getPassword();
-			String password = new String(pas);
-			byte[] dat = sendU.getDate();
-			String date = new String(dat);
-			int wins = sendU.getWins();
-			int losses = sendU.getLosses();
-			int draws = sendU.getDraws();
-			int forfeits = sendU.getForfeits();
-			userProfile = new UserProfile(nickname, email, password, date, wins, losses, draws, forfeits);
-			user = new User(userProfile);
-			banqi.setUser(user);
-			banqi.setUserStatus(true);
-			
-			List<byte[]> nam = new ArrayList<byte[]>();
-			List<String> names = new ArrayList<String>();
-			nam = sendU.getNames();
-			for(byte[] n : nam) {
-				String s = new String(n);
-				names.add(s);
-//				System.out.println(s);
-			}
-			
-			banqi.setNames(names);
-
+			handleSendUser((SendUser) e);
 			break;
 		case Protocol.ValidProfile:
-			ValidProfile validProfile = (ValidProfile) e;
-			banqi.setValidProfile(validProfile.isValidProfile());
-			if (!validProfile.isValidProfile()) 
-				System.out.println("Nickname and/or email already exists in our system. Try again.");
-			else 
-				System.out.println("Profile created!");
+			handleValidProfile((ValidProfile) e);
 			break;
 		case Protocol.RegistryReportsDeregistrationStatus:
 //			RegistryReportsDeregistrationStatus rrd = (RegistryReportsDeregistrationStatus) e;
@@ -196,306 +190,202 @@ public class UserNode extends Node{
 			System.exit(0);
 			break;
 		case Protocol.SendInvite:
-			SendInvite sendInv = (SendInvite) e;
-			byte[] inF = sendInv.getInviteFrom();
-			String invFrom = new String(inF);
-			gamesInvitedTo.add(invFrom);
-			System.out.println("\nYou received an invite from " + invFrom + "!");
-			System.out.println("\nPlease choose how to proceed. \n1) Play existing game");
-			System.out.println("2) Manage invites");
-			System.out.println("3) View profile");
+			handleSendInvite((SendInvite) e);
 			break;
 		case Protocol.StartGame:
-			StartGame start = (StartGame) e;
-			byte[] oppoPlayer = start.getPlayerName();
-			String opponent = new String(oppoPlayer);
-			System.out.println(opponent);
-			boolean turn = start.getTurn();
-			int gameID = start.getGameID();
-			ArrayList<byte[]> pieName = new ArrayList<byte[]>();
-			ArrayList<byte[]> colName = new ArrayList<byte[]>();
-			List<String[]> pieceNames = new ArrayList<String[]>();
-			List<String[]> colNames = new ArrayList<String[]>();
-			List<boolean[]> visible = new ArrayList<boolean[]>();
-			for(int i = 0; i < 8; i++) {
-//				System.out.println(i);
-				String[] strName = new String[4];
-				String[] colNam = new String[4];
-				if(i == 0) {
-					pieName = start.getNam0();
-					colName = start.getcolC0();
-//					System.out.println(pieName.size());
-					for(int b = 0; b < 4; b++) {
-						String s = new String(pieName.get(b));
-						strName[b] = s;
-						String sC = new String(colName.get(b));
-						colNam[b] = sC;
-					}
-					visible.add(start.getVis0());
-				} else if(i == 1) {
-					pieName = start.getNam1();
-					colName = start.getcolC1();
-//					System.out.println(pieName.size());
-					for(int b = 0; b < 4; b++) {
-						String s = new String(pieName.get(b));
-						strName[b] = s;
-						String sC = new String(colName.get(b));
-						colNam[b] = sC;
-					}
-					visible.add(start.getVis1());
-				} else if(i == 2) {
-					pieName = start.getNam2();
-					colName = start.getcolC2();
-//					System.out.println(pieName.size());
-					for(int b = 0; b < 4; b++) {
-						String s = new String(pieName.get(b));
-						strName[b] = s;
-						String sC = new String(colName.get(b));
-						colNam[b] = sC;
-					}
-					visible.add(start.getVis2());
-				} else if(i == 3) {
-					pieName = start.getNam3();
-					colName = start.getcolC3();
-					System.out.println(pieName.size());
-					for(int b = 0; b < 4; b++) {
-						String s = new String(pieName.get(b));
-						strName[b] = s;
-						String sC = new String(colName.get(b));
-						colNam[b] = sC;
-					}
-					visible.add(start.getVis3());
-				} else if(i == 4) {
-					pieName = start.getNam4();
-					colName = start.getcolC4();
-//					System.out.println(pieName.size());
-					for(int b = 0; b < 4; b++) {
-						String s = new String(pieName.get(b));
-						strName[b] = s;
-						String sC = new String(colName.get(b));
-						colNam[b] = sC;
-					}
-					visible.add(start.getVis4());
-				} else if(i == 5) {
-					pieName = start.getNam5();
-					colName = start.getcolC5();
-//					System.out.println(pieName.size());
-					for(int b = 0; b < 4; b++) {
-						String s = new String(pieName.get(b));
-						strName[b] = s;
-						String sC = new String(colName.get(b));
-						colNam[b] = sC;
-					}
-					visible.add(start.getVis5());
-				} else if(i == 6) {
-					pieName = start.getNam6();
-					colName = start.getcolC6();
-//					System.out.println(pieName.size());
-					for(int b = 0; b < 4; b++) {
-						String s = new String(pieName.get(b));
-						strName[b] = s;
-						String sC = new String(colName.get(b));
-						colNam[b] = sC;
-					}
-					visible.add(start.getVis6());
-				} else if(i == 7) {
-					pieName = start.getNam7();
-					colName = start.getcolC7();
-//					System.out.println(pieName.size());
-					for(int b = 0; b < 4; b++) {
-						String s = new String(pieName.get(b));
-						strName[b] = s;
-						String sC = new String(colName.get(b));
-						colNam[b] = sC;
-					}
-					visible.add(start.getVis7());
-				} else {}
-				pieceNames.add(strName);
-				colNames.add(colNam);
-			}
-			makeBoard(pieceNames, colNames, visible);
-			banqi.startGame(opponent, turn);
-			if(turn == true) {
-				banqi.makeMove(turn, opponent, gameID);
-			} else {
-				System.out.println("Please wait for your turn");
-			}
+			handleStartGame((StartGame) e);
 
 			break;
 		case Protocol.SendMove:
-			SendMove sendMove = (SendMove) e;
-			byte[] oppoPlayer1 = sendMove.getPlayerName();
-			String opponent1 = new String(oppoPlayer1);
-			System.out.println(opponent1);
-			boolean turn1 = sendMove.getTurn();
-			int gameID1 = sendMove.getGameID();
-			ArrayList<byte[]> pieName1 = new ArrayList<byte[]>();
-			ArrayList<byte[]> colName1 = new ArrayList<byte[]>();
-			List<String[]> pieceNames1 = new ArrayList<String[]>();
-			List<String[]> colNames1 = new ArrayList<String[]>();
-			List<boolean[]> visible1 = new ArrayList<boolean[]>();
-			for(int i = 0; i < 8; i++) {
-//				System.out.println(i);
-				String[] strName = new String[4];
-				String[] colNam = new String[4];
-				if(i == 0) {
-					pieName1 = sendMove.getNam0();
-					colName1 = sendMove.getcolC0();
-//					System.out.println(pieName1.size());
-					for(int b = 0; b < 4; b++) {
-						String s = new String(pieName1.get(b));
-						strName[b] = s;
-						String sC = new String(colName1.get(b));
-						colNam[b] = sC;
-					}
-					visible1.add(sendMove.getVis0());
-				} else if(i == 1) {
-					pieName1 = sendMove.getNam1();
-					colName1 = sendMove.getcolC1();
-//					System.out.println(pieName1.size());
-					for(int b = 0; b < 4; b++) {
-						String s = new String(pieName1.get(b));
-						strName[b] = s;
-						String sC = new String(colName1.get(b));
-						colNam[b] = sC;
-					}
-					visible1.add(sendMove.getVis1());
-				} else if(i == 2) {
-					pieName1 = sendMove.getNam2();
-					colName1 = sendMove.getcolC2();
-//					System.out.println(pieName1.size());
-					for(int b = 0; b < 4; b++) {
-						String s = new String(pieName1.get(b));
-						strName[b] = s;
-						String sC = new String(colName1.get(b));
-						colNam[b] = sC;
-					}
-					visible1.add(sendMove.getVis2());
-				} else if(i == 3) {
-					pieName1 = sendMove.getNam3();
-					colName1 = sendMove.getcolC3();
-//					System.out.println(pieName1.size());
-					for(int b = 0; b < 4; b++) {
-						String s = new String(pieName1.get(b));
-						strName[b] = s;
-						String sC = new String(colName1.get(b));
-						colNam[b] = sC;
-					}
-					visible1.add(sendMove.getVis3());
-				} else if(i == 4) {
-					pieName1 = sendMove.getNam4();
-					colName1 = sendMove.getcolC4();
-//					System.out.println(pieName1.size());
-					for(int b = 0; b < 4; b++) {
-						String s = new String(pieName1.get(b));
-						strName[b] = s;
-						String sC = new String(colName1.get(b));
-						colNam[b] = sC;
-					}
-					visible1.add(sendMove.getVis4());
-				} else if(i == 5) {
-					pieName1 = sendMove.getNam5();
-					colName1 = sendMove.getcolC5();
-//					System.out.println(pieName1.size());
-					for(int b = 0; b < 4; b++) {
-						String s = new String(pieName1.get(b));
-						strName[b] = s;
-						String sC = new String(colName1.get(b));
-						colNam[b] = sC;
-					}
-					visible1.add(sendMove.getVis5());
-				} else if(i == 6) {
-					pieName1 = sendMove.getNam6();
-					colName1 = sendMove.getcolC6();
-//					System.out.println(pieName1.size());
-					for(int b = 0; b < 4; b++) {
-						String s = new String(pieName1.get(b));
-						strName[b] = s;
-						String sC = new String(colName1.get(b));
-						colNam[b] = sC;
-					}
-					visible1.add(sendMove.getVis6());
-				} else if(i == 7) {
-					pieName1 = sendMove.getNam7();
-					colName1 = sendMove.getcolC7();
-//					System.out.println(pieName1.size());
-					for(int b = 0; b < 4; b++) {
-						String s = new String(pieName1.get(b));
-						strName[b] = s;
-						String sC = new String(colName1.get(b));
-						colNam[b] = sC;
-					}
-					visible1.add(sendMove.getVis7());
-				} else {}
-				pieceNames1.add(strName);
-				colNames1.add(colNam);
-			}
-			
-			for(int i = 0; i < visible1.size(); i++) {
-//			System.out.println(Arrays.toString(pieceNameArray.get(i)));
-//			System.out.println(Arrays.toString(pieceColorArray.get(i)));
-			System.out.println(Arrays.toString(visible1.get(i)));
-		}
-			
-			makeBoard(pieceNames1, colNames1, visible1);
-			banqi.makeMove(turn1, opponent1, gameID1);
+			handleSendMove((SendMove) e);
 		}		
 	}
-	
+
+	private void handleValidProfile(ValidProfile e) {
+		ValidProfile validProfile = e;
+		banqi.setValidProfile(validProfile.isValidProfile());
+		if (!validProfile.isValidProfile())
+			System.out.println("Nickname and/or email already exists in our system. Try again.");
+		else
+			System.out.println("Profile created!");
+	}
+
+	private void handleSendInvite(SendInvite e) {
+		SendInvite sendInv = e;
+		byte[] inF = sendInv.getInviteFrom();
+		String invFrom = new String(inF);
+		gamesInvitedTo.add(invFrom);
+		System.out.println("\nYou received an invite from " + invFrom + "!");
+		System.out.println("\nPlease choose how to proceed. \n1) Play existing game");
+		System.out.println("2) Manage invites");
+		System.out.println("3) View profile");
+	}
+
+	private void handleSendMove(SendMove e) throws IOException {
+		SendMove sendMove = e;
+		byte[] oppoPlayer1 = sendMove.getPlayerName();
+		String opponent1 = new String(oppoPlayer1);
+		System.out.println(opponent1);
+		boolean turn1 = sendMove.getTurn();
+		int gameID1 = sendMove.getGameID();
+		ArrayList<byte[]> pieName1 = new ArrayList<byte[]>();
+		ArrayList<byte[]> colName1 = new ArrayList<byte[]>();
+		List<String[]> pieceNames1 = new ArrayList<String[]>();
+		List<String[]> colNames1 = new ArrayList<String[]>();
+		List<boolean[]> visible1 = new ArrayList<boolean[]>();
+		for(int i = 0; i < 8; i++) {
+//				System.out.println(i);
+			String[] strName = new String[4];
+			String[] colNam = new String[4];
+			if(i == 0) {
+				sendMovePerIteration(visible1, strName, colNam, sendMove.getNam0(), sendMove.getcolC0(), sendMove.getVis0());
+			} else if(i == 1) {
+				sendDataPerIteration(visible1, strName, colNam, sendMove.getNam1(), sendMove.getcolC1(), sendMove.getVis1());
+			} else if(i == 2) {
+				sendDataPerIteration(visible1, strName, colNam, sendMove.getNam2(), sendMove.getcolC2(), sendMove.getVis2());
+			} else if(i == 3) {
+				sendDataPerIteration(visible1, strName, colNam, sendMove.getNam3(), sendMove.getcolC3(), sendMove.getVis3());
+			} else if(i == 4) {
+				sendDataPerIteration(visible1, strName, colNam, sendMove.getNam4(), sendMove.getcolC4(), sendMove.getVis4());
+			} else if(i == 5) {
+				sendDataPerIteration(visible1, strName, colNam, sendMove.getNam5(), sendMove.getcolC5(), sendMove.getVis5());
+			} else if(i == 6) {
+				sendDataPerIteration(visible1, strName, colNam, sendMove.getNam6(), sendMove.getcolC6(), sendMove.getVis6());
+			} else if(i == 7) {
+				sendDataPerIteration(visible1, strName, colNam, sendMove.getNam7(), sendMove.getcolC7(), sendMove.getVis7());
+			} else {}
+			pieceNames1.add(strName);
+			colNames1.add(colNam);
+		}
+
+		for(int i = 0; i < visible1.size(); i++) {
+//				System.out.println(Arrays.toString(pieceNameArray.get(i)));
+//				System.out.println(Arrays.toString(pieceColorArray.get(i)));
+			System.out.println(Arrays.toString(visible1.get(i)));
+		}
+
+		makeBoard(pieceNames1, colNames1, visible1);
+		banqi.makeMove(turn1, opponent1, gameID1);
+	}
+
+	private void sendDataPerIteration(List<boolean[]> visible1, String[] strName, String[] colNam, ArrayList<byte[]> nam1, ArrayList<byte[]> bytes, boolean[] vis1) {
+		ArrayList<byte[]> pieName1;
+		ArrayList<byte[]> colName1;
+		pieName1 = nam1;
+		colName1 = bytes;
+
+		for (int b = 0; b < 4; b++) {
+			String s = new String(pieName1.get(b));
+			strName[b] = s;
+			String sC = new String(colName1.get(b));
+			colNam[b] = sC;
+		}
+		visible1.add(vis1);
+	}
+
+	private void sendMovePerIteration(List<boolean[]> visible1, String[] strName, String[] colNam, ArrayList<byte[]> nam0, ArrayList<byte[]> bytes, boolean[] vis0) {
+		ArrayList<byte[]> pieName1;
+		ArrayList<byte[]> colName1;
+		sendDataPerIteration(visible1, strName, colNam, nam0, bytes, vis0);
+	}
+
+	private void handleStartGame(StartGame e) throws IOException {
+		StartGame start = e;
+		byte[] oppoPlayer = start.getPlayerName();
+		String opponent = new String(oppoPlayer);
+		System.out.println(opponent);
+		boolean turn = start.getTurn();
+		int gameID = start.getGameID();
+		ArrayList<byte[]> pieName = new ArrayList<byte[]>();
+		ArrayList<byte[]> colName = new ArrayList<byte[]>();
+		List<String[]> pieceNames = new ArrayList<String[]>();
+		List<String[]> colNames = new ArrayList<String[]>();
+		List<boolean[]> visible = new ArrayList<boolean[]>();
+
+		for(int i = 0; i < 8; i++) {
+			String[] strName = new String[4];
+			String[] colNam = new String[4];
+			if(i == 0) {
+				sendDataPerIteration(visible, strName, colNam, start.getNam0(), start.getcolC0(), start.getVis0());
+			} else if(i == 1) {
+				sendDataPerIteration(visible, strName, colNam, start.getNam1(), start.getcolC1(), start.getVis1());
+			} else if(i == 2) {
+				sendDataPerIteration(visible, strName, colNam, start.getNam2(), start.getcolC2(), start.getVis2());
+			} else if(i == 3) {
+				sendDataPerIteration(visible, strName, colNam, start.getNam3(), start.getcolC3(), start.getVis3());
+			} else if(i == 4) {
+				sendDataPerIteration(visible, strName, colNam, start.getNam4(), start.getcolC4(), start.getVis4());
+			} else if(i == 5) {
+				sendDataPerIteration(visible, strName, colNam, start.getNam5(), start.getcolC5(), start.getVis5());
+			} else if(i == 6) {
+				sendDataPerIteration(visible, strName, colNam, start.getNam6(), start.getcolC6(), start.getVis6());
+			} else if(i == 7) {
+				sendDataPerIteration(visible, strName, colNam, start.getNam7(), start.getcolC7(), start.getVis7());
+			} else {}
+			pieceNames.add(strName);
+			colNames.add(colNam);
+		}
+		makeBoard(pieceNames, colNames, visible);
+		banqi.startGame(opponent, turn);
+		if(turn == true) {
+			banqi.makeMove(turn, opponent, gameID);
+		} else {
+			System.out.println("Please wait for your turn");
+		}
+	}
+
+	private void handleSendUser(SendUser e) {
+		SendUser sendU = e;
+
+		//get userprofile info and create User instance
+		byte[] name = sendU.getNickname();
+		String nickname = new String(name);
+		byte[] em = sendU.getEmail();
+		String email = new String(em);
+		byte[] pas = sendU.getPassword();
+		String password = new String(pas);
+		byte[] dat = sendU.getDate();
+		String date = new String(dat);
+		int wins = sendU.getWins();
+		int losses = sendU.getLosses();
+		int draws = sendU.getDraws();
+		int forfeits = sendU.getForfeits();
+		userProfile = new UserProfile(nickname, email, password, date, wins, losses, draws, forfeits);
+		user = new User(userProfile);
+		banqi.setUser(user);
+		banqi.setUserStatus(true);
+
+		List<byte[]> nam = new ArrayList<byte[]>();
+		List<String> names = new ArrayList<String>();
+		nam = sendU.getNames();
+		for(byte[] n : nam) {
+			String s = new String(n);
+			names.add(s);
+//				System.out.println(s);
+		}
+
+		banqi.setNames(names);
+	}
+
 	private void makeBoard(List<String[]> pieceNames, List<String[]> colNames, List<boolean[]> visible) {
 		Board b = new Board();
 		for (int i = 0; i < 8; i++) {
 			for (int j = 0; j < 4; j++) {
 				Piece piece = null;
 				if(pieceNames.get(i)[j].equals("Soldier")){
-					piece = new Soldier(colNames.get(i)[j], i, j);
-					System.out.println(visible.get(i)[j]);
-					if(visible.get(i)[j] == true) {
-						piece.makeVisible();
-						System.out.println(piece.isVisible());
-					}
+					piece = placeSoldier(colNames, visible, i, j);
 				} else if(pieceNames.get(i)[j].equals("Advisor")) {
-					piece = new Advisor(colNames.get(i)[j], i, j);
-					System.out.println(visible.get(i)[j]);
-					if(visible.get(i)[j] == true) {
-						piece.makeVisible();
-						System.out.println(piece.isVisible());
-					}
+					piece = placeAdvisor(colNames, visible, i, j);
 				} else if(pieceNames.get(i)[j].equals("Cannon")) {
-					piece = new Cannon(colNames.get(i)[j], i, j);
-					System.out.println(visible.get(i)[j]);
-					if(visible.get(i)[j] == true) {
-						piece.makeVisible();
-						System.out.println(piece.isVisible());
-					}
+					piece = placeCannon(colNames, visible, i, j);
 				} else if(pieceNames.get(i)[j].equals("Chariot")) {
-					piece = new Chariot(colNames.get(i)[j], i, j);
-					System.out.println(visible.get(i)[j]);
-					if(visible.get(i)[j] == true) {
-						piece.makeVisible();
-						System.out.println(piece.isVisible());
-					}
+					piece = placeChariot(colNames, visible, i, j);
 				} else if(pieceNames.get(i)[j].equals("Elephant")) {
-					piece = new Elephant(colNames.get(i)[j], i, j);
-					System.out.println(visible.get(i)[j]);
-					if(visible.get(i)[j] == true) {
-						piece.makeVisible();
-						System.out.println(piece.isVisible());
-					}
+					piece = placeElephant(colNames, visible, i, j);
 				} else if(pieceNames.get(i)[j].equals("General")) {
-					piece = new General(colNames.get(i)[j], i, j);
-					System.out.println(visible.get(i)[j]);
-					if(visible.get(i)[j] == true) {
-						piece.makeVisible();
-						System.out.println(piece.isVisible());
-					}
+					piece = placeGeneral(colNames, visible, i, j);
 				} else if(pieceNames.get(i)[j].equals("Horse")) {
-					piece = new Horse(colNames.get(i)[j], i, j);
-					System.out.println(visible.get(i)[j]);
-					if(visible.get(i)[j] == true) {
-						piece.makeVisible();
-						System.out.println(piece.isVisible());
-					}
+					piece = placeHorse(colNames, visible, i, j);
 				}  else {
 					//piece is null, do not add a piece
 				}
@@ -506,78 +396,115 @@ public class UserNode extends Node{
 		System.out.println("usernode make board null check: " + b);
 		banqi.setBoard(b);
 	}
+
+	private Piece placeHorse(List<String[]> colNames, List<boolean[]> visible, int i, int j) {
+		Piece piece = new Horse(colNames.get(i)[j], i, j);
+		System.out.println(visible.get(i)[j]);
+		if(visible.get(i)[j] == true) {
+			piece.makeVisible();
+			System.out.println(piece.isVisible());
+		}
+		return piece;
+	}
+
+	private Piece placeGeneral(List<String[]> colNames, List<boolean[]> visible, int i, int j) {
+		Piece piece = new General(colNames.get(i)[j], i, j);
+		System.out.println(visible.get(i)[j]);
+		if(visible.get(i)[j] == true) {
+			piece.makeVisible();
+			System.out.println(piece.isVisible());
+		}
+		return piece;
+	}
+
+	private Piece placeElephant(List<String[]> colNames, List<boolean[]> visible, int i, int j) {
+		Piece piece = new Elephant(colNames.get(i)[j], i, j);
+		System.out.println(visible.get(i)[j]);
+		if(visible.get(i)[j] == true) {
+			piece.makeVisible();
+			System.out.println(piece.isVisible());
+		}
+		return piece;
+	}
+
+	private Piece placeChariot(List<String[]> colNames, List<boolean[]> visible, int i, int j) {
+		Piece piece = new Chariot(colNames.get(i)[j], i, j);
+		System.out.println(visible.get(i)[j]);
+		if(visible.get(i)[j] == true) {
+			piece.makeVisible();
+			System.out.println(piece.isVisible());
+		}
+		return piece;
+	}
+
+	private Piece placeCannon(List<String[]> colNames, List<boolean[]> visible, int i, int j) {
+		Piece piece = new Cannon(colNames.get(i)[j], i, j);
+		System.out.println(visible.get(i)[j]);
+		if(visible.get(i)[j] == true) {
+			piece.makeVisible();
+			System.out.println(piece.isVisible());
+		}
+		return piece;
+	}
+
+	private Piece placeAdvisor(List<String[]> colNames, List<boolean[]> visible, int i, int j) {
+		Piece piece = new Advisor(colNames.get(i)[j], i, j);
+		System.out.println(visible.get(i)[j]);
+		if(visible.get(i)[j] == true) {
+			piece.makeVisible();
+			System.out.println(piece.isVisible());
+		}
+		return piece;
+	}
+
+	private Piece placeSoldier(List<String[]> colNames, List<boolean[]> visible, int i, int j) {
+		Piece piece = new Soldier(colNames.get(i)[j], i, j);
+		System.out.println(visible.get(i)[j]);
+		if(visible.get(i)[j] == true) {
+			piece.makeVisible();
+			System.out.println(piece.isVisible());
+		}
+		return piece;
+	}
 	
+    /**
+     * This method sends a move from one device to the other through the Server.  When a User makes a move,
+     * the server sends and shows that move to the other USer, so that the game is updating on the screens of
+     * both Users.
+     * @param pieceNameArray, an ArrayList containing the names of the game pieces on the board
+     * @param pieceColorArray, an ArrayList containing the colors of the game pieces on the board
+     * @param pieceVisArray, an ArrayList which states which pieces on board are visible(face-up_ and which aren't
+     * @param opponent, a string containing the nickname of the User who did not just make the move
+     * @param gameID, the unique integer value assigned to the game, which just saw the move
+     * @throws IOException
+     */
 	public void sendMove(List<String[]> pieceNameArray, List<String[]> pieceColorArray,
 		List<boolean[]> pieceVisArray, String opponent, int gameID) throws IOException {
-		
-//		System.out.println();
-//		for(int i = 0; i < pieceNameArray.size(); i++) {
-//			System.out.println(Arrays.toString(pieceNameArray.get(i)));
-//			System.out.println(Arrays.toString(pieceColorArray.get(i)));
-//			System.out.println(Arrays.toString(pieceVisArray.get(i)));
-//		}
-		
-//		System.out.println(opponent);
+
 		SendMove sendM = new SendMove();
 		sendM.setPlayerName((byte)opponent.getBytes().length, opponent.getBytes());
 		sendM.setTurn(false);
 		sendM.setGameID(gameID);
-		for (int i = 0; i < pieceNameArray.size(); i++) {
-			ArrayList<byte[]> byteList = new ArrayList<byte[]>();
-			byte[] nN = new byte[4];
-			// System.out.println(pieceNameArray.get(i).length);
-			for (int j = 0; j < pieceNameArray.get(i).length; j++) {
-				byte nLength = (byte) pieceNameArray.get(i)[j].getBytes().length;
-				nN[j] = nLength;
-				byteList.add(pieceNameArray.get(i)[j].getBytes());
 
-			}
-			if (i == 0) {
-				sendM.setNameLengths(nN);
-				sendM.setNames0(byteList);
-			} else if (i == 1) {
-//				System.out.println(nN);
-				sendM.setNameLengths1(nN);
-				sendM.setNames1(byteList);
-			} else if (i == 2) {
-				sendM.setNameLengths2(nN);
-				sendM.setNames2(byteList);
-			} else if (i == 3) {
-				sendM.setNameLengths3(nN);
-				sendM.setNames3(byteList);
-			} else if (i == 4) {
-				sendM.setNameLengths4(nN);
-				sendM.setNames4(byteList);
-			} else if (i == 5) {
-				sendM.setNameLengths5(nN);
-				sendM.setNames5(byteList);
-			} else if (i == 6) {
-				sendM.setNameLengths6(nN);
-				sendM.setNames6(byteList);
-			} else if (i == 7) {
-				sendM.setNameLengths7(nN);
-				sendM.setNames7(byteList);
-			}
-
-		}
+		setSendMoveNameInfo(pieceNameArray, sendM);
 
 		List<ArrayList<byte[]>> pieceColorBytes = new ArrayList<ArrayList<byte[]>>();
+		setSendMoveColorInfo(pieceColorArray, pieceVisArray, sendM);
+	}
 
-//		System.out.println("before color loop");
-//		System.out.println(pieceColorArray.size());
+	private void setSendMoveColorInfo(List<String[]> pieceColorArray, List<boolean[]> pieceVisArray, SendMove sendM) throws IOException {
 		for (int i = 0; i < pieceColorArray.size(); i++) {
-//			System.out.println(i);
 			ArrayList<byte[]> byteList = new ArrayList<byte[]>();
 			byte[] cN = new byte[4];
 			boolean[] v = pieceVisArray.get(i);
+			
 			for (int j = 0; j < pieceColorArray.get(i).length; j++) {
 				byte cLength = (byte) pieceColorArray.get(i)[j].getBytes().length;
 				cN[j] = cLength;
 				byteList.add(pieceColorArray.get(i)[j].getBytes());
-
 			}
+			
 			if (i == 0) {
-//				System.out.println(Arrays.toString(cN));
 				sendM.setColorLengths0(cN);
 				sendM.setColor0(byteList);
 				sendM.setVis0(v);
@@ -615,6 +542,43 @@ public class UserNode extends Node{
 		connection.sendMessage(sendM.getBytes());
 	}
 
+	private void setSendMoveNameInfo(List<String[]> pieceNameArray, SendMove sendM) {
+		for (int i = 0; i < pieceNameArray.size(); i++) {
+			ArrayList<byte[]> byteList = new ArrayList<byte[]>();
+			byte[] nN = new byte[4];
+			for (int j = 0; j < pieceNameArray.get(i).length; j++) {
+				byte nLength = (byte) pieceNameArray.get(i)[j].getBytes().length;
+				nN[j] = nLength;
+				byteList.add(pieceNameArray.get(i)[j].getBytes());
+			}
+			if (i == 0) {
+				sendM.setNameLengths(nN);
+				sendM.setNames0(byteList);
+			} else if (i == 1) {
+				sendM.setNameLengths1(nN);
+				sendM.setNames1(byteList);
+			} else if (i == 2) {
+				sendM.setNameLengths2(nN);
+				sendM.setNames2(byteList);
+			} else if (i == 3) {
+				sendM.setNameLengths3(nN);
+				sendM.setNames3(byteList);
+			} else if (i == 4) {
+				sendM.setNameLengths4(nN);
+				sendM.setNames4(byteList);
+			} else if (i == 5) {
+				sendM.setNameLengths5(nN);
+				sendM.setNames5(byteList);
+			} else if (i == 6) {
+				sendM.setNameLengths6(nN);
+				sendM.setNames6(byteList);
+			} else if (i == 7) {
+				sendM.setNameLengths7(nN);
+				sendM.setNames7(byteList);
+			}
+		}
+	}
+
 //	public String askPassword() throws IOException {
 //		BufferedReader read = new BufferedReader(new InputStreamReader(System.in));
 //		System.out.println("Please Enter Your Password");
@@ -623,14 +587,29 @@ public class UserNode extends Node{
 //		read.close();
 //		return password;
 //	}
-
+	
+    /**
+     * Send a password, entered on the UserNode through command line, to the Server
+     * to be checked for it's connection to a registered User in the system.
+     * @param password, the password to be sent from the UserNode to the Server
+     * @throws IOException if the password cannot be read
+     */
 	public void sendPassword(String password) throws IOException {
 		//System.out.println("sending password to server");
 		SendPassword sendPass = new SendPassword();
 		sendPass.setPassword((byte)password.getBytes().length, password.getBytes());
 		connection.sendMessage(sendPass.getBytes());
 	}
-	
+
+    /**
+     * Creates a UserProfile for a User by taking in information from command line that the UserNode takes,
+     * and sends it over the existing connection.
+     * This comes in when a UserNode selects to 'Create Profile' through the terminal and inputs credentials.
+     * @param nickname, the nickname of the User who is to have a UserProfile made
+     * @param email, the email associated with the User and soon to be UserProfile
+     * @param password, the password associated with the User and soon to be UserProfile
+     * @throws IOException, in the case of input/output errors
+     */
 	public void createProfile(String nickname, String email, String password) throws IOException {
 		//System.out.println("sending profile to server");
 		CreateProfile profile = new CreateProfile();
@@ -639,12 +618,21 @@ public class UserNode extends Node{
 		profile.setPassword((byte)password.getBytes().length, password.getBytes());
 		connection.sendMessage(profile.getBytes());
 	}
-
+	
+    /**
+     * Send a message to the Server that the UserNode wants to disconnect from the Server (log off).
+     * This takes place when a UserNode gets 'exit' entered via command line.
+     * @throws IOException in the case of an input/output error
+     */
 	public void logOff() throws IOException {
 		SendLogOff sendOff = new SendLogOff();
 		connection.sendMessage(sendOff.getBytes());
 	}
 	
+    /**
+     * 
+     * @return gamesInvitedTo, an ArrayList of all the games that have invites sent out for them
+     */
 	public List<String> getGamesInvitedTo(){
 		return gamesInvitedTo;
 	}
