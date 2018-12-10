@@ -15,17 +15,6 @@ public class Advisor implements Piece{
 		X_position = x;
 		Y_position = y;
 	}
-	
-	/**
-	* To be implemented.  
-	* This method determines whether the move intended for the Advisor is a valid move in the system.  
-	* If the system finds this to be a valid move, returns true, to indicate that a given move can legally be made. 
-	*/
-	@Override
-	public boolean movePiece() {
-		// TODO Auto-generated method stub
-		return false;
-	}
 
 	@Override
 	public String getName() {
