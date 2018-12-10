@@ -14,29 +14,16 @@ public class General implements Piece{
 	 * The color is either red of black and there is one General per color/team.
 	 * The position has an x coordinate and a y coordinate to indicate the Piece's position on the Banqi Game Board.
 	 * @param String color, the color of the Piece
-	 * @param int x, the x coordinate of it's (x,y) board position
-	 * @param int y, the y coordinate of it's (x,y) board position
+	 * @param int x, the x coordinate of it's (x,y) board position of the General
+	 * @param int y, the y coordinate of it's (x,y) board position of the General
 	 */
 	public General(String color, int x, int y) {
 		this.color =  color;
 		X_position = x;
 		Y_position = y;
 	}
-
-	/**
-	* To be implemented.  
-	* This method determines whether the move intended for the General is a valid move in the system.  
-	* If the system finds this to be a valid move, returns true, to indicate that a given move can legally be made. 
-	* @param boolean false
-	*/
-	@Override
-	public boolean movePiece() {
-		// TODO Auto-generated method stub
-		return false;
-	}
 	
 	/**
-	* 
 	* @return String name, General for this Piece
 	*/
 	@Override
@@ -45,7 +32,6 @@ public class General implements Piece{
 	}
 	
 	/**
-	* 
 	* @return String color of the peice, either red or black
 	*/
 	@Override
@@ -73,8 +59,7 @@ public class General implements Piece{
 	}
 	
 	/**
-	* 
-	* @return int rank, the rank/power of this Elephant
+	* @return int rank, the rank/power of this General
 	*/
 	@Override
 	public int getRank() {
